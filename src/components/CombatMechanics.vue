@@ -36,17 +36,17 @@
         <label class="rpg-label">Difficulty Modifiers</label>
         <div class="flex flex-wrap gap-2">
           <button @click="setDifficulty('easy')"
-            :class="difficulty === 'easy' ? 'bg-success text-white' : 'bg-white text-success border-success hover:bg-green-50'"
+            :class="difficulty === 'easy' ? 'bg-success text-white' : 'bg-white text-success border-success hover:bg-green-50 cursor-pointer'"
             class="px-3 py-2 border-2 rounded-md font-heading font-black text-sm uppercase tracking-wide transition-colors">
             Easy (-3)
           </button>
           <button @click="setDifficulty('normal')"
-            :class="difficulty === 'normal' ? 'bg-info text-white' : 'bg-white text-info border-info hover:bg-blue-50'"
+            :class="difficulty === 'normal' ? 'bg-info text-white' : 'bg-white text-info border-info hover:bg-blue-50 cursor-pointer'"
             class="px-3 py-2 border-2 rounded-md font-heading font-black text-sm uppercase tracking-wide transition-colors">
             Normal
           </button>
           <button @click="setDifficulty('hard')"
-            :class="difficulty === 'hard' ? 'bg-danger text-white' : 'bg-white text-danger border-danger hover:bg-red-50'"
+            :class="difficulty === 'hard' ? 'bg-danger text-white' : 'bg-white text-danger border-danger hover:bg-red-50 cursor-pointer'"
             class="px-3 py-2 border-2 rounded-md font-heading font-black text-sm uppercase tracking-wide transition-colors">
             Hard (+3)
           </button>
@@ -78,26 +78,17 @@
         </div>
       </div>
 
-      <!-- Roll Button and Random Source Toggle in one row -->
-      <div class="gap-4 grid grid-cols-1 md:grid-cols-2 mb-6">
-        <div>
-          <button @click="rollAttack" :disabled="!attackEffortType || isRolling"
-            class="disabled:opacity-50 w-full disabled:cursor-not-allowed rpg-button rpg-button-primary">
-            <svg v-if="!isRolling" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-              <path
-                d="M5 3a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2H5zm2 2a1 1 0 11-2 0 1 1 0 012 0zm0 14a1 1 0 11-2 0 1 1 0 012 0zm6-7a1 1 0 11-2 0 1 1 0 012 0zm6-7a1 1 0 11-2 0 1 1 0 012 0zm0 14a1 1 0 11-2 0 1 1 0 012 0z" />
-            </svg>
-            <div v-else class="border-2 border-white border-t-transparent rounded-full w-4 h-4 animate-spin"></div>
-            {{ isRolling ? 'Rolling...' : 'Roll' }}
-          </button>
-        </div>
-        <div class="flex items-center">
-          <button @click="useTrueRandom = !useTrueRandom"
-            :class="useTrueRandom ? 'rpg-button rpg-button-primary' : 'rpg-button rpg-button-secondary'"
-            class="px-3 py-2 text-xs">
-            {{ useTrueRandom ? '🎲 True Random' : '🎯 Pseudo Random' }}
-          </button>
-        </div>
+      <!-- Roll Button -->
+      <div class="mb-6">
+        <button @click="rollAttack" :disabled="!attackEffortType || isRolling"
+          class="disabled:opacity-50 w-full disabled:cursor-not-allowed rpg-button rpg-button-primary">
+          <svg v-if="!isRolling" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <path
+              d="M5 3a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2H5zm2 2a1 1 0 11-2 0 1 1 0 012 0zm0 14a1 1 0 11-2 0 1 1 0 012 0zm6-7a1 1 0 11-2 0 1 1 0 012 0zm6-7a1 1 0 11-2 0 1 1 0 012 0zm0 14a1 1 0 11-2 0 1 1 0 012 0z" />
+          </svg>
+          <div v-else class="border-2 border-white border-t-transparent rounded-full w-4 h-4 animate-spin"></div>
+          {{ isRolling ? 'Rolling...' : 'Roll' }}
+        </button>
       </div>
 
       <!-- Last Roll Result -->
@@ -167,7 +158,6 @@ const attackStat = ref(0)
 const attackEffortType = ref('')
 const lastAttackResult = ref<AttackResult | null>(null)
 const isRolling = ref(false)
-const useTrueRandom = ref(true)
 
 const effortTypes = EFFORT_TYPES.map(type => ({
   label: `${type.type} (d${type.die})`,
@@ -206,26 +196,15 @@ const rollAttack = async () => {
   isRolling.value = true
 
   try {
-    if (useTrueRandom.value) {
-      // Use async true random service
-      lastAttackResult.value = await makeAttackAsync(
-        attackStat.value,
-        sceneTargetNumber.value,
-        effortDie,
-        isHard,
-        isEasy,
-        false // Don't force pseudo-random
-      )
-    } else {
-      // Use legacy synchronous pseudo-random
-      lastAttackResult.value = makeAttack(
-        attackStat.value,
-        sceneTargetNumber.value,
-        effortDie,
-        isHard,
-        isEasy
-      )
-    }
+    // Always use true random with automatic fallback
+    lastAttackResult.value = await makeAttackAsync(
+      attackStat.value,
+      sceneTargetNumber.value,
+      effortDie,
+      isHard,
+      isEasy,
+      false // Don't force pseudo-random
+    )
   } catch (error) {
     console.error('Roll failed:', error)
     // Fallback to pseudo-random on error

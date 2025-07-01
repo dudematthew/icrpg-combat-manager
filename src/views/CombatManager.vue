@@ -125,6 +125,9 @@
         </div>
       </div>
     </div>
+
+    <!-- Footer -->
+    <AppFooter />
   </div>
 </template>
 
@@ -136,6 +139,7 @@ import MonsterCard from '@/components/MonsterCard.vue'
 import CombatMechanics from '@/components/CombatMechanics.vue'
 import TimerManager from '@/components/TimerManager.vue'
 import GitHubVersion from '@/components/GitHubVersion.vue'
+import AppFooter from '@/components/AppFooter.vue'
 
 const combatStore = useCombatStore()
 

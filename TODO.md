@@ -72,8 +72,8 @@
 
 #### 5. Combat Mechanics Clarification ✅
 - **Rename "Combat Mechanics" to "Target"**
-- **Make True Random default** with fallback warning if fetch fails
-- **Add tooltips/info** explaining True Random vs Pseudo Random difference
+- **Make True Random default** with fallback warning if fetch fails ✅
+- **Add tooltips/info** explaining True Random vs Pseudo Random difference ✅
 - **Create clearer critical hit information** display
 - **Consider visual indicators** for random type selection
 

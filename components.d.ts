@@ -8,6 +8,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AppFooter: typeof import('./src/components/AppFooter.vue')['default']
     CombatMechanics: typeof import('./src/components/CombatMechanics.vue')['default']
     GitHubVersion: typeof import('./src/components/GitHubVersion.vue')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']

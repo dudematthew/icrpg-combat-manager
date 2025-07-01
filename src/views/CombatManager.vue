@@ -4,7 +4,7 @@
     <div class="mb-6 rpg-card">
       <h1 class="rpg-title">ICRPG Combat Manager</h1>
       <div class="mt-2 text-neutral-500 text-sm text-center" style="font-family: 'Chalkduster', cursive;">
-        By <a href="https://github.com/dudematthew" target="_blank"
+        <GitHubVersion /> by <a href="https://github.com/dudematthew" target="_blank"
           class="text-primary hover:text-red-600 underline transition-colors">@dudematthew</a>
       </div>
     </div>
@@ -125,6 +125,7 @@ import MonsterCreator from '@/components/MonsterCreator.vue'
 import MonsterCard from '@/components/MonsterCard.vue'
 import CombatMechanics from '@/components/CombatMechanics.vue'
 import TimerManager from '@/components/TimerManager.vue'
+import GitHubVersion from '@/components/GitHubVersion.vue'
 
 const combatStore = useCombatStore()
 

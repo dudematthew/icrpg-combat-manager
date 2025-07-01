@@ -21,5 +21,5 @@ export default defineConfig({
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
-  base: "./", // Use relative paths for deployment
+  base: "/icrpgcm/", // Base path for subdirectory deployment
 });

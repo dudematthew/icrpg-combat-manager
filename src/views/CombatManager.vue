@@ -106,7 +106,7 @@
           <p class="text-neutral-500 text-sm">This action cannot be undone.</p>
         </div>
         <div class="flex justify-end gap-3">
-          <button @click="clearAll" class="bg-danger hover:bg-red-700 border-danger rpg-button">
+          <button @click="clearAll" class="bg-danger hover:bg-red-700 border-danger text-white rpg-button">
             Clear All
           </button>
           <button @click="showClearDialog = false" class="rpg-button rpg-button-secondary">

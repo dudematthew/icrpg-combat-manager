@@ -178,3 +178,29 @@ export const getMonsterColor = (color: string): string => {
       return "#525252";
   }
 };
+
+// Helper function to calculate relative luminance of a color
+const getLuminance = (hex: string): number => {
+  // Remove the # if present
+  const cleanHex = hex.replace("#", "");
+
+  // Convert hex to RGB
+  const r = parseInt(cleanHex.substr(0, 2), 16) / 255;
+  const g = parseInt(cleanHex.substr(2, 2), 16) / 255;
+  const b = parseInt(cleanHex.substr(4, 2), 16) / 255;
+
+  // Apply gamma correction
+  const sR = r <= 0.03928 ? r / 12.92 : Math.pow((r + 0.055) / 1.055, 2.4);
+  const sG = g <= 0.03928 ? g / 12.92 : Math.pow((g + 0.055) / 1.055, 2.4);
+  const sB = b <= 0.03928 ? b / 12.92 : Math.pow((b + 0.055) / 1.055, 2.4);
+
+  // Calculate relative luminance
+  return 0.2126 * sR + 0.7152 * sG + 0.0722 * sB;
+};
+
+// Function to determine if text should be light or dark based on background color
+export const getTextColorForBackground = (backgroundColor: string): string => {
+  const luminance = getLuminance(backgroundColor);
+  // If background is light (luminance > 0.5), use dark text; otherwise use light text
+  return luminance > 0.5 ? "#171717" : "#ffffff";
+};

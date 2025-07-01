@@ -92,18 +92,16 @@
           </svg>
         </div>
       </summary>
-      <div class="gap-4 grid grid-cols-1 md:grid-cols-2 mt-4">
+      <div class="space-y-4 mt-4">
         <div>
-          <label class="rpg-label">Notes</label>
-          <textarea v-model="localNotes" rows="3" class="rpg-input" @blur="updateNotes"
-            placeholder="Add notes about this monster..."></textarea>
-
+          <label class="mb-2 rpg-label">Notes</label>
+          <InlineEditableText v-model="localNotes" placeholder="Add notes about this monster..."
+            @update:modelValue="updateNotes" :rows="3" />
         </div>
         <div>
-          <label class="rpg-label">Special Abilities</label>
-          <textarea v-model="localAbilities" rows="3" class="rpg-input" @blur="updateAbilities"
-            placeholder="Describe special abilities..."></textarea>
-
+          <label class="mb-2 rpg-label">Special Abilities</label>
+          <InlineEditableText v-model="localAbilities" placeholder="Describe special abilities..."
+            @update:modelValue="updateAbilities" :rows="4" />
         </div>
       </div>
     </details>
@@ -148,7 +146,7 @@
                 </button>
               </div>
             </div>
-            <textarea v-model="localNotes" rows="3" class="rpg-input" @blur="updateNotes"
+            <textarea v-model="localNotes" rows="3" class="rpg-input" @blur="() => updateNotes(localNotes)"
               placeholder="Add notes about this monster..."></textarea>
           </div>
           <div>
@@ -165,7 +163,7 @@
                 </button>
               </div>
             </div>
-            <textarea v-model="localAbilities" rows="4" class="rpg-input" @blur="updateAbilities"
+            <textarea v-model="localAbilities" rows="4" class="rpg-input" @blur="() => updateAbilities(localAbilities)"
               placeholder="Describe special abilities..."></textarea>
           </div>
         </div>
@@ -214,6 +212,7 @@ import type { Monster } from '@/types'
 import { CONDITIONS } from '@/types'
 import { formatMonsterIdentifier, getTierColor, getMonsterColor, getTextColorForBackground } from '@/utils/combat'
 import { generateMonsterAbilities, generateMonsterProfile, rollMonsterState, rollMonsterMotivation } from '@/utils/monsterGenerator'
+import InlineEditableText from './InlineEditableText.vue'
 
 interface Props {
   monster: Monster
@@ -271,12 +270,14 @@ const toggleCondition = (condition: string) => {
   emit('update', { conditions })
 }
 
-const updateNotes = () => {
-  emit('update', { notes: localNotes.value })
+const updateNotes = (value: string) => {
+  localNotes.value = value
+  emit('update', { notes: value })
 }
 
-const updateAbilities = () => {
-  emit('update', { specialAbilities: localAbilities.value })
+const updateAbilities = (value: string) => {
+  localAbilities.value = value
+  emit('update', { specialAbilities: value })
 }
 
 const saveChanges = () => {
@@ -304,26 +305,28 @@ const reviveMonster = () => {
 const generateAbilities = () => {
   const abilities = generateMonsterAbilities()
   localAbilities.value = abilities
-  updateAbilities()
+  updateAbilities(abilities)
 }
 
 const generateState = () => {
   const state = rollMonsterState()
   localNotes.value = state
-  updateNotes()
+  updateNotes(state)
 }
 
 const generateMotivation = () => {
   const motivation = rollMonsterMotivation()
   localNotes.value = motivation
-  updateNotes()
+  updateNotes(motivation)
 }
 
 const generateFullProfile = () => {
   const profile = generateMonsterProfile()
-  localAbilities.value = `${profile.abilities}\n\n${profile.upgrade}`
-  localNotes.value = `State: ${profile.state}\n\nMotivation: ${profile.motivation}`
-  updateAbilities()
-  updateNotes()
+  const abilities = `${profile.abilities}\n\n${profile.upgrade}`
+  const notes = `State: ${profile.state}\n\nMotivation: ${profile.motivation}`
+  localAbilities.value = abilities
+  localNotes.value = notes
+  updateAbilities(abilities)
+  updateNotes(notes)
 }
 </script>

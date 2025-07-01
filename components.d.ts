@@ -17,6 +17,7 @@ declare module 'vue' {
     IconSupport: typeof import('./src/components/icons/IconSupport.vue')['default']
     IconTooling: typeof import('./src/components/icons/IconTooling.vue')['default']
     InfoMonitor: typeof import('./src/components/InfoMonitor.vue')['default']
+    InlineEditableText: typeof import('./src/components/InlineEditableText.vue')['default']
     MonsterCard: typeof import('./src/components/MonsterCard.vue')['default']
     MonsterCreator: typeof import('./src/components/MonsterCreator.vue')['default']
     NotificationBar: typeof import('./src/components/NotificationBar.vue')['default']

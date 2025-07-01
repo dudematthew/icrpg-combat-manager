@@ -50,6 +50,12 @@
         </div>
 
         <div>
+          <label for="notes" class="rpg-label">Notes (Optional)</label>
+          <textarea id="notes" v-model="newMonster.notes" placeholder="Add notes about this monster..." rows="2"
+            class="rpg-input"></textarea>
+        </div>
+
+        <div>
           <label for="hearts" class="rpg-label">Hearts Override</label>
           <input id="hearts" v-model.number="newMonster.heartsMax" type="number" :min="1" :max="10"
             placeholder="Default from tier" class="rpg-input" />
@@ -164,6 +170,7 @@ const newMonster = reactive({
   letter: '',
   tier: '' as 'I' | 'II' | 'III' | 'IV' | '',
   name: '',
+  notes: '',
   heartsMax: 0,
   specialAbilities: ''
 })
@@ -196,7 +203,7 @@ const addMonster = () => {
     statsBonus: config.bonus,
     actions: config.actions,
     conditions: [],
-    notes: '',
+    notes: newMonster.notes,
     name: newMonster.name || undefined,
     specialAbilities: newMonster.specialAbilities || undefined
   })
@@ -207,8 +214,9 @@ const addMonster = () => {
     newMonster.letter = letters[currentLetterIndex + 1].value
   }
   
-  // Clear name for next monster (but keep other fields)
+  // Clear name and notes for next monster (but keep other fields)
   newMonster.name = ''
+  newMonster.notes = ''
 }
 
 const addBlankMonster = () => {

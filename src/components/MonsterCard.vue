@@ -133,6 +133,14 @@
               </option>
             </select>
           </div>
+          <div>
+            <label class="rpg-label">Tier</label>
+            <select v-model="localTier" @change="updateTierDefaults" class="rpg-input">
+              <option v-for="tier in tierOptions" :key="tier.value" :value="tier.value">
+                {{ tier.label }}
+              </option>
+            </select>
+          </div>
 
           <!-- Advanced Options -->
           <details class="group">
@@ -261,7 +269,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import type { Monster } from '@/types'
-import { CONDITIONS } from '@/types'
+import { CONDITIONS, TIER_CONFIGS } from '@/types'
 import { formatMonsterIdentifier, getTierColor, getMonsterColor, getTextColorForBackground } from '@/utils/combat'
 import { generateMonsterAbilities, generateMonsterUpgrades, rollMonsterState, rollMonsterMotivation } from '@/utils/monsterGenerator'
 import InlineEditableText from './InlineEditableText.vue'
@@ -284,6 +292,7 @@ const localAbilities = ref(props.monster.specialAbilities || '')
 const localName = ref(props.monster.name || '')
 const localColor = ref(props.monster.color)
 const localLetter = ref(props.monster.letter)
+const localTier = ref(props.monster.tier)
 
 // Generator preview state
 const generatedState = ref('')
@@ -302,6 +311,13 @@ const colors = [
   { label: 'White', value: 'White' },
   { label: 'Grey', value: 'Grey' },
   { label: 'Brown', value: 'Brown' }
+]
+
+const tierOptions = [
+  { label: 'Tier I (+2, 1 action, 1 heart)', value: 'I' },
+  { label: 'Tier II (+4, 1 action, 2 hearts)', value: 'II' },
+  { label: 'Tier III (+6, 2 actions, 4 hearts)', value: 'III' },
+  { label: 'Tier IV (+8, 3 actions, 4+ hearts)', value: 'IV' }
 ]
 
 const applyDamage = (damage: number) => {
@@ -338,11 +354,27 @@ const updateAbilities = (value: string) => {
   emit('update', { specialAbilities: value })
 }
 
+const updateTierDefaults = () => {
+  if (localTier.value) {
+    const config = TIER_CONFIGS[localTier.value]
+    if (config) {
+      emit('update', {
+        tier: localTier.value,
+        statsBonus: config.bonus,
+        actions: config.actions,
+        heartsMax: config.hearts,
+        heartsCurrent: config.hearts
+      })
+    }
+  }
+}
+
 const saveChanges = () => {
   emit('update', { 
     name: localName.value,
     color: localColor.value,
-    letter: localLetter.value.toUpperCase()
+    letter: localLetter.value.toUpperCase(),
+    tier: localTier.value
   })
   showEditModal.value = false
 }
@@ -352,6 +384,7 @@ const cancelEdit = () => {
   localName.value = props.monster.name || ''
   localColor.value = props.monster.color
   localLetter.value = props.monster.letter
+  localTier.value = props.monster.tier
   clearPreviews()
   showEditModal.value = false
 }

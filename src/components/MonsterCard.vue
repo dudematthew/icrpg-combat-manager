@@ -97,11 +97,47 @@
           <label class="rpg-label">Notes</label>
           <textarea v-model="localNotes" rows="3" class="rpg-input" @blur="updateNotes"
             placeholder="Add notes about this monster..."></textarea>
+          <div class="flex flex-wrap gap-2 mt-2">
+            <button @click="generateState" class="text-xs rpg-button rpg-button-secondary">
+              <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+                  clip-rule="evenodd" />
+              </svg>
+              Generate State
+            </button>
+            <button @click="generateMotivation" class="text-xs rpg-button rpg-button-secondary">
+              <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd"
+                  d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                  clip-rule="evenodd" />
+              </svg>
+              Generate Motivation
+            </button>
+          </div>
         </div>
         <div>
           <label class="rpg-label">Special Abilities</label>
           <textarea v-model="localAbilities" rows="3" class="rpg-input" @blur="updateAbilities"
             placeholder="Describe special abilities..."></textarea>
+          <div class="flex flex-wrap gap-2 mt-2">
+            <button @click="generateAbilities" class="text-xs rpg-button rpg-button-secondary">
+              <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd"
+                  d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"
+                  clip-rule="evenodd" />
+              </svg>
+              Generate Abilities
+            </button>
+            <button @click="generateFullProfile" class="text-xs rpg-button rpg-button-primary">
+              <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd"
+                  d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z"
+                  clip-rule="evenodd" />
+              </svg>
+              Generate Full Profile
+            </button>
+          </div>
         </div>
       </div>
     </details>
@@ -176,6 +212,7 @@ import { ref, computed } from 'vue'
 import type { Monster } from '@/types'
 import { CONDITIONS } from '@/types'
 import { formatMonsterIdentifier, getTierColor, getMonsterColor, getTextColorForBackground } from '@/utils/combat'
+import { generateMonsterAbilities, generateMonsterProfile, rollMonsterState, rollMonsterMotivation } from '@/utils/monsterGenerator'
 
 interface Props {
   monster: Monster
@@ -260,5 +297,32 @@ const cancelEdit = () => {
 
 const reviveMonster = () => {
   emit('update', { heartsCurrent: props.monster.heartsMax })
+}
+
+// Monster generator functions
+const generateAbilities = () => {
+  const abilities = generateMonsterAbilities()
+  localAbilities.value = abilities
+  updateAbilities()
+}
+
+const generateState = () => {
+  const state = rollMonsterState()
+  localNotes.value = state
+  updateNotes()
+}
+
+const generateMotivation = () => {
+  const motivation = rollMonsterMotivation()
+  localNotes.value = motivation
+  updateNotes()
+}
+
+const generateFullProfile = () => {
+  const profile = generateMonsterProfile()
+  localAbilities.value = `${profile.abilities}\n\n${profile.upgrade}`
+  localNotes.value = `State: ${profile.state}\n\nMotivation: ${profile.motivation}`
+  updateAbilities()
+  updateNotes()
 }
 </script>

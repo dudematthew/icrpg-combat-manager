@@ -84,7 +84,16 @@
           </div>
 
           <!-- Clear Battlefield Button at Bottom -->
-          <div class="flex justify-center pt-4 border-neutral-200 border-t">
+          <div class="flex justify-center gap-3 pt-4 border-neutral-200 border-t">
+            <button @click="resetRoundsAndTurns"
+              class="bg-warning hover:bg-yellow-600 px-3 py-2 border-2 border-warning rounded-md font-heading text-white text-sm uppercase tracking-wide transition-colors cursor-pointer">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd"
+                  d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+                  clip-rule="evenodd" />
+              </svg>
+              Reset Rounds
+            </button>
             <button @click="confirmClear"
               class="bg-danger hover:bg-red-700 px-3 py-2 border-2 border-danger rounded-md font-heading text-white text-sm uppercase tracking-wide transition-colors cursor-pointer">
               <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -180,5 +189,9 @@ const scrollToCreator = () => {
     top: 0,
     behavior: 'smooth'
   })
+}
+
+const resetRoundsAndTurns = () => {
+  combatStore.resetRoundsAndTurns()
 }
 </script>

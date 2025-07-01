@@ -166,6 +166,12 @@ export const useCombatStore = defineStore("combat", () => {
     saveState();
   };
 
+  const resetRoundsAndTurns = () => {
+    currentTurn.value = 1;
+    currentRound.value = 1;
+    saveState();
+  };
+
   return {
     // State
     sceneTargetNumber,
@@ -191,6 +197,7 @@ export const useCombatStore = defineStore("combat", () => {
     nextRound,
     toggleCondition,
     clearAll,
+    resetRoundsAndTurns,
     saveState,
   };
 });

@@ -57,19 +57,24 @@
 
         <!-- Special Abilities -->
         <div class="md:col-span-2">
-          <div class="flex justify-between items-center">
+          <div class="flex justify-between items-center mb-2">
             <label for="abilities" class="rpg-label">Special Abilities (Optional)</label>
-            <button @click="generateAbilitiesForNewMonster" class="text-xs rpg-button rpg-button-secondary">
-              <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd"
-                  d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"
-                  clip-rule="evenodd" />
+            <button @click="generateAbilitiesForNewMonster" class="text-xs rpg-button rpg-button-secondary"
+              title="Generate random abilities">
+              <svg width="16px" height="16px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
+                id="create-note-alt" class="icon glyph">
+                <path
+                  d="M20,22H4a2,2,0,0,1-2-2V4A2,2,0,0,1,4,2h8a1,1,0,0,1,0,2H4V20H20V12a1,1,0,0,1,2,0v8A2,2,0,0,1,20,22Z"
+                  style="fill:#231f20"></path>
+                <path
+                  d="M22,1.94a1,1,0,0,0-.87-.9,9.45,9.45,0,0,0-2.83.17,1,1,0,0,0-.76.72l-.18.72-.83-.33a1,1,0,0,0-1,.13,4.87,4.87,0,0,0-.7.67C13,5.15,13,8.36,13,9.58l-1.72,1.71a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0L14.42,11h.36a7.2,7.2,0,0,0,5.41-2.12h0C22.37,6.39,22,2.12,22,1.94Z">
+                </path>
               </svg>
               Generate
             </button>
           </div>
-          <textarea id="abilities" v-model="newMonster.specialAbilities" placeholder="Poison, blast, regeneration, etc."
-            rows="3" class="rpg-input"></textarea>
+          <textarea id=" abilities" v-model="newMonster.specialAbilities"
+            placeholder="Poison, blast, regeneration, etc." rows="6" class="rpg-input"></textarea>
         </div>
 
         <!-- Preview -->

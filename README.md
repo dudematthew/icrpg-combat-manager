@@ -1,6 +1,6 @@
 # ICRPG Combat Manager
 
-A comprehensive combat management tool for Index Card RPG (ICRPG) built with Vue 3, TypeScript, and PrimeVue. This app provides everything you need to run smooth ICRPG combat sessions with monster management, timer tracking, and combat mechanics.
+A comprehensive combat management tool for Index Card RPG (ICRPG) built with Vue 3, TypeScript, and Storefront UI. This app provides everything you need to run smooth ICRPG combat sessions with monster management, timer tracking, and combat mechanics.
 
 ## Features
 

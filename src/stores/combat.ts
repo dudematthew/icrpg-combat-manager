@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import type { Monster, Timer, CombatState } from "@/types";
 import { useNotificationStore } from "./notifications";
+import { useInfoMonitorStore } from "./infoMonitor";
 
 export const useCombatStore = defineStore("combat", () => {
   // State
@@ -107,10 +108,13 @@ export const useCombatStore = defineStore("combat", () => {
       const newRemaining = timer.remaining - 1;
       updateTimer(id, { remaining: newRemaining });
 
-      // Trigger notification when timer reaches 0
+      // Trigger info monitor when timer reaches 0
       if (newRemaining === 0) {
-        const notificationStore = useNotificationStore();
-        notificationStore.addNotification(`⏰ ${timer.name} has finished!`, "timer", 4000);
+        const infoMonitorStore = useInfoMonitorStore();
+        infoMonitorStore.showMonitor({
+          message: timer.name,
+          duration: 5000,
+        });
       }
     }
   };

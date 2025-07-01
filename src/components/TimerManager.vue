@@ -10,17 +10,24 @@
         <h2 class="rpg-heading">Timers</h2>
       </div>
 
-      <div class="items-end gap-4 grid grid-cols-1 md:grid-cols-3 mb-6">
+      <div class="gap-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 mb-6">
         <div>
           <label class="rpg-label">Timer Name</label>
           <input v-model="newTimer.name" placeholder="e.g., Building collapses" class="rpg-input" />
         </div>
         <div>
-          <label class="rpg-label">Duration (rounds)</label>
+          <label class="rpg-label">Timer Type</label>
+          <select v-model="newTimer.type" class="rpg-input">
+            <option value="rounds">Rounds</option>
+            <option value="turns">Turns</option>
+          </select>
+        </div>
+        <div>
+          <label class="rpg-label">Duration ({{ newTimer.type }})</label>
           <input v-model.number="newTimer.duration" type="number" :min="1" :max="20" placeholder="5"
             class="rpg-input" />
         </div>
-        <div>
+        <div class="flex items-end">
           <button @click="addTimer" :disabled="!newTimer.name || !newTimer.duration"
             class="disabled:opacity-50 w-full disabled:cursor-not-allowed rpg-button rpg-button-primary">
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -42,9 +49,9 @@
             <div class="flex-1">
               <div class="text-sm rpg-heading">{{ timer.name }}</div>
               <div class="text-neutral-600 text-sm rpg-body">
-                Duration: {{ timer.duration }} rounds |
+                Duration: {{ timer.duration }} {{ timer.type }} |
                 Remaining: <span :class="timer.remaining <= 0 ? 'text-danger font-bold' : 'text-accent font-bold'">{{
-                  timer.remaining }}</span>
+                  timer.remaining }}</span> {{ timer.type }}
               </div>
             </div>
             <div class="flex items-center gap-2">
@@ -86,7 +93,8 @@ const combatStore = useCombatStore()
 
 const newTimer = ref({
   name: '',
-  duration: null as number | null
+  duration: null as number | null,
+  type: 'rounds' as 'rounds' | 'turns'
 })
 
 const activeTimers = computed(() => combatStore.timers)
@@ -96,13 +104,15 @@ const addTimer = () => {
     combatStore.addTimer({
       name: newTimer.value.name,
       duration: newTimer.value.duration,
-      remaining: newTimer.value.duration
+      remaining: newTimer.value.duration,
+      type: newTimer.value.type
     })
     
     // Reset form
     newTimer.value = {
       name: '',
-      duration: null
+      duration: null,
+      type: 'rounds'
     }
   }
 }

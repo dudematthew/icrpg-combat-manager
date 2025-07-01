@@ -18,7 +18,11 @@ export const useCombatStore = defineStore("combat", () => {
       const state: CombatState = JSON.parse(saved);
       sceneTargetNumber.value = state.sceneTargetNumber;
       monsters.value = state.monsters;
-      timers.value = state.timers;
+      // Migrate timers without type property to "rounds" for backward compatibility
+      timers.value = state.timers.map((timer) => ({
+        ...timer,
+        type: timer.type || "rounds",
+      }));
       currentTurn.value = state.currentTurn;
       currentRound.value = state.currentRound;
     }
@@ -113,15 +117,21 @@ export const useCombatStore = defineStore("combat", () => {
 
   const nextTurn = () => {
     currentTurn.value++;
+    // Decrement turn-based timers
+    timers.value.forEach((timer) => {
+      if (timer.remaining > 0 && timer.type === "turns") {
+        decrementTimer(timer.id);
+      }
+    });
     saveState();
   };
 
   const nextRound = () => {
     currentRound.value++;
     currentTurn.value = 1;
-    // Decrement all timers by 1
+    // Decrement round-based timers by 1
     timers.value.forEach((timer) => {
-      if (timer.remaining > 0) {
+      if (timer.remaining > 0 && timer.type === "rounds") {
         decrementTimer(timer.id);
       }
     });

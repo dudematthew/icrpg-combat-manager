@@ -18,6 +18,7 @@ export interface Timer {
   name: string;
   duration: number;
   remaining: number;
+  type: "rounds" | "turns";
 }
 
 export interface CombatState {

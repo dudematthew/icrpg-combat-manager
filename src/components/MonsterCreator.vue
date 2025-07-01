@@ -10,95 +10,152 @@
         <h2 class="rpg-heading">Quick Monster Entry</h2>
       </div>
 
-      <div class="gap-4 grid grid-cols-1 md:grid-cols-2">
-        <!-- Color and Letter Selection -->
-        <div>
-          <label for="color" class="rpg-label">Color</label>
-          <select id="color" v-model="newMonster.color" class="rpg-input">
-            <option value="">Choose color</option>
-            <option v-for="color in colors" :key="color.value" :value="color.value">
-              {{ color.label }}
-            </option>
-          </select>
-        </div>
-
-        <div>
-          <label for="letter" class="rpg-label">Letter</label>
-          <select id="letter" v-model="newMonster.letter" class="rpg-input">
-            <option value="">Choose letter</option>
-            <option v-for="letter in letters" :key="letter.value" :value="letter.value">
-              {{ letter.label }}
-            </option>
-          </select>
-        </div>
-
-        <!-- Tier Selection -->
-        <div class="md:col-span-2">
-          <label for="tier" class="rpg-label">Tier</label>
-          <select id="tier" v-model="newMonster.tier" @change="updateTierDefaults" class="rpg-input">
-            <option value="">Choose tier</option>
-            <option v-for="tier in tierOptions" :key="tier.value" :value="tier.value">
-              {{ tier.label }}
-            </option>
-          </select>
-        </div>
-
-        <!-- Optional Fields -->
-        <div>
-          <label for="name" class="rpg-label">Name (Optional)</label>
-          <input id="name" v-model="newMonster.name" placeholder="Custom name" class="rpg-input" />
-        </div>
-
-        <div>
-          <label for="notes" class="rpg-label">Notes (Optional)</label>
-          <textarea id="notes" v-model="newMonster.notes" placeholder="Add notes about this monster..." rows="2"
-            class="rpg-input"></textarea>
-        </div>
-
-        <div>
-          <label for="hearts" class="rpg-label">Hearts Override</label>
-          <input id="hearts" v-model.number="newMonster.heartsMax" type="number" :min="1" :max="10"
-            placeholder="Default from tier" class="rpg-input" />
-        </div>
-
-        <!-- Special Abilities -->
-        <div class="md:col-span-2">
-          <div class="flex justify-between items-center mb-2">
-            <label for="abilities" class="rpg-label">Special Abilities (Optional)</label>
-            <button @click="generateAbilitiesForNewMonster" class="text-xs rpg-button rpg-button-secondary"
-              title="Generate random abilities">
-              <svg width="16px" height="16px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
-                id="create-note-alt" class="icon glyph">
-                <path
-                  d="M20,22H4a2,2,0,0,1-2-2V4A2,2,0,0,1,4,2h8a1,1,0,0,1,0,2H4V20H20V12a1,1,0,0,1,2,0v8A2,2,0,0,1,20,22Z"
-                  style="fill:#231f20"></path>
-                <path
-                  d="M22,1.94a1,1,0,0,0-.87-.9,9.45,9.45,0,0,0-2.83.17,1,1,0,0,0-.76.72l-.18.72-.83-.33a1,1,0,0,0-1,.13,4.87,4.87,0,0,0-.7.67C13,5.15,13,8.36,13,9.58l-1.72,1.71a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0L14.42,11h.36a7.2,7.2,0,0,0,5.41-2.12h0C22.37,6.39,22,2.12,22,1.94Z">
-                </path>
-              </svg>
-              Generate
-            </button>
+      <div class="space-y-4">
+        <!-- Core Fields -->
+        <div class="gap-4 grid grid-cols-1 md:grid-cols-2">
+          <div>
+            <label for="color" class="rpg-label">Color</label>
+            <select id="color" v-model="newMonster.color" class="rpg-input">
+              <option value="">Choose color</option>
+              <option v-for="color in colors" :key="color.value" :value="color.value">
+                {{ color.label }}
+              </option>
+            </select>
           </div>
-          <textarea id=" abilities" v-model="newMonster.specialAbilities"
-            placeholder="Poison, blast, regeneration, etc." rows="6" class="rpg-input"></textarea>
+
+          <div>
+            <label for="letter" class="rpg-label">Letter</label>
+            <select id="letter" v-model="newMonster.letter" class="rpg-input">
+              <option value="">Choose letter</option>
+              <option v-for="letter in letters" :key="letter.value" :value="letter.value">
+                {{ letter.label }}
+              </option>
+            </select>
+          </div>
+
+          <div class="md:col-span-2">
+            <label for="tier" class="rpg-label">Tier</label>
+            <select id="tier" v-model="newMonster.tier" @change="updateTierDefaults" class="rpg-input">
+              <option value="">Choose tier</option>
+              <option v-for="tier in tierOptions" :key="tier.value" :value="tier.value">
+                {{ tier.label }}
+              </option>
+            </select>
+          </div>
         </div>
+
+        <!-- Advanced Options -->
+        <details class="group">
+          <summary class="cursor-pointer list-none">
+            <div
+              class="flex justify-between items-center bg-neutral-50 hover:bg-neutral-100 p-3 border border-neutral-200 rounded-lg transition-colors">
+              <span class="text-sm rpg-heading">Advanced Options</span>
+              <svg class="w-4 h-4 group-open:rotate-180 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd"
+                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                  clip-rule="evenodd" />
+              </svg>
+            </div>
+          </summary>
+          <div class="gap-4 grid grid-cols-1 md:grid-cols-2 mt-4">
+            <div>
+              <label for="name" class="rpg-label">Name (Optional)</label>
+              <input id="name" v-model="newMonster.name" placeholder="Custom name" class="rpg-input" />
+            </div>
+
+            <div>
+              <label for="hearts" class="rpg-label">Hearts Override</label>
+              <input id="hearts" v-model.number="newMonster.heartsMax" type="number" :min="1" :max="10"
+                placeholder="Default from tier" class="rpg-input" />
+            </div>
+
+            <div class="md:col-span-2">
+              <label for="notes" class="rpg-label">Notes (Optional)</label>
+              <textarea id="notes" v-model="newMonster.notes" placeholder="Add notes about this monster..." rows="6"
+                class="rpg-input"></textarea>
+            </div>
+
+            <div class="md:col-span-2">
+              <label for="abilities" class="rpg-label">Special Abilities (Optional)</label>
+              <textarea id="abilities" v-model="newMonster.specialAbilities"
+                placeholder="Poison, blast, regeneration, etc." rows="6" class="rpg-input"></textarea>
+            </div>
+
+            <!-- Generator Section -->
+            <div class="md:col-span-2">
+              <div class="space-y-3 bg-neutral-50 p-4 border border-neutral-200 rounded-lg">
+                <div class="flex justify-between items-center">
+                  <h4 class="rpg-label">Generate Monster</h4>
+                </div>
+
+                <!-- State & Motivation -->
+                <div class="bg-white p-3 border rounded">
+                  <div class="flex justify-between items-start mb-2">
+                    <span class="font-semibold text-neutral-600 text-xs">🎲 STATE & MOTIVATION</span>
+                    <div class="flex gap-1">
+                      <button @click="generateState" class="text-xs rpg-button rpg-button-secondary"
+                        title="Generate monster state">
+                        🎲
+                      </button>
+                      <button @click="generateMotivation" class="text-xs rpg-button rpg-button-secondary"
+                        title="Generate monster motivation">
+                        🎯
+                      </button>
+                      <button @click="applyStateAndMotivation"
+                        class="text-xs rpg-button rpg-button-primary">Apply</button>
+                    </div>
+                  </div>
+                  <div v-if="generatedState" class="mb-2 text-neutral-700 text-sm">
+                    <strong>State:</strong> {{ generatedState }}
+                  </div>
+                  <div v-if="generatedMotivation" class="text-neutral-700 text-sm">
+                    <strong>Motivation:</strong> {{ generatedMotivation }}
+                  </div>
+                </div>
+
+                <!-- Abilities & Upgrades -->
+                <div class="bg-white p-3 border rounded">
+                  <div class="flex justify-between items-start mb-2">
+                    <span class="font-semibold text-neutral-600 text-xs">⚔️ ABILITIES & UPGRADES</span>
+                    <div class="flex gap-1">
+                      <button @click="generateAbilities" class="text-xs rpg-button rpg-button-secondary"
+                        title="Generate abilities">
+                        ⚔️
+                      </button>
+                      <button @click="generateUpgrades" class="text-xs rpg-button rpg-button-secondary"
+                        title="Generate upgrades">
+                        🔺
+                      </button>
+                      <button @click="applyAbilitiesAndUpgrades"
+                        class="text-xs rpg-button rpg-button-primary">Apply</button>
+                    </div>
+                  </div>
+                  <div v-if="generatedAbilities" class="mb-2 text-neutral-700 text-sm">
+                    <strong>Abilities:</strong> {{ generatedAbilities }}
+                  </div>
+                  <div v-if="generatedUpgrades" class="text-neutral-700 text-sm">
+                    <strong>Upgrades:</strong> {{ generatedUpgrades }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </details>
 
         <!-- Preview -->
-        <div class="md:col-span-2">
-          <div class="bg-neutral-50 p-4 border border-neutral-200 rounded-lg">
-            <div class="mb-2 rpg-label">Preview:</div>
-            <div class="rpg-body">
-              <strong>{{ formatMonsterIdentifier(newMonster.color || 'Grey', newMonster.letter || '?') }}</strong>
-              <br>
-              Tier {{ newMonster.tier || '?' }}: +{{ getTierBonus(newMonster.tier) }}, {{
-              getTierActions(newMonster.tier) }} action(s), {{ newMonster.heartsMax || getTierHearts(newMonster.tier)
-              }} heart(s)
-            </div>
+        <div class="bg-neutral-50 p-4 border border-neutral-200 rounded-lg">
+          <div class="mb-2 rpg-label">Preview:</div>
+          <div class="rpg-body">
+            <strong>{{ formatMonsterIdentifier(newMonster.color || 'Grey', newMonster.letter || '?') }}</strong>
+            <br>
+            Tier {{ newMonster.tier || '?' }}: +{{ getTierBonus(newMonster.tier) }}, {{
+            getTierActions(newMonster.tier) }} action(s), {{ newMonster.heartsMax || getTierHearts(newMonster.tier)
+            }} heart(s)
           </div>
         </div>
 
         <!-- Action Buttons -->
-        <div class="flex justify-end gap-3 md:col-span-2">
+        <div class="flex justify-end gap-3">
           <button @click="addMonster" :disabled="!newMonster.color || !newMonster.letter || !newMonster.tier"
             class="disabled:opacity-50 disabled:cursor-not-allowed rpg-button rpg-button-primary">
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -129,7 +186,7 @@ import { ref, reactive } from 'vue'
 import { useCombatStore } from '@/stores/combat'
 import { TIER_CONFIGS } from '@/types'
 import { formatMonsterIdentifier } from '@/utils/combat'
-import { generateMonsterAbilities } from '@/utils/monsterGenerator'
+import { generateMonsterAbilities, generateMonsterUpgrades, rollMonsterState, rollMonsterMotivation } from '@/utils/monsterGenerator'
 
 const combatStore = useCombatStore()
 
@@ -174,6 +231,12 @@ const newMonster = reactive({
   heartsMax: 0,
   specialAbilities: ''
 })
+
+// Generator preview state
+const generatedState = ref('')
+const generatedMotivation = ref('')
+const generatedAbilities = ref('')
+const generatedUpgrades = ref('')
 
 const getTierBonus = (tier: string) => TIER_CONFIGS[tier as keyof typeof TIER_CONFIGS]?.bonus || 0
 const getTierActions = (tier: string) => TIER_CONFIGS[tier as keyof typeof TIER_CONFIGS]?.actions || 1
@@ -234,7 +297,51 @@ const addBlankMonster = () => {
   })
 }
 
-const generateAbilitiesForNewMonster = () => {
-  newMonster.specialAbilities = generateMonsterAbilities()
+// Generator functions - populate preview instead of directly updating fields
+const generateState = () => {
+  generatedState.value = rollMonsterState()
+}
+
+const generateMotivation = () => {
+  generatedMotivation.value = rollMonsterMotivation()
+}
+
+const generateAbilities = () => {
+  generatedAbilities.value = generateMonsterAbilities()
+}
+
+const generateUpgrades = () => {
+  generatedUpgrades.value = generateMonsterUpgrades()
+}
+
+// Apply functions - replace existing content with generated content
+const applyStateAndMotivation = () => {
+  const parts = []
+  if (generatedState.value) {
+    parts.push(generatedState.value)
+    generatedState.value = ''
+  }
+  if (generatedMotivation.value) {
+    parts.push(generatedMotivation.value)
+    generatedMotivation.value = ''
+  }
+  if (parts.length > 0) {
+    newMonster.notes = parts.join('\n\n')
+  }
+}
+
+const applyAbilitiesAndUpgrades = () => {
+  const parts = []
+  if (generatedAbilities.value) {
+    parts.push(generatedAbilities.value)
+    generatedAbilities.value = ''
+  }
+  if (generatedUpgrades.value) {
+    parts.push(generatedUpgrades.value)
+    generatedUpgrades.value = ''
+  }
+  if (parts.length > 0) {
+    newMonster.specialAbilities = parts.join('\n\n')
+  }
 }
 </script>

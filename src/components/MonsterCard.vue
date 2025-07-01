@@ -133,78 +133,90 @@
               </option>
             </select>
           </div>
-          <div>
-            <div class="flex justify-between items-center mb-2">
-              <label class="rpg-label">Notes</label>
-            </div>
-            <textarea v-model="localNotes" rows="6" class="rpg-input" @blur="() => updateNotes(localNotes)"
-              placeholder="Add notes about this monster..."></textarea>
-          </div>
-          <div>
-            <div class="flex justify-between items-center mb-2">
-              <label class="rpg-label">Special Abilities</label>
-            </div>
-            <textarea v-model="localAbilities" rows="10" class="rpg-input" @blur="() => updateAbilities(localAbilities)"
-              placeholder="Describe special abilities..."></textarea>
-          </div>
 
-          <!-- Generator Section -->
-          <div class="space-y-3 bg-neutral-50 p-4 border border-neutral-200 rounded-lg">
-            <div class="flex justify-between items-center">
-              <h4 class="rpg-label">Generate Monster</h4>
-            </div>
+          <!-- Advanced Options -->
+          <details class="group">
+            <summary class="cursor-pointer list-none">
+              <div
+                class="flex justify-between items-center bg-neutral-50 hover:bg-neutral-100 p-3 border border-neutral-200 rounded-lg transition-colors">
+                <span class="text-sm rpg-heading">Advanced Options</span>
+                <svg class="w-4 h-4 group-open:rotate-180 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd"
+                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                    clip-rule="evenodd" />
+                </svg>
+              </div>
+            </summary>
+            <div class="space-y-4 mt-4">
+              <div>
+                <label class="rpg-label">Notes</label>
+                <textarea v-model="localNotes" rows="4" class="rpg-input" @blur="() => updateNotes(localNotes)"
+                  placeholder="Add notes about this monster..."></textarea>
+              </div>
+              <div>
+                <label class="rpg-label">Special Abilities</label>
+                <textarea v-model="localAbilities" rows="4" class="rpg-input"
+                  @blur="() => updateAbilities(localAbilities)" placeholder="Describe special abilities..."></textarea>
+              </div>
 
-            <!-- State & Motivation -->
-            <div class="bg-white p-3 border rounded">
-              <div class="flex justify-between items-start mb-2">
-                <span class="font-semibold text-neutral-600 text-xs">🎲 STATE & MOTIVATION</span>
-                <div class="flex gap-1">
-                  <button @click="generateState" class="text-xs rpg-button rpg-button-secondary"
-                    title="Generate monster state">
-                    🎲
-                  </button>
-                  <button @click="generateMotivation" class="text-xs rpg-button rpg-button-secondary"
-                    title="Generate monster motivation">
-                    🎯
-                  </button>
-                  <button @click="applyStateAndMotivation" class="text-xs rpg-button rpg-button-primary">Apply</button>
+              <!-- Generator Section -->
+              <div class="space-y-3 bg-neutral-50 p-4 border border-neutral-200 rounded-lg">
+                <div class="flex justify-between items-center">
+                  <h4 class="rpg-label">Generate Monster</h4>
+                </div>
+
+                <!-- State & Motivation -->
+                <div class="bg-white p-3 border rounded">
+                  <div class="flex justify-between items-start mb-2">
+                    <span class="font-semibold text-neutral-600 text-xs">🎲 STATE & MOTIVATION</span>
+                    <div class="flex gap-1">
+                      <button @click="generateState" class="text-xs rpg-button rpg-button-secondary"
+                        title="Generate monster state">
+                        🎲
+                      </button>
+                      <button @click="generateMotivation" class="text-xs rpg-button rpg-button-secondary"
+                        title="Generate monster motivation">
+                        🎯
+                      </button>
+                      <button @click="applyStateAndMotivation"
+                        class="text-xs rpg-button rpg-button-primary">Apply</button>
+                    </div>
+                  </div>
+                  <div v-if="generatedState" class="mb-2 text-neutral-700 text-sm">
+                    <strong>State:</strong> {{ generatedState }}
+                  </div>
+                  <div v-if="generatedMotivation" class="text-neutral-700 text-sm">
+                    <strong>Motivation:</strong> {{ generatedMotivation }}
+                  </div>
+                </div>
+
+                <!-- Abilities & Upgrades -->
+                <div class="bg-white p-3 border rounded">
+                  <div class="flex justify-between items-start mb-2">
+                    <span class="font-semibold text-neutral-600 text-xs">⚔️ ABILITIES & UPGRADES</span>
+                    <div class="flex gap-1">
+                      <button @click="generateAbilities" class="text-xs rpg-button rpg-button-secondary"
+                        title="Generate abilities">
+                        ⚔️
+                      </button>
+                      <button @click="generateUpgrades" class="text-xs rpg-button rpg-button-secondary"
+                        title="Generate upgrades">
+                        🔺
+                      </button>
+                      <button @click="applyAbilitiesAndUpgrades"
+                        class="text-xs rpg-button rpg-button-primary">Apply</button>
+                    </div>
+                  </div>
+                  <div v-if="generatedAbilities" class="mb-2 text-neutral-700 text-sm">
+                    <strong>Abilities:</strong> {{ generatedAbilities }}
+                  </div>
+                  <div v-if="generatedUpgrades" class="text-neutral-700 text-sm">
+                    <strong>Upgrades:</strong> {{ generatedUpgrades }}
+                  </div>
                 </div>
               </div>
-              <div v-if="generatedState" class="mb-2 text-neutral-700 text-sm">
-                <strong>State:</strong> {{ generatedState }}
-              </div>
-              <div v-if="generatedMotivation" class="text-neutral-700 text-sm">
-                <strong>Motivation:</strong> {{ generatedMotivation }}
-              </div>
             </div>
-
-            <!-- Abilities & Upgrades -->
-            <div class="bg-white p-3 border rounded">
-              <div class="flex justify-between items-start mb-2">
-                <span class="font-semibold text-neutral-600 text-xs">⚔️ ABILITIES & UPGRADES</span>
-                <div class="flex gap-1">
-                  <button @click="generateAbilities" class="text-xs rpg-button rpg-button-secondary"
-                    title="Generate abilities">
-                    ⚔️
-                  </button>
-                  <button @click="generateUpgrades" class="text-xs rpg-button rpg-button-secondary"
-                    title="Generate upgrades">
-                    🔺
-                  </button>
-                  <button @click="applyAbilitiesAndUpgrades"
-                    class="text-xs rpg-button rpg-button-primary">Apply</button>
-                </div>
-              </div>
-              <div v-if="generatedAbilities" class="mb-2 text-neutral-700 text-sm">
-                <strong>Abilities:</strong> {{ generatedAbilities }}
-              </div>
-              <div v-if="generatedUpgrades" class="text-neutral-700 text-sm">
-                <strong>Upgrades:</strong> {{ generatedUpgrades }}
-              </div>
-            </div>
-
-
-          </div>
+          </details>
         </div>
       </div>
       <div class="flex justify-end gap-3">

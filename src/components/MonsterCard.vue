@@ -108,9 +108,10 @@
   </div>
 
   <!-- Edit Monster Modal -->
-  <div v-if="showEditModal"
-    class="z-50 fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 p-4 overflow-y-auto">
-    <div class="bg-white shadow-xl mx-4 my-8 p-6 rounded-lg w-full max-w-md max-h-full overflow-y-auto">
+  <div v-if="showEditModal" class="z-50 fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 p-4"
+    @click="cancelEdit">
+    <div class="bg-white shadow-xl mx-4 my-8 p-6 rounded-lg w-full max-w-md"
+      style="max-height: 95vh; overflow-y: auto; overflow-x: none;" @click.stop>
       <div class="mb-4">
         <h3 class="mb-4 text-lg rpg-heading">Edit Monster</h3>
         <div class="space-y-4">
@@ -135,36 +136,74 @@
           <div>
             <div class="flex justify-between items-center mb-2">
               <label class="rpg-label">Notes</label>
-              <div class="flex gap-2">
-                <button @click="generateState" class="text-xs rpg-button rpg-button-secondary"
-                  title="Generate monster state">
-                  🎲 State
-                </button>
-                <button @click="generateMotivation" class="text-xs rpg-button rpg-button-secondary"
-                  title="Generate monster motivation">
-                  🎯 Motivation
-                </button>
-              </div>
             </div>
-            <textarea v-model="localNotes" rows="3" class="rpg-input" @blur="() => updateNotes(localNotes)"
+            <textarea v-model="localNotes" rows="6" class="rpg-input" @blur="() => updateNotes(localNotes)"
               placeholder="Add notes about this monster..."></textarea>
           </div>
           <div>
             <div class="flex justify-between items-center mb-2">
               <label class="rpg-label">Special Abilities</label>
-              <div class="flex gap-2">
-                <button @click="generateAbilities" class="text-xs rpg-button rpg-button-secondary"
-                  title="Generate abilities + upgrade">
-                  ⚔️ Abilities
-                </button>
-                <button @click="generateFullProfile" class="text-xs rpg-button rpg-button-primary"
-                  title="Generate complete profile">
-                  🌟 Full Profile
-                </button>
+            </div>
+            <textarea v-model="localAbilities" rows="10" class="rpg-input" @blur="() => updateAbilities(localAbilities)"
+              placeholder="Describe special abilities..."></textarea>
+          </div>
+
+          <!-- Generator Section -->
+          <div class="space-y-3 bg-neutral-50 p-4 border border-neutral-200 rounded-lg">
+            <div class="flex justify-between items-center">
+              <h4 class="rpg-label">Generate Monster</h4>
+            </div>
+
+            <!-- State & Motivation -->
+            <div class="bg-white p-3 border rounded">
+              <div class="flex justify-between items-start mb-2">
+                <span class="font-semibold text-neutral-600 text-xs">🎲 STATE & MOTIVATION</span>
+                <div class="flex gap-1">
+                  <button @click="generateState" class="text-xs rpg-button rpg-button-secondary"
+                    title="Generate monster state">
+                    🎲
+                  </button>
+                  <button @click="generateMotivation" class="text-xs rpg-button rpg-button-secondary"
+                    title="Generate monster motivation">
+                    🎯
+                  </button>
+                  <button @click="applyStateAndMotivation" class="text-xs rpg-button rpg-button-primary">Apply</button>
+                </div>
+              </div>
+              <div v-if="generatedState" class="mb-2 text-neutral-700 text-sm">
+                <strong>State:</strong> {{ generatedState }}
+              </div>
+              <div v-if="generatedMotivation" class="text-neutral-700 text-sm">
+                <strong>Motivation:</strong> {{ generatedMotivation }}
               </div>
             </div>
-            <textarea v-model="localAbilities" rows="4" class="rpg-input" @blur="() => updateAbilities(localAbilities)"
-              placeholder="Describe special abilities..."></textarea>
+
+            <!-- Abilities & Upgrades -->
+            <div class="bg-white p-3 border rounded">
+              <div class="flex justify-between items-start mb-2">
+                <span class="font-semibold text-neutral-600 text-xs">⚔️ ABILITIES & UPGRADES</span>
+                <div class="flex gap-1">
+                  <button @click="generateAbilities" class="text-xs rpg-button rpg-button-secondary"
+                    title="Generate abilities">
+                    ⚔️
+                  </button>
+                  <button @click="generateUpgrades" class="text-xs rpg-button rpg-button-secondary"
+                    title="Generate upgrades">
+                    🔺
+                  </button>
+                  <button @click="applyAbilitiesAndUpgrades"
+                    class="text-xs rpg-button rpg-button-primary">Apply</button>
+                </div>
+              </div>
+              <div v-if="generatedAbilities" class="mb-2 text-neutral-700 text-sm">
+                <strong>Abilities:</strong> {{ generatedAbilities }}
+              </div>
+              <div v-if="generatedUpgrades" class="text-neutral-700 text-sm">
+                <strong>Upgrades:</strong> {{ generatedUpgrades }}
+              </div>
+            </div>
+
+
           </div>
         </div>
       </div>
@@ -180,8 +219,9 @@
   </div>
 
   <!-- Damage Dialog -->
-  <div v-if="showDamageDialog" class="z-50 fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 p-4">
-    <div class="bg-white shadow-xl p-6 rounded-lg w-full max-w-sm">
+  <div v-if="showDamageDialog" class="z-50 fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 p-4"
+    @click="showDamageDialog = false">
+    <div class="bg-white shadow-xl p-6 rounded-lg w-full max-w-sm" @click.stop>
       <div class="mb-4">
         <h3 class="mb-4 text-lg rpg-heading">Apply Damage</h3>
         <div>
@@ -211,7 +251,7 @@ import { ref, computed } from 'vue'
 import type { Monster } from '@/types'
 import { CONDITIONS } from '@/types'
 import { formatMonsterIdentifier, getTierColor, getMonsterColor, getTextColorForBackground } from '@/utils/combat'
-import { generateMonsterAbilities, generateMonsterProfile, rollMonsterState, rollMonsterMotivation } from '@/utils/monsterGenerator'
+import { generateMonsterAbilities, generateMonsterUpgrades, rollMonsterState, rollMonsterMotivation } from '@/utils/monsterGenerator'
 import InlineEditableText from './InlineEditableText.vue'
 
 interface Props {
@@ -232,6 +272,12 @@ const localAbilities = ref(props.monster.specialAbilities || '')
 const localName = ref(props.monster.name || '')
 const localColor = ref(props.monster.color)
 const localLetter = ref(props.monster.letter)
+
+// Generator preview state
+const generatedState = ref('')
+const generatedMotivation = ref('')
+const generatedAbilities = ref('')
+const generatedUpgrades = ref('')
 
 const colors = [
   { label: 'Red', value: 'Red' },
@@ -294,6 +340,7 @@ const cancelEdit = () => {
   localName.value = props.monster.name || ''
   localColor.value = props.monster.color
   localLetter.value = props.monster.letter
+  clearPreviews()
   showEditModal.value = false
 }
 
@@ -301,32 +348,91 @@ const reviveMonster = () => {
   emit('update', { heartsCurrent: props.monster.heartsMax })
 }
 
-// Monster generator functions
-const generateAbilities = () => {
-  const abilities = generateMonsterAbilities()
-  localAbilities.value = abilities
-  updateAbilities(abilities)
+const editMonster = () => {
+  showEditModal.value = true
+  clearPreviews()
 }
 
+const clearPreviews = () => {
+  generatedState.value = ''
+  generatedMotivation.value = ''
+  generatedAbilities.value = ''
+  generatedUpgrades.value = ''
+}
+
+// Monster generator functions - now populate preview instead of directly updating fields
 const generateState = () => {
-  const state = rollMonsterState()
-  localNotes.value = state
-  updateNotes(state)
+  generatedState.value = rollMonsterState()
 }
 
 const generateMotivation = () => {
-  const motivation = rollMonsterMotivation()
-  localNotes.value = motivation
-  updateNotes(motivation)
+  generatedMotivation.value = rollMonsterMotivation()
 }
 
-const generateFullProfile = () => {
-  const profile = generateMonsterProfile()
-  const abilities = `${profile.abilities}\n\n${profile.upgrade}`
-  const notes = `State: ${profile.state}\n\nMotivation: ${profile.motivation}`
-  localAbilities.value = abilities
-  localNotes.value = notes
-  updateAbilities(abilities)
-  updateNotes(notes)
+const generateAbilities = () => {
+  generatedAbilities.value = generateMonsterAbilities()
+}
+
+const generateUpgrades = () => {
+  generatedUpgrades.value = generateMonsterUpgrades()
+}
+
+// Apply functions - replace existing content with generated content
+const applyState = () => {
+  if (generatedState.value) {
+    localNotes.value = generatedState.value
+    generatedState.value = ''
+  }
+}
+
+const applyMotivation = () => {
+  if (generatedMotivation.value) {
+    localNotes.value = generatedMotivation.value
+    generatedMotivation.value = ''
+  }
+}
+
+const applyAbilities = () => {
+  if (generatedAbilities.value) {
+    localAbilities.value = generatedAbilities.value
+    generatedAbilities.value = ''
+  }
+}
+
+const applyUpgrades = () => {
+  if (generatedUpgrades.value) {
+    localAbilities.value = generatedUpgrades.value
+    generatedUpgrades.value = ''
+  }
+}
+
+const applyStateAndMotivation = () => {
+  const parts = []
+  if (generatedState.value) {
+    parts.push(generatedState.value)
+    generatedState.value = ''
+  }
+  if (generatedMotivation.value) {
+    parts.push(generatedMotivation.value)
+    generatedMotivation.value = ''
+  }
+  if (parts.length > 0) {
+    localNotes.value = parts.join('\n\n')
+  }
+}
+
+const applyAbilitiesAndUpgrades = () => {
+  const parts = []
+  if (generatedAbilities.value) {
+    parts.push(generatedAbilities.value)
+    generatedAbilities.value = ''
+  }
+  if (generatedUpgrades.value) {
+    parts.push(generatedUpgrades.value)
+    generatedUpgrades.value = ''
+  }
+  if (parts.length > 0) {
+    localAbilities.value = parts.join('\n\n')
+  }
 }
 </script>

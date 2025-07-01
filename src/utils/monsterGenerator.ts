@@ -182,7 +182,10 @@ export const generateMonsterProfile = (): MonsterGeneratorResult => {
 
 // Generate just abilities (most commonly used)
 export const generateMonsterAbilities = (): string => {
-  const ability = rollMonsterAbility();
-  const upgrade = rollMonsterUpgrade();
-  return `${ability}\n\n${upgrade}`;
+  return rollMonsterAbility();
+};
+
+// Generate just upgrades
+export const generateMonsterUpgrades = (): string => {
+  return rollMonsterUpgrade();
 };

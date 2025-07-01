@@ -73,7 +73,15 @@
             <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z" />
           </svg>
           <div class="mb-2 text-neutral-600 rpg-body">No monsters on the battlefield</div>
-          <div class="text-neutral-500 text-sm">Add monsters using the form above</div>
+          <div class="mb-4 text-neutral-500 text-sm">Add monsters using the form above</div>
+          <button @click="scrollToCreator" class="text-xs rpg-button rpg-button-secondary">
+            <svg style="width: 25px; height: 25px;" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd"
+                d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"
+                clip-rule="evenodd" />
+            </svg>
+            Go to Quick Monster Entry
+          </button>
         </div>
 
         <!-- Clear Battlefield Button at Bottom -->
@@ -156,5 +164,12 @@ const confirmClear = () => {
 const clearAll = () => {
   combatStore.clearAll()
   showClearDialog.value = false
+}
+
+const scrollToCreator = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  })
 }
 </script>

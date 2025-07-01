@@ -36,18 +36,18 @@
         <label class="rpg-label">Difficulty Modifiers</label>
         <div class="flex flex-wrap gap-2">
           <button @click="setDifficulty('easy')"
-            :class="difficulty === 'easy' ? 'bg-success text-white' : 'bg-white text-success border-success'"
-            class="hover:bg-green-50 px-3 py-2 border-2 rounded-md font-heading font-black text-sm uppercase tracking-wide transition-colors">
+            :class="difficulty === 'easy' ? 'bg-success text-white' : 'bg-white text-success border-success hover:bg-green-50'"
+            class="px-3 py-2 border-2 rounded-md font-heading font-black text-sm uppercase tracking-wide transition-colors">
             Easy (-3)
           </button>
           <button @click="setDifficulty('normal')"
-            :class="difficulty === 'normal' ? 'bg-info text-white' : 'bg-white text-info border-info'"
-            class="hover:bg-blue-50 px-3 py-2 border-2 rounded-md font-heading font-black text-sm uppercase tracking-wide transition-colors">
+            :class="difficulty === 'normal' ? 'bg-info text-white' : 'bg-white text-info border-info hover:bg-blue-50'"
+            class="px-3 py-2 border-2 rounded-md font-heading font-black text-sm uppercase tracking-wide transition-colors">
             Normal
           </button>
           <button @click="setDifficulty('hard')"
-            :class="difficulty === 'hard' ? 'bg-danger text-white' : 'bg-white text-danger border-danger'"
-            class="hover:bg-red-50 px-3 py-2 border-2 rounded-md font-heading font-black text-sm uppercase tracking-wide transition-colors">
+            :class="difficulty === 'hard' ? 'bg-danger text-white' : 'bg-white text-danger border-danger hover:bg-red-50'"
+            class="px-3 py-2 border-2 rounded-md font-heading font-black text-sm uppercase tracking-wide transition-colors">
             Hard (+3)
           </button>
         </div>

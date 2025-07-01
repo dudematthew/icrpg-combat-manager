@@ -33,8 +33,18 @@
         </div>
         <div>
           <label class="rpg-label">Duration ({{ newTimer.type }})</label>
-          <input v-model.number="newTimer.duration" type="number" :min="1" :max="20" placeholder="5"
-            class="rpg-input" />
+          <div class="flex gap-2">
+            <input v-model.number="newTimer.duration" type="number" :min="1" :max="20" placeholder="5"
+              class="flex-1 rpg-input" />
+            <button @click="generateDuration" class="px-3 rpg-button rpg-button-secondary"
+              title="Roll d4 for random duration">
+              <svg fill="#000000" width="16px" height="16px" viewBox="0 0 256 256" id="Flat"
+                xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M192,32H64A32.03667,32.03667,0,0,0,32,64V192a32.03667,32.03667,0,0,0,32,32H192a32.03667,32.03667,0,0,0,32-32V64A32.03667,32.03667,0,0,0,192,32Zm16,160a16.01833,16.01833,0,0,1-16,16H64a16.01833,16.01833,0,0,1-16-16V64A16.01833,16.01833,0,0,1,64,48H192a16.01833,16.01833,0,0,1,16,16Zm-96-92a12,12,0,1,1-12-12A12.01343,12.01343,0,0,1,112,100Zm56,0a12,12,0,1,1-12-12A12.01343,12.01343,0,0,1,168,100Zm-56,56a12,12,0,1,1-12-12A12.01343,12.01343,0,0,1,112,156Zm56,0a12,12,0,1,1-12-12A12.01343,12.01343,0,0,1,168,156Z" />
+              </svg>
+            </button>
+          </div>
         </div>
         <div class="flex items-end">
           <button @click="addTimer" :disabled="!newTimer.name || !newTimer.duration"
@@ -133,5 +143,10 @@ const removeTimer = (id: string) => {
 
 const generateTimerName = () => {
   newTimer.value.name = generateClockName()
+}
+
+const generateDuration = () => {
+  // Roll a d4 (1-4) for random duration
+  newTimer.value.duration = Math.floor(Math.random() * 4) + 1
 }
 </script>

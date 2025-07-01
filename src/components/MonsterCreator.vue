@@ -185,15 +185,14 @@ const addMonster = () => {
     specialAbilities: newMonster.specialAbilities || undefined
   })
 
-  // Reset form
-  Object.assign(newMonster, {
-    color: '',
-    letter: '',
-    tier: '',
-    name: '',
-    heartsMax: 0,
-    specialAbilities: ''
-  })
+  // Auto-increment letter for easier batch creation
+  const currentLetterIndex = letters.findIndex(l => l.value === newMonster.letter)
+  if (currentLetterIndex >= 0 && currentLetterIndex < letters.length - 1) {
+    newMonster.letter = letters[currentLetterIndex + 1].value
+  }
+  
+  // Clear name for next monster (but keep other fields)
+  newMonster.name = ''
 }
 
 const addBlankMonster = () => {

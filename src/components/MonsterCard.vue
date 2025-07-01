@@ -8,7 +8,11 @@
     <div class="flex justify-between items-center mb-4">
       <div class="flex flex-1 items-center gap-3">
         <div class="flex justify-center items-center rounded-full w-8 h-8 font-bold text-white text-sm cursor-pointer"
-          :style="{ backgroundColor: getTierColor(monster.tier) }" @click="showEditModal = true">
+          :style="{ 
+            backgroundColor: getTierColor(monster.tier),
+            boxShadow: `0 0 0 2px ${getMonsterColor(monster.color)}88`,
+            border: `1px solid ${getMonsterColor(monster.color)}`
+          }" @click="showEditModal = true">
           {{ monster.letter }}
         </div>
         <div class="flex-1 cursor-pointer" @click="showEditModal = true">
@@ -16,7 +20,7 @@
             {{ monster.name || formatMonsterIdentifier(monster.color, monster.letter) }}
           </div>
           <div class="flex items-center gap-2 text-neutral-500 text-sm rpg-body">
-            <span>{{ monster.color }}</span>
+            <span :style="{ color: getMonsterColor(monster.color) }" class="font-medium">{{ monster.color }}</span>
             <span>Tier {{ monster.tier }} (+{{ monster.statsBonus }}, {{ monster.actions }} action{{ monster.actions > 1
               ? 's' : '' }})</span>
           </div>
@@ -171,7 +175,7 @@
 import { ref, computed } from 'vue'
 import type { Monster } from '@/types'
 import { CONDITIONS } from '@/types'
-import { formatMonsterIdentifier, getTierColor } from '@/utils/combat'
+import { formatMonsterIdentifier, getTierColor, getMonsterColor } from '@/utils/combat'
 
 interface Props {
   monster: Monster

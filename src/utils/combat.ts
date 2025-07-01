@@ -139,14 +139,42 @@ export const formatMonsterIdentifier = (color: string, letter: string): string =
 export const getTierColor = (tier: string): string => {
   switch (tier) {
     case "I":
-      return "var(--green-500)";
+      return "#059669";
     case "II":
-      return "var(--blue-500)";
+      return "#d97706";
     case "III":
-      return "var(--orange-500)";
+      return "#dc2626";
     case "IV":
-      return "var(--red-500)";
+      return "#7c2d12";
     default:
-      return "var(--gray-500)";
+      return "#525252";
+  }
+};
+
+export const getMonsterColor = (color: string): string => {
+  switch (color.toLowerCase()) {
+    case "red":
+      return "#dc2626";
+    case "blue":
+      return "#2563eb";
+    case "green":
+      return "#16a34a";
+    case "yellow":
+      return "#eab308";
+    case "purple":
+      return "#9333ea";
+    case "orange":
+      return "#ea580c";
+    case "black":
+      return "#171717";
+    case "white":
+      return "#f5f5f5";
+    case "grey":
+    case "gray":
+      return "#6b7280";
+    case "brown":
+      return "#92400e";
+    default:
+      return "#525252";
   }
 };

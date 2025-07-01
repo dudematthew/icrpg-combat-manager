@@ -13,7 +13,13 @@
       <div class="gap-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 mb-6">
         <div>
           <label class="rpg-label">Timer Name</label>
-          <input v-model="newTimer.name" placeholder="e.g., Building collapses" class="rpg-input" />
+          <div class="flex gap-2">
+            <input v-model="newTimer.name" placeholder="e.g., Building collapses" class="flex-1 rpg-input" />
+            <button @click="generateTimerName" class="px-3 rpg-button rpg-button-secondary"
+              title="Generate random clock name">
+              🎲
+            </button>
+          </div>
         </div>
         <div>
           <label class="rpg-label">Timer Type</label>
@@ -88,6 +94,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useCombatStore } from '@/stores/combat'
+import { generateClockName } from '@/utils/clockNameGenerator'
 
 const combatStore = useCombatStore()
 
@@ -119,5 +126,9 @@ const addTimer = () => {
 
 const removeTimer = (id: string) => {
   combatStore.removeTimer(id)
+}
+
+const generateTimerName = () => {
+  newTimer.value.name = generateClockName()
 }
 </script>

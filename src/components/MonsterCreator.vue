@@ -114,30 +114,28 @@
                 </div>
 
                 <!-- Abilities & Upgrades -->
-                <div class="bg-white p-2 border rounded">
-                  <div class="mb-3">
-                    <span class="font-semibold text-neutral-600 text-xs">⚔️ ABILITIES & UPGRADES</span>
+                <div class="mb-3">
+                  <span class="font-semibold text-neutral-600 text-xs">⚔️ ABILITIES & UPGRADES</span>
+                </div>
+                <div class="flex flex-wrap gap-1 mb-3">
+                  <button @click="generateAbilities" class="text-xs rpg-button rpg-button-secondary"
+                    title="Generate abilities">
+                    ⚔️
+                  </button>
+                  <button @click="generateUpgrades" class="text-xs rpg-button rpg-button-secondary"
+                    title="Generate upgrades">
+                    🔺
+                  </button>
+                  <button @click="applyAbilitiesAndUpgrades"
+                    class="text-xs rpg-button rpg-button-primary">Apply</button>
+                </div>
+                <div v-if="generatedAbilities || generatedUpgrades"
+                  class="space-y-2 bg-neutral-50 p-2 border border-neutral-200 rounded">
+                  <div v-if="generatedAbilities" class="text-neutral-700 text-sm">
+                    <strong class="font-semibold">Abilities:</strong> {{ generatedAbilities }}
                   </div>
-                  <div class="flex flex-wrap gap-1 mb-3">
-                    <button @click="generateAbilities" class="text-xs rpg-button rpg-button-secondary"
-                      title="Generate abilities">
-                      ⚔️
-                    </button>
-                    <button @click="generateUpgrades" class="text-xs rpg-button rpg-button-secondary"
-                      title="Generate upgrades">
-                      🔺
-                    </button>
-                    <button @click="applyAbilitiesAndUpgrades"
-                      class="text-xs rpg-button rpg-button-primary">Apply</button>
-                  </div>
-                  <div v-if="generatedAbilities || generatedUpgrades"
-                    class="space-y-2 bg-neutral-50 p-2 border border-neutral-200 rounded">
-                    <div v-if="generatedAbilities" class="text-neutral-700 text-sm">
-                      <strong class="font-semibold">Abilities:</strong> {{ generatedAbilities }}
-                    </div>
-                    <div v-if="generatedUpgrades" class="text-neutral-700 text-sm">
-                      <strong class="font-semibold">Upgrades:</strong> {{ generatedUpgrades }}
-                    </div>
+                  <div v-if="generatedUpgrades" class="text-neutral-700 text-sm">
+                    <strong class="font-semibold">Upgrades:</strong> {{ generatedUpgrades }}
                   </div>
                 </div>
               </div>

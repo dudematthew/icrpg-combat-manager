@@ -45,7 +45,7 @@
 
 ### High Priority Tasks
 
-#### 1. Layout Reorganization
+#### 1. Layout Reorganization ✅
 - **Move Timers and Battlefield to top** - These are the most used features
 - **Consider collapsible sections** for less frequently used tools
 - **Mobile-first responsive design** improvements
@@ -70,7 +70,7 @@
 - **Implement compact view mode** - Reduce monster card space while keeping details accessible
 - **Consider virtual scrolling** or pagination for many monsters
 
-#### 5. Combat Mechanics Clarification
+#### 5. Combat Mechanics Clarification ✅
 - **Rename "Combat Mechanics" to "Target"**
 - **Make True Random default** with fallback warning if fetch fails
 - **Add tooltips/info** explaining True Random vs Pseudo Random difference

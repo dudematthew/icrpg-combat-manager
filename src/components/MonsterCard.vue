@@ -1,8 +1,9 @@
 <template>
   <div class="rpg-card monster-card" :class="[
       `monster-tier-${monster.tier.toLowerCase()}`,
-      { 'dead': monster.heartsCurrent <= 0 }
-    ]">
+      { 'dead': monster.heartsCurrent <= 0 },
+      { 'compact': compact }
+    ]" @mouseenter="handleMouseEnter" @mouseleave="handleMouseLeave">
 
     <!-- Header -->
     <div class="flex justify-between items-center mb-4">
@@ -47,7 +48,7 @@
     </div>
 
     <!-- Hearts Display -->
-    <div class="mb-4 hearts-display">
+    <div class="compact-hidden mb-4 hearts-display" :class="{ 'show': isHoverDelayed }">
       <span class="font-medium rpg-body">Hearts:</span>
       <div class="flex gap-1">
         <i v-for="i in monster.heartsMax" :key="i" class="heart" :class="{ 'empty': i > monster.heartsCurrent }">♥</i>
@@ -57,7 +58,7 @@
     </div>
 
     <!-- Quick Damage Buttons -->
-    <div class="flex flex-wrap gap-2 mb-4">
+    <div class="compact-hidden flex flex-wrap gap-2 mb-4" :class="{ 'show': isHoverDelayed }">
       <button v-for="damage in [1, 2, 5, 10]" :key="damage" @click="applyDamage(damage)"
         class="bg-white hover:bg-danger px-3 py-1 border-2 border-danger rounded-md font-heading font-black text-danger hover:text-white text-sm uppercase tracking-wide transition-colors">
         -{{ damage }}
@@ -69,7 +70,7 @@
     </div>
 
     <!-- Conditions -->
-    <div class="mb-4">
+    <div class="compact-hidden mb-4" :class="{ 'show': isHoverDelayed }">
       <div class="mb-3 font-medium text-sm rpg-body">Conditions:</div>
       <div class="flex flex-wrap gap-2">
         <span v-for="condition in CONDITIONS" :key="condition.name" @click="toggleCondition(condition.name)"
@@ -80,7 +81,7 @@
     </div>
 
     <!-- Expandable Details -->
-    <details class="group">
+    <details class="group compact-hidden" :class="{ 'show': isHoverDelayed }">
       <summary class="cursor-pointer list-none">
         <div
           class="flex justify-between items-center bg-neutral-50 hover:bg-neutral-100 p-3 border border-neutral-200 rounded-lg transition-colors">
@@ -274,9 +275,11 @@ import { CONDITIONS, TIER_CONFIGS } from '@/types'
 import { formatMonsterIdentifier, getTierColor, getMonsterColor, getTextColorForBackground } from '@/utils/combat'
 import { generateMonsterAbilities, generateMonsterUpgrades, rollMonsterState, rollMonsterMotivation } from '@/utils/monsterGenerator'
 import InlineEditableText from './InlineEditableText.vue'
+import { useHoverDelay } from '@/composables/useHoverDelay'
 
 interface Props {
   monster: Monster
+  compact?: boolean
 }
 
 const props = defineProps<Props>()
@@ -294,6 +297,12 @@ const localName = ref(props.monster.name || '')
 const localColor = ref(props.monster.color)
 const localLetter = ref(props.monster.letter)
 const localTier = ref(props.monster.tier)
+
+// Hover delay for compact view
+const { isHoverDelayed, handleMouseEnter, handleMouseLeave } = useHoverDelay({
+  delay: 100, // 100ms delay before showing content
+  hoverEndDelay: 300 // 300ms delay before hiding content
+})
 
 // Generator preview state
 const generatedState = ref('')
@@ -482,3 +491,30 @@ const applyAbilitiesAndUpgrades = () => {
   }
 }
 </script>
+
+<style scoped>
+/* Compact view styles */
+.monster-card.compact {
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.monster-card.compact .compact-hidden {
+  display: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.monster-card.compact .compact-hidden.show {
+  display: block;
+  opacity: 1;
+}
+
+.monster-card.compact .compact-hidden.show.flex {
+  display: flex;
+}
+
+.monster-card.compact .compact-hidden.show details {
+  display: block;
+}
+</style>

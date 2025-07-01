@@ -46,7 +46,7 @@
 ### High Priority Tasks
 
 #### 1. Layout Reorganization ✅
-- **Move Timers and Battlefield to top** - These are the most used features
+- **Move Timers and Battlefield to top** - These are the most used features ✅
 - **Consider collapsible sections** for less frequently used tools
 - **Mobile-first responsive design** improvements
 - **Desktop-friendly layout** - Move different sections to screen sides
@@ -58,17 +58,18 @@
 - **Add more visible edit button** for monster cards
 - **Consider inline editing** for monster properties
 
-#### 3. Timer Improvements
-- **Add randomize button to duration field** instead of name
+#### 3. Timer Improvements ✅
+- **Add randomize button to duration field** instead of name ✅
 - **Add duration presets** (1, 2, 3, 5, 10 rounds/turns)
 - **Consider timer categories** (environmental, monster, mission)
 
-#### 4. Battlefield UX Improvements
+#### 4. Battlefield UX Improvements ✅
 - **Make bonus/action details more prominent** - Big colored +X display
 - **Add turn tracking indicators** - Button to mark monster as "done turn"
-- **Add health restoration buttons** to monster cards
-- **Implement compact view mode** - Reduce monster card space while keeping details accessible
+- **Add health restoration buttons** to monster cards ✅
+- **Implement compact view mode** - Reduce monster card space while keeping details accessible ✅
 - **Consider virtual scrolling** or pagination for many monsters
+- **Add reset rounds/turns button** ✅
 
 #### 5. Combat Mechanics Clarification ✅
 - **Rename "Combat Mechanics" to "Target"**
@@ -106,10 +107,12 @@
 - **Session management** (save/load encounters)
 
 #### 10. Polish & UX
-- **Animations** and transitions
+- **Animations** and transitions ✅
 - **Sound effects** (optional)
 - **Theme customization**
 - **Accessibility** improvements
+- **Footer with license and attribution** ✅
+- **Hover delay composable** - Reusable library for intentional hover behavior ✅
 
 ---
 

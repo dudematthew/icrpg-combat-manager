@@ -1,7 +1,17 @@
 <template>
-  <div class="combat-mechanics">
-    <!-- Scene Target Number -->
-    <div class="gap-4 grid grid-cols-1 md:grid-cols-3 mb-6">
+  <div class="rpg-card combat-mechanics">
+    <!-- Header -->
+    <div class="flex items-center gap-3 mb-6">
+      <svg class="w-6 h-6 text-accent" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd"
+          d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+          clip-rule="evenodd" />
+      </svg>
+      <h2 class="rpg-heading">Combat Mechanics</h2>
+    </div>
+
+    <!-- Scene Target Number and Difficulty Modifiers stacked vertically -->
+    <div class="space-y-6 mb-6">
       <div>
         <label class="rpg-label">Scene Target Number</label>
         <div class="flex items-center gap-2">
@@ -22,7 +32,7 @@
         </div>
       </div>
 
-      <div class="md:col-span-2">
+      <div>
         <label class="rpg-label">Difficulty Modifiers</label>
         <div class="flex flex-wrap gap-2">
           <button @click="setDifficulty('easy')"

@@ -90,10 +90,8 @@
         </div>
       </div>
 
-      <!-- Scene Target Number Section Below Battlefield -->
-      <div>
-        <CombatMechanics />
-      </div>
+      <!-- Combat Mechanics -->
+      <CombatMechanics />
     </div>
 
     <!-- Clear Confirmation Modal -->

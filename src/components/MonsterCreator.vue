@@ -83,41 +83,38 @@
 
             <!-- Generator Section -->
             <div class="md:col-span-2">
-              <div class="space-y-3 bg-neutral-50 p-4 border border-neutral-200 rounded-lg">
+              <div class="space-y-3 bg-neutral-50 p-3 border border-neutral-200 rounded-lg">
                 <div class="flex justify-between items-center">
                   <h4 class="rpg-label">Generate Monster</h4>
                 </div>
 
                 <!-- State & Motivation -->
-                <div class="bg-white p-3 border rounded">
-                  <div class="mb-3">
-                    <span class="font-semibold text-neutral-600 text-xs">🎲 STATE & MOTIVATION</span>
+                <div class="mb-3">
+                  <span class="font-semibold text-neutral-600 text-xs">🎲 STATE & MOTIVATION</span>
+                </div>
+                <div class="flex flex-wrap gap-1 mb-3">
+                  <button @click="generateState" class="text-xs rpg-button rpg-button-secondary"
+                    title="Generate monster state">
+                    🎲
+                  </button>
+                  <button @click="generateMotivation" class="text-xs rpg-button rpg-button-secondary"
+                    title="Generate monster motivation">
+                    🎯
+                  </button>
+                  <button @click="applyStateAndMotivation" class="text-xs rpg-button rpg-button-primary">Apply</button>
+                </div>
+                <div v-if="generatedState || generatedMotivation"
+                  class="space-y-2 bg-neutral-50 p-2 border border-neutral-200 rounded">
+                  <div v-if="generatedState" class="text-neutral-700 text-sm">
+                    <strong class="font-semibold">State:</strong> {{ generatedState }}
                   </div>
-                  <div class="flex flex-wrap gap-1 mb-3">
-                    <button @click="generateState" class="text-xs rpg-button rpg-button-secondary"
-                      title="Generate monster state">
-                      🎲
-                    </button>
-                    <button @click="generateMotivation" class="text-xs rpg-button rpg-button-secondary"
-                      title="Generate monster motivation">
-                      🎯
-                    </button>
-                    <button @click="applyStateAndMotivation"
-                      class="text-xs rpg-button rpg-button-primary">Apply</button>
-                  </div>
-                  <div v-if="generatedState || generatedMotivation"
-                    class="space-y-2 bg-neutral-50 p-2 border border-neutral-200 rounded">
-                    <div v-if="generatedState" class="text-neutral-700 text-sm">
-                      <strong>State:</strong> {{ generatedState }}
-                    </div>
-                    <div v-if="generatedMotivation" class="text-neutral-700 text-sm">
-                      <strong>Motivation:</strong> {{ generatedMotivation }}
-                    </div>
+                  <div v-if="generatedMotivation" class="text-neutral-700 text-sm">
+                    <strong class="font-semibold">Motivation:</strong> {{ generatedMotivation }}
                   </div>
                 </div>
 
                 <!-- Abilities & Upgrades -->
-                <div class="bg-white p-3 border rounded">
+                <div class="bg-white p-2 border rounded">
                   <div class="mb-3">
                     <span class="font-semibold text-neutral-600 text-xs">⚔️ ABILITIES & UPGRADES</span>
                   </div>
@@ -136,10 +133,10 @@
                   <div v-if="generatedAbilities || generatedUpgrades"
                     class="space-y-2 bg-neutral-50 p-2 border border-neutral-200 rounded">
                     <div v-if="generatedAbilities" class="text-neutral-700 text-sm">
-                      <strong>Abilities:</strong> {{ generatedAbilities }}
+                      <strong class="font-semibold">Abilities:</strong> {{ generatedAbilities }}
                     </div>
                     <div v-if="generatedUpgrades" class="text-neutral-700 text-sm">
-                      <strong>Upgrades:</strong> {{ generatedUpgrades }}
+                      <strong class="font-semibold">Upgrades:</strong> {{ generatedUpgrades }}
                     </div>
                   </div>
                 </div>
@@ -152,7 +149,8 @@
         <div class="bg-neutral-50 p-4 border border-neutral-200 rounded-lg">
           <div class="mb-2 rpg-label">Preview:</div>
           <div class="rpg-body">
-            <strong>{{ formatMonsterIdentifier(newMonster.color || 'Grey', newMonster.letter || '?') }}</strong>
+            <strong class="font-semibold">{{ formatMonsterIdentifier(newMonster.color || 'Grey', newMonster.letter ||
+              '?') }}</strong>
             <br>
             Tier {{ newMonster.tier || '?' }}: +{{ getTierBonus(newMonster.tier) }}, {{
             getTierActions(newMonster.tier) }} action(s), {{ newMonster.heartsMax || getTierHearts(newMonster.tier)

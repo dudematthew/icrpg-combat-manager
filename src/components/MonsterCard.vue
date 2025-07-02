@@ -40,7 +40,6 @@
         <button v-if="monster.heartsCurrent <= 0" @click="reviveMonster"
           class="flex items-center gap-1 rpg-icon-button rpg-icon-button-neutral" title="Revive Monster to Full Health">
           <RotateCw class="w-4 h-4 icon-filter" />
-          <span class="ml-1 text-xs">Revive</span>
         </button>
         <button @click="$emit('remove')" class="rpg-icon-button rpg-icon-button-danger">
           <Trash2 class="w-4 h-4" />

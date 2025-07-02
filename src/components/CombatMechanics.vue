@@ -2,26 +2,26 @@
   <div class="rpg-card combat-mechanics">
     <!-- Header -->
     <div class="flex items-center gap-3 mb-6">
-      <svg class="w-6 h-6 text-accent" fill="currentColor" viewBox="0 0 20 20">
-        <path fill-rule="evenodd"
-          d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
-          clip-rule="evenodd" />
-      </svg>
+      <img src="/images/target_icon.png" class="mb-3 w-6 h-6 text-accent icon-filter" alt="Target" />
       <h2 class="rpg-heading">Target</h2>
     </div>
 
     <!-- Scene Target Number and Difficulty Modifiers stacked vertically -->
-    <div class="space-y-6 mb-6">
-      <div>
-        <label class="rpg-label">Scene Target Number</label>
-        <div class="flex items-center gap-2">
+    <div class="flex flex-col items-center space-y-6 mx-auto mb-6 max-w-md" style="flex-direction: column;">
+      <!-- Base Target Number Section -->
+      <div class="bg-neutral-50 p-4 border-2 border-neutral-200 rounded-lg">
+        <label class="mb-3 rpg-label">Base Scene Target Number</label>
+        <div class="flex justify-center items-center gap-3">
           <button @click="adjustTarget(-1)" class="rpg-icon-button rpg-icon-button-neutral">
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M5 10a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z" clip-rule="evenodd" />
             </svg>
           </button>
-          <input v-model.number="sceneTargetNumber" type="number" :min="1" :max="25" @change="updateTarget"
-            class="px-2 py-1 border-2 border-accent rounded-md w-16 font-bold text-xl text-center" />
+          <div class="text-center">
+            <input v-model.number="sceneTargetNumber" type="number" :min="1" :max="25" @change="updateTarget"
+              class="bg-white px-4 py-2 border-2 border-accent rounded-lg w-20 font-black text-2xl text-center" />
+            <div class="mt-1 text-neutral-600 text-xs">Base Target</div>
+          </div>
           <button @click="adjustTarget(1)" class="rpg-icon-button rpg-icon-button-neutral">
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd"
@@ -32,31 +32,37 @@
         </div>
       </div>
 
-      <div>
-        <label class="rpg-label">Difficulty Modifiers</label>
+      <!-- Difficulty Modifiers Section -->
+      <div class="flex flex-col items-center bg-neutral-50 p-4 border-2 border-neutral-200 rounded-lg"
+        style="flex-direction: column;">
+        <label class="mb-3 rpg-label">Difficulty Modifiers</label>
         <div class="flex flex-wrap gap-2">
           <button @click="setDifficulty('easy')"
             :class="difficulty === 'easy' ? 'bg-success text-white' : 'bg-white text-success border-success hover:bg-green-50 cursor-pointer'"
-            class="px-3 py-2 border-2 rounded-md font-heading font-black text-sm uppercase tracking-wide transition-colors">
+            class="px-3 py-2 border-2 rounded-md font-heading font-black text-xs uppercase tracking-wide transition-colors">
             Easy (-3)
           </button>
           <button @click="setDifficulty('normal')"
             :class="difficulty === 'normal' ? 'bg-info text-white' : 'bg-white text-info border-info hover:bg-blue-50 cursor-pointer'"
-            class="px-3 py-2 border-2 rounded-md font-heading font-black text-sm uppercase tracking-wide transition-colors">
+            class="px-3 py-2 border-2 rounded-md font-heading font-black text-xs uppercase tracking-wide transition-colors">
             Normal
           </button>
           <button @click="setDifficulty('hard')"
             :class="difficulty === 'hard' ? 'bg-danger text-white' : 'bg-white text-danger border-danger hover:bg-red-50 cursor-pointer'"
-            class="px-3 py-2 border-2 rounded-md font-heading font-black text-sm uppercase tracking-wide transition-colors">
+            class="px-3 py-2 border-2 rounded-md font-heading font-black text-xs uppercase tracking-wide transition-colors">
             Hard (+3)
           </button>
         </div>
-        <div class="mt-2 text-md text-neutral-700 rpg-body">
-          Current target: <span class="font-bold text-accent">{{ effectiveTarget }}</span> ({{ difficulty }})
+      </div>
+      <!-- Current Target Display -->
+      <div class="bg-gradient-to-r from-accent to-red-600 shadow-lg mt-4 p-4 border-2 border-accent rounded-lg">
+        <div class="text-center">
+          <div class="mb-1 font-heading text-white text-sm uppercase tracking-wider">Current Target</div>
+          <div class="mb-1 font-black text-white text-4xl">{{ effectiveTarget }}</div>
+          <div class="font-medium text-white/90 text-sm capitalize">{{ difficulty }} difficulty</div>
         </div>
       </div>
     </div>
-
     <!-- Attack Roll Section -->
     <div>
       <h3 class="mb-4 text-base rpg-heading">Quick Attack Roll</h3>
@@ -82,10 +88,7 @@
       <div class="mb-6">
         <button @click="rollAttack" :disabled="!attackEffortType || isRolling"
           class="disabled:opacity-50 w-full disabled:cursor-not-allowed rpg-button rpg-button-primary">
-          <svg v-if="!isRolling" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-            <path
-              d="M5 3a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2H5zm2 2a1 1 0 11-2 0 1 1 0 012 0zm0 14a1 1 0 11-2 0 1 1 0 012 0zm6-7a1 1 0 11-2 0 1 1 0 012 0zm6-7a1 1 0 11-2 0 1 1 0 012 0zm0 14a1 1 0 11-2 0 1 1 0 012 0z" />
-          </svg>
+          <img v-if="!isRolling" src="/images/sword_icon.png" class="w-6 h-6 icon-filter" alt="Attack" />
           <div v-else class="border-2 border-white border-t-transparent rounded-full w-4 h-4 animate-spin"></div>
           {{ isRolling ? 'Rolling...' : 'Roll' }}
         </button>
@@ -116,30 +119,34 @@
             </div>
           </div>
 
-          <!-- Effort and Random Source in one row -->
-          <div class="gap-4 grid grid-cols-2 text-center">
-            <div v-if="lastAttackResult.success">
-              <div class="mb-1 text-neutral-700 text-sm rpg-body">Effort:</div>
-              <div class="font-bold text-xl">
-                <span class="text-accent">{{ lastAttackResult.effort }}</span>
-                <span v-if="lastAttackResult.critical" class="ml-2 text-warning">+ CRIT!</span>
-              </div>
+          <!-- Effort Display -->
+          <div v-if="lastAttackResult.success" class="text-center">
+            <div class="mb-1 text-neutral-700 text-sm rpg-body">Effort:</div>
+            <div class="font-bold text-xl">
+              <span class="text-accent">{{ lastAttackResult.effort }}</span>
+              <span v-if="lastAttackResult.critical" class="ml-2 text-warning">+ CRIT!</span>
             </div>
-            <div v-if="lastAttackResult.randomSource">
-              <div class="mb-1 text-neutral-700 text-sm rpg-body">Random Source:</div>
-              <div class="font-medium text-sm"
-                :class="lastAttackResult.randomSource === 'true-random' ? 'text-primary' : 'text-neutral-600'">
-                {{ lastAttackResult.randomSource === 'true-random' ? '🎲 True Random' : '🎯 Pseudo Random' }}
+            <!-- Critical Hit Breakdown -->
+            <div v-if="lastAttackResult.critical"
+              class="bg-warning/10 mt-2 p-2 border border-warning/20 rounded text-sm">
+              <div class="mb-1 font-semibold text-warning">Critical Hit Breakdown:</div>
+              <div class="text-neutral-600">
+                <div>Base effort: <span class="font-medium">{{ lastAttackResult.baseEffort }}</span></div>
+                <div>Critical bonus (d12): <span class="font-medium text-warning">+{{ lastAttackResult.criticalBonus
+                    }}</span></div>
+                <div class="mt-1 text-neutral-500 text-xs">Natural 20 grants +1d12 to effort!</div>
               </div>
             </div>
           </div>
         </div>
         <div v-else class="bg-white p-8 border-2 border-neutral-300 rounded-lg text-center">
-          <div class="text-neutral-700 rpg-body">No roll yet</div>
+          <img src="/images/empty_state.png" class="mx-auto mb-2 text-neutral-400 icon-filter" alt="No roll" />
+          <div class="mb-4 text-neutral-500 text-sm">No roll yet</div>
         </div>
       </div>
     </div>
   </div>
+
 </template>
 
 <script setup lang="ts">

@@ -35,6 +35,8 @@ export interface AttackResult {
   totalRoll: number;
   targetNumber: number;
   effort?: number;
+  baseEffort?: number;
+  criticalBonus?: number;
   critical?: boolean;
   randomSource?: RandomSource;
 }
@@ -53,10 +55,14 @@ export const makeAttack = (
   const critical = naturalRoll === 20;
 
   let effort: number | undefined;
+  let baseEffort: number | undefined;
+  let criticalBonus: number | undefined;
   if (success) {
-    effort = rollDie(effortDie);
+    baseEffort = rollDie(effortDie);
+    effort = baseEffort;
     if (critical) {
-      effort += rollDie(12); // Critical bonus d12
+      criticalBonus = rollDie(12); // Critical bonus d12
+      effort += criticalBonus;
     }
   }
 
@@ -66,6 +72,8 @@ export const makeAttack = (
     totalRoll,
     targetNumber: adjustedTarget,
     effort,
+    baseEffort,
+    criticalBonus,
     critical,
   };
 };
@@ -87,12 +95,16 @@ export const makeAttackAsync = async (
   const critical = naturalRoll === 20;
 
   let effort: number | undefined;
+  let baseEffort: number | undefined;
+  let criticalBonus: number | undefined;
   if (success) {
     const effortResult = await rollDieAsync(effortDie, forcePseudo);
-    effort = effortResult.value;
+    baseEffort = effortResult.value;
+    effort = baseEffort;
     if (critical) {
       const critResult = await rollDieAsync(12, forcePseudo);
-      effort += critResult.value;
+      criticalBonus = critResult.value;
+      effort += criticalBonus;
     }
   }
 
@@ -102,6 +114,8 @@ export const makeAttackAsync = async (
     totalRoll,
     targetNumber: adjustedTarget,
     effort,
+    baseEffort,
+    criticalBonus,
     critical,
     randomSource: naturalRollResult.source,
   };

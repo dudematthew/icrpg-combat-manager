@@ -63,7 +63,7 @@ export default defineConfig({
 - **Vue 3** - Progressive JavaScript framework with Composition API
 - **TypeScript** - Type-safe JavaScript development
 - **Vite** - Fast build tool and development server
-- **PrimeVue** - Comprehensive UI component library
+- **Storefront UI** - Modern, accessible UI component library
 - **Pinia** - State management with localStorage persistence
 - **Custom CSS** - ICRPG-themed styling with responsive design
 - **True Random API** - External randomness for dice rolls

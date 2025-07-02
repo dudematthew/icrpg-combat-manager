@@ -19,9 +19,7 @@
         <div class="rpg-card">
           <!-- Battlefield Title at Top -->
           <div class="flex items-baseline gap-3 mb-4">
-            <svg class="flex-shrink-0 w-6 h-6 text-accent" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z" />
-            </svg>
+            <img src="/images/sword_icon.png" class="flex-shrink-0 w-6 h-6 text-accent icon-filter" alt="Battlefield" />
             <h2 class="flex-shrink-0 rpg-heading">Battlefield</h2>
             <span class="flex-shrink-0 font-body font-semibold text-accent text-sm">({{ activeMonsters.length }}
               active)</span>
@@ -67,15 +65,14 @@
           </div>
 
           <!-- No Monsters Message -->
-          <div v-else class="mb-6 py-12 text-center">
-            <svg class="mx-auto mb-4 w-16 h-16 text-neutral-400" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z" />
-            </svg>
+          <div v-else class="flex items-center mb-6 py-12 text-center" style="flex-direction: column;">
+            <img src="/images/battlefield_empty_state.png" class="mx-auto mb-4 h-24 text-neutral-400 icon-filter"
+              alt="No monsters" />
             <div class="mb-2 text-neutral-600 rpg-body">No monsters on the battlefield</div>
             <div class="mb-4 text-neutral-500 text-sm">Add monsters using the form below</div>
-            <button @click="scrollToCreator" class="text-xs rpg-button rpg-button-secondary">
-              <svg style="width: 25px; height: 25px; transform: rotate(180deg);" fill="currentColor"
-                viewBox="0 0 20 20">
+            <button @click="scrollToCreator"
+              class="flex justify-center items-center gap-2 text-xs rpg-button rpg-button-secondary">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" style="transform: rotate(180deg);">
                 <path fill-rule="evenodd"
                   d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"
                   clip-rule="evenodd" />
@@ -97,11 +94,7 @@
             </button>
             <button @click="confirmClear"
               class="bg-danger hover:bg-red-700 px-3 py-2 border-2 border-danger rounded-md font-heading text-white text-sm uppercase tracking-wide transition-colors cursor-pointer">
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd"
-                  d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                  clip-rule="evenodd" />
-              </svg>
+              <img src="/images/sword_icon.png" class="w-4 h-4 icon-filter" alt="Clear battlefield" />
               Clear Battlefield
             </button>
           </div>

@@ -176,6 +176,7 @@ body {
   background: #dc2626;
   color: white;
   border-color: #dc2626;
+  padding: 0.625rem 1.25rem;
 }
 
 .rpg-button-primary:hover {
@@ -194,6 +195,69 @@ body {
   color: #171717;
   border-color: #525252;
 }
+
+/* Icon Filter for Custom PNG Icons */
+.icon-filter {
+  filter: brightness(0) saturate(100%);
+  object-fit: contain;
+  object-position: center;
+  /* With consistent 128px height, icons align perfectly */
+}
+
+/* Ensure icon containers use flexbox for proper centering */
+.rpg-button,
+.rpg-icon-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Special alignment for danger buttons */
+.bg-danger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Color variations for icon filters */
+.icon-filter.text-accent {
+  filter: brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg)
+    brightness(104%) contrast(97%);
+}
+
+.icon-filter.text-neutral-400 {
+  filter: brightness(0) saturate(100%) invert(60%) sepia(0%) saturate(0%) hue-rotate(0deg)
+    brightness(100%) contrast(100%);
+}
+
+.icon-filter.text-neutral-500 {
+  filter: brightness(0) saturate(100%) invert(50%) sepia(0%) saturate(0%) hue-rotate(0deg)
+    brightness(100%) contrast(100%);
+}
+
+.icon-filter.text-neutral-600 {
+  filter: brightness(0) saturate(100%) invert(40%) sepia(0%) saturate(0%) hue-rotate(0deg)
+    brightness(100%) contrast(100%);
+}
+
+.icon-filter.text-neutral-700 {
+  filter: brightness(0) saturate(100%) invert(30%) sepia(0%) saturate(0%) hue-rotate(0deg)
+    brightness(100%) contrast(100%);
+}
+
+/* Special filter for InfoMonitor red color */
+.monitor-icon .icon-filter {
+  filter: brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg)
+    brightness(104%) contrast(97%);
+}
+
+/* White filter for icons in primary buttons */
+.rpg-button-primary .icon-filter {
+  filter: brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg)
+    brightness(100%) contrast(100%);
+}
+
+/* With consistent 128px height, no special alignment needed */
 
 /* Icon Button for Actions like Trash */
 .rpg-icon-button {
@@ -244,6 +308,8 @@ body {
   font-family: "Source Serif Pro", "Georgia", serif;
   transition: all 0.2s ease;
   resize: vertical;
+  height: 3rem;
+  box-sizing: border-box;
 }
 
 .rpg-input:focus {

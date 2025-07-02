@@ -2,11 +2,7 @@
   <div class="monster-creator">
     <div class="mb-3 rpg-card">
       <div class="flex items-center gap-2 mb-6">
-        <svg class="w-5 h-5 text-accent" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd"
-            d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-            clip-rule="evenodd" />
-        </svg>
+        <img src="/images/monster_icon.png" class="mb-3 w-5 h-5 text-accent icon-filter" alt="Add monster" />
         <h2 class="rpg-heading">Quick Monster Entry</h2>
       </div>
 
@@ -95,11 +91,11 @@
                 <div class="flex flex-wrap gap-1 mb-3">
                   <button @click="generateState" class="text-xs rpg-button rpg-button-secondary"
                     title="Generate monster state">
-                    🎲
+                    <img src="/images/d6_dice_icon.png" class="w-3 h-3 icon-filter" alt="Generate state" />
                   </button>
                   <button @click="generateMotivation" class="text-xs rpg-button rpg-button-secondary"
                     title="Generate monster motivation">
-                    🎯
+                    <img src="/images/d6_dice_icon.png" class="w-3 h-3 icon-filter" alt="Generate motivation" />
                   </button>
                   <button @click="applyStateAndMotivation" class="text-xs rpg-button rpg-button-primary">Apply</button>
                 </div>
@@ -120,11 +116,11 @@
                 <div class="flex flex-wrap gap-1 mb-3">
                   <button @click="generateAbilities" class="text-xs rpg-button rpg-button-secondary"
                     title="Generate abilities">
-                    ⚔️
+                    <img src="/images/d6_dice_icon.png" class="w-3 h-3 icon-filter" alt="Generate abilities" />
                   </button>
                   <button @click="generateUpgrades" class="text-xs rpg-button rpg-button-secondary"
                     title="Generate upgrades">
-                    🔺
+                    <img src="/images/d6_dice_icon.png" class="w-3 h-3 icon-filter" alt="Generate upgrades" />
                   </button>
                   <button @click="applyAbilitiesAndUpgrades"
                     class="text-xs rpg-button rpg-button-primary">Apply</button>
@@ -160,11 +156,7 @@
         <div class="flex justify-end gap-3">
           <button @click="addMonster" :disabled="!newMonster.color || !newMonster.letter || !newMonster.tier"
             class="disabled:opacity-50 disabled:cursor-not-allowed rpg-button rpg-button-primary">
-            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd"
-                d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                clip-rule="evenodd" />
-            </svg>
+            <img src="/images/monster_icon.png" class="w-6 h-6 icon-filter" alt="Add monster" />
             Add Monster
           </button>
           <button @click="addBlankMonster" class="rpg-button rpg-button-secondary"

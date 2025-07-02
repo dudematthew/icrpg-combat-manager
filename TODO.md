@@ -70,12 +70,15 @@
 - **Implement compact view mode** - Reduce monster card space while keeping details accessible ✅
 - **Consider virtual scrolling** or pagination for many monsters
 - **Add reset rounds/turns button** ✅
+- **Enhanced target info display** - Gradient background, large typography, clear hierarchy ✅
+- **Improved empty state handling** - Better visual feedback when no monsters/timers exist ✅
 
 #### 5. Combat Mechanics Clarification ✅
 - **Rename "Combat Mechanics" to "Target"**
 - **Make True Random default** with fallback warning if fetch fails ✅
 - **Add tooltips/info** explaining True Random vs Pseudo Random difference ✅
-- **Create clearer critical hit information** display
+- **Create clearer critical hit information** display ✅
+- **Remove random source info** from last roll result display ✅
 - **Consider visual indicators** for random type selection
 
 ### Medium Priority Tasks
@@ -113,6 +116,30 @@
 - **Accessibility** improvements
 - **Footer with license and attribution** ✅
 - **Hover delay composable** - Reusable library for intentional hover behavior ✅
+- **Consistent icon system** - PNG icons with CSS filters for color manipulation ✅
+- **Button sizing improvements** - Scaled down primary buttons for better proportions ✅
+- **Form input consistency** - Fixed height for input and select elements ✅
+
+---
+
+## Recent Updates (Latest)
+
+### Critical Hit Enhancement ✅
+- **Detailed critical hit breakdown** - Shows base effort and d12 bonus separately
+- **Enhanced AttackResult interface** - Added baseEffort and criticalBonus fields
+- **Clear visual feedback** - Warning-colored breakdown box with explanation
+
+### UI/UX Improvements ✅
+- **Consistent icon system** - Replaced SVG icons with custom PNG icons using CSS filters
+- **Button sizing optimization** - Reduced primary button padding for better proportions
+- **Form consistency** - Fixed input/select height differences in timer creation
+- **Enhanced target display** - Gradient background and improved typography hierarchy
+- **Better empty states** - Improved visual feedback for empty battlefield and roll results
+
+### Code Quality ✅
+- **Removed random source info** - Cleaner roll result display without technical details
+- **Improved type safety** - Enhanced AttackResult interface with detailed breakdown fields
+- **Consistent styling** - Unified icon system across all components
 
 ---
 

@@ -30,11 +30,7 @@
       <div class="flex gap-2">
         <button v-if="monster.heartsCurrent <= 0" @click="reviveMonster" class="rpg-icon-button rpg-icon-button-neutral"
           title="Revive Monster to Full Health">
-          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd"
-              d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
-              clip-rule="evenodd" />
-          </svg>
+          <img src="/images/monster_icon.png" class="w-6 h-6 icon-filter" alt="Revive monster" />
           <span class="ml-1 text-xs">Revive</span>
         </button>
         <button @click="$emit('remove')" class="rpg-icon-button rpg-icon-button-danger">
@@ -181,11 +177,11 @@
                 <div class="flex flex-wrap gap-1 mb-3">
                   <button @click="generateState" class="text-xs rpg-button rpg-button-secondary"
                     title="Generate monster state">
-                    🎲
+                    <img src="/images/d6_dice_icon.png" class="w-3 h-3 icon-filter" alt="Generate state" />
                   </button>
                   <button @click="generateMotivation" class="text-xs rpg-button rpg-button-secondary"
                     title="Generate monster motivation">
-                    🎯
+                    <img src="/images/d6_dice_icon.png" class="w-3 h-3 icon-filter" alt="Generate motivation" />
                   </button>
                   <button @click="applyStateAndMotivation" class="text-xs rpg-button rpg-button-primary">Apply</button>
                 </div>
@@ -206,11 +202,11 @@
                 <div class="flex flex-wrap gap-1 mb-3">
                   <button @click="generateAbilities" class="text-xs rpg-button rpg-button-secondary"
                     title="Generate abilities">
-                    ⚔️
+                    <img src="/images/d6_dice_icon.png" class="w-3 h-3 icon-filter" alt="Generate abilities" />
                   </button>
                   <button @click="generateUpgrades" class="text-xs rpg-button rpg-button-secondary"
                     title="Generate upgrades">
-                    🔺
+                    <img src="/images/d6_dice_icon.png" class="w-3 h-3 icon-filter" alt="Generate upgrades" />
                   </button>
                   <button @click="applyAbilitiesAndUpgrades"
                     class="text-xs rpg-button rpg-button-primary">Apply</button>

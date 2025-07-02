@@ -1,9 +1,11 @@
 <template>
   <div class="rpg-card monster-card" :class="[
-      `monster-tier-${monster.tier.toLowerCase()}`,
       { 'dead': monster.heartsCurrent <= 0 },
       { 'compact': compact }
-    ]" @mouseenter="handleMouseEnter" @mouseleave="handleMouseLeave">
+    ]" :style="{ 
+      borderTopColor: getMonsterColor(monster.color),
+      borderBottomColor: getMonsterColor(monster.color)
+    }" @mouseenter="handleMouseEnter" @mouseleave="handleMouseLeave">
 
     <!-- Header -->
     <div class="flex justify-between items-center mb-4">
@@ -17,13 +19,16 @@
           {{ monster.letter }}
         </div>
         <div class="flex-1 cursor-pointer" @click="showEditModal = true">
-          <div class="text-base rpg-heading">
+          <div class="mb-2 text-base rpg-heading">
             {{ monster.name || formatMonsterIdentifier(monster.color, monster.letter) }}
+            <span :style="{ color: getMonsterColor(monster.color) }" class="ml-2 font-bold text-lg">+{{
+              monster.statsBonus
+              }}</span>
           </div>
           <div class="flex items-center gap-2 text-neutral-500 text-sm rpg-body">
-            <span :style="{ color: getMonsterColor(monster.color) }" class="font-medium">{{ monster.color }}</span>
-            <span>Tier {{ monster.tier }} (+{{ monster.statsBonus }}, {{ monster.actions }} action{{ monster.actions > 1
-              ? 's' : '' }})</span>
+            <div class="bg-neutral-700 px-2 py-0.5 rounded font-bold text-white text-sm">
+              {{ monster.actions }} Action{{ monster.actions > 1 ? 's' : '' }}
+            </div>
           </div>
         </div>
       </div>
@@ -41,12 +46,15 @@
 
     <!-- Hearts Display -->
     <div class="compact-hidden mb-4 hearts-display" :class="{ 'show': isHoverDelayed }">
-      <span class="font-medium rpg-body">Hearts:</span>
-      <div class="flex gap-1">
-        <i v-for="i in monster.heartsMax" :key="i" class="heart" :class="{ 'empty': i > monster.heartsCurrent }">♥</i>
+      <div class="flex items-center gap-2">
+        <span class="font-medium rpg-body">Hearts:</span>
+        <div class="flex gap-1">
+          <i v-for="i in monster.heartsMax" :key="i" class="heart" :class="{ 'empty': i > monster.heartsCurrent }">♥</i>
+        </div>
+        <span class="text-neutral-500 text-sm rpg-body">({{ Math.round(monster.heartsCurrent * 10) }}/{{
+          monster.heartsMax
+          * 10 }} HP)</span>
       </div>
-      <span class="text-neutral-500 text-sm rpg-body">({{ Math.round(monster.heartsCurrent * 10) }}/{{ monster.heartsMax
-        * 10 }} HP)</span>
     </div>
 
     <!-- Quick HP Adjust Buttons -->

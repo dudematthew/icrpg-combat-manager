@@ -11,6 +11,10 @@ export interface Monster {
   notes: string;
   name?: string;
   specialAbilities?: string;
+  // Manual mode overrides
+  manualStatsBonus?: number;
+  manualActions?: number;
+  manualHearts?: number;
 }
 
 export interface Timer {

@@ -43,6 +43,7 @@ export const useSettingsStore = defineStore("settings", () => {
   ];
 
   const appCards = ref<AppCard[]>([]);
+  const tierMode = ref(true); // true = tier mode, false = manual mode
 
   // Load settings from localStorage
   const loadSettings = () => {
@@ -50,8 +51,10 @@ export const useSettingsStore = defineStore("settings", () => {
     if (saved) {
       const settings = JSON.parse(saved);
       appCards.value = settings.appCards || defaultAppCards;
+      tierMode.value = settings.tierMode !== undefined ? settings.tierMode : true;
     } else {
       appCards.value = [...defaultAppCards];
+      tierMode.value = true;
     }
   };
 
@@ -59,6 +62,7 @@ export const useSettingsStore = defineStore("settings", () => {
   const saveSettings = () => {
     const settings = {
       appCards: appCards.value,
+      tierMode: tierMode.value,
     };
     localStorage.setItem("icrpg-settings", JSON.stringify(settings));
   };
@@ -106,15 +110,24 @@ export const useSettingsStore = defineStore("settings", () => {
     return appCards.value.filter((card) => card.enabled).sort((a, b) => a.order - b.order);
   };
 
+  // Toggle tier mode
+  const toggleTierMode = () => {
+    tierMode.value = !tierMode.value;
+    saveSettings();
+  };
+
   // Reset to defaults
   const resetToDefaults = () => {
     appCards.value = [...defaultAppCards];
+    tierMode.value = true;
     saveSettings();
   };
 
   return {
     appCards,
+    tierMode,
     toggleCard,
+    toggleTierMode,
     reorderCards,
     getVisibleCards,
     resetToDefaults,

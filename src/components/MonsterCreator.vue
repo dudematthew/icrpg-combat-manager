@@ -65,6 +65,25 @@
                 placeholder="Default from tier" class="rpg-input" />
             </div>
 
+            <!-- Manual Mode Overrides -->
+            <template v-if="!settingsStore.tierMode">
+              <div>
+                <label for="statsBonus" class="rpg-label">Stats Bonus Override</label>
+                <input id="statsBonus" v-model.number="newMonster.manualStatsBonus" type="number" :min="0" :max="20"
+                  placeholder="Default from tier" class="rpg-input" />
+              </div>
+              <div>
+                <label for="actions" class="rpg-label">Actions Override</label>
+                <input id="actions" v-model.number="newMonster.manualActions" type="number" :min="1" :max="5"
+                  placeholder="Default from tier" class="rpg-input" />
+              </div>
+              <div>
+                <label for="manualHearts" class="rpg-label">Hearts Override</label>
+                <input id="manualHearts" v-model.number="newMonster.manualHearts" type="number" :min="1" :max="10"
+                  placeholder="Default from tier" class="rpg-input" />
+              </div>
+            </template>
+
             <div class="md:col-span-2">
               <label for="notes" class="rpg-label">Notes (Optional)</label>
               <textarea id="notes" v-model="newMonster.notes" placeholder="Add notes about this monster..." rows="6"
@@ -147,9 +166,14 @@
             <strong class="font-semibold">{{ formatMonsterIdentifier(newMonster.color || 'Grey', newMonster.letter ||
               '?') }}</strong>
             <br>
-            Tier {{ newMonster.tier || '?' }}: +{{ getTierBonus(newMonster.tier) }}, {{
-            getTierActions(newMonster.tier) }} action(s), {{ newMonster.heartsMax || getTierHearts(newMonster.tier)
+            Tier {{ newMonster.tier || '?' }}: +{{ effectiveStatsBonus }}, {{ effectiveActions }} action(s), {{
+            effectiveHearts
             }} heart(s)
+            <div
+              v-if="!settingsStore.tierMode && (newMonster.manualStatsBonus > 0 || newMonster.manualActions > 0 || newMonster.manualHearts > 0)"
+              class="mt-1 text-neutral-500 text-xs">
+              (Manual overrides applied)
+            </div>
           </div>
         </div>
 
@@ -177,13 +201,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { useCombatStore } from '@/stores/combat'
+import { useSettingsStore } from '@/stores/settings'
 import { TIER_CONFIGS } from '@/types'
 import { formatMonsterIdentifier } from '@/utils/combat'
 import { generateMonsterAbilities, generateMonsterUpgrades, rollMonsterState, rollMonsterMotivation } from '@/utils/monsterGenerator'
 
 const combatStore = useCombatStore()
+const settingsStore = useSettingsStore()
 
 const colors = [
   { label: 'Red', value: 'Red' },
@@ -224,7 +250,11 @@ const newMonster = reactive({
   name: '',
   notes: '',
   heartsMax: 0,
-  specialAbilities: ''
+  specialAbilities: '',
+  // Manual mode overrides
+  manualStatsBonus: 0,
+  manualActions: 0,
+  manualHearts: 0
 })
 
 // Generator preview state
@@ -236,6 +266,28 @@ const generatedUpgrades = ref('')
 const getTierBonus = (tier: string) => TIER_CONFIGS[tier as keyof typeof TIER_CONFIGS]?.bonus || 0
 const getTierActions = (tier: string) => TIER_CONFIGS[tier as keyof typeof TIER_CONFIGS]?.actions || 1
 const getTierHearts = (tier: string) => TIER_CONFIGS[tier as keyof typeof TIER_CONFIGS]?.hearts || 1
+
+// Computed properties for tier mode
+const effectiveStatsBonus = computed(() => {
+  if (settingsStore.tierMode) {
+    return getTierBonus(newMonster.tier)
+  }
+  return newMonster.manualStatsBonus || getTierBonus(newMonster.tier)
+})
+
+const effectiveActions = computed(() => {
+  if (settingsStore.tierMode) {
+    return getTierActions(newMonster.tier)
+  }
+  return newMonster.manualActions || getTierActions(newMonster.tier)
+})
+
+const effectiveHearts = computed(() => {
+  if (settingsStore.tierMode) {
+    return newMonster.heartsMax || getTierHearts(newMonster.tier)
+  }
+  return newMonster.manualHearts || newMonster.heartsMax || getTierHearts(newMonster.tier)
+})
 
 const updateTierDefaults = () => {
   if (newMonster.tier) {
@@ -252,19 +304,34 @@ const addMonster = () => {
   const config = TIER_CONFIGS[newMonster.tier]
   if (!config) return
 
-  combatStore.addMonster({
+  const monsterData: any = {
     color: newMonster.color,
     letter: newMonster.letter,
     tier: newMonster.tier,
-    heartsMax: newMonster.heartsMax || config.hearts,
-    heartsCurrent: newMonster.heartsMax || config.hearts,
-    statsBonus: config.bonus,
-    actions: config.actions,
+    heartsMax: effectiveHearts.value,
+    heartsCurrent: effectiveHearts.value,
+    statsBonus: effectiveStatsBonus.value,
+    actions: effectiveActions.value,
     conditions: [],
     notes: newMonster.notes,
     name: newMonster.name || undefined,
     specialAbilities: newMonster.specialAbilities || undefined
-  })
+  }
+
+  // Add manual overrides if in manual mode
+  if (!settingsStore.tierMode) {
+    if (newMonster.manualStatsBonus > 0) {
+      monsterData.manualStatsBonus = newMonster.manualStatsBonus
+    }
+    if (newMonster.manualActions > 0) {
+      monsterData.manualActions = newMonster.manualActions
+    }
+    if (newMonster.manualHearts > 0) {
+      monsterData.manualHearts = newMonster.manualHearts
+    }
+  }
+
+  combatStore.addMonster(monsterData)
 
   // Auto-increment letter for easier batch creation
   const currentLetterIndex = letters.findIndex(l => l.value === newMonster.letter)

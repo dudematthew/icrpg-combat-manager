@@ -109,6 +109,32 @@
           <div class="mb-6">
             <h3 class="mb-4 text-lg rpg-title">Settings</h3>
 
+            <!-- Tier Mode Setting -->
+            <div class="mb-6">
+              <h4 class="mb-3 rpg-label">Monster Creation Mode</h4>
+              <div class="flex justify-between items-center bg-neutral-50 p-3 border border-neutral-200 rounded-lg">
+                <div>
+                  <div class="font-medium text-sm rpg-heading">
+                    {{ settingsStore.tierMode ? 'Tier Mode' : 'Manual Mode' }}
+                  </div>
+                  <div class="text-neutral-600 text-xs rpg-body">
+                    {{ settingsStore.tierMode
+                    ? 'Tier automatically sets stats, actions, and hearts'
+                    : 'Manually set stats, actions, and hearts' }}
+                  </div>
+                </div>
+                <button @click="settingsStore.toggleTierMode"
+                  :class="settingsStore.tierMode ? 'bg-accent' : 'bg-neutral-300'"
+                  class="inline-flex relative items-center rounded-full w-10 h-5 transition-colors">
+                  <span :class="settingsStore.tierMode ? 'translate-x-5' : 'translate-x-0.5'"
+                    class="inline-block flex justify-center items-center bg-white shadow-sm rounded-full w-4 h-4 transition-transform transform">
+                    <Eye v-if="settingsStore.tierMode" class="w-2.5 h-2.5 text-accent" />
+                    <EyeOff v-else class="w-2.5 h-2.5 text-neutral-400" />
+                  </span>
+                </button>
+              </div>
+            </div>
+
             <!-- App Cards Management -->
             <div class="mb-6">
               <h4 class="mb-3 rpg-label">Application Cards</h4>

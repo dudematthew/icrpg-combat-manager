@@ -37,9 +37,9 @@
         </div>
       </div>
       <div class="flex gap-2">
-        <button v-if="monster.heartsCurrent <= 0" @click="reviveMonster" class="rpg-icon-button rpg-icon-button-neutral"
-          title="Revive Monster to Full Health">
-          <img src="/images/monster_icon.png" class="w-6 h-6 icon-filter" alt="Revive monster" />
+        <button v-if="monster.heartsCurrent <= 0" @click="reviveMonster"
+          class="flex items-center gap-1 rpg-icon-button rpg-icon-button-neutral" title="Revive Monster to Full Health">
+          <RotateCw class="w-4 h-4 icon-filter" />
           <span class="ml-1 text-xs">Revive</span>
         </button>
         <button @click="$emit('remove')" class="rpg-icon-button rpg-icon-button-danger">
@@ -49,7 +49,8 @@
     </div>
 
     <!-- Hearts Display -->
-    <div class="compact-hidden mb-4 hearts-display" :class="{ 'show': isHoverDelayed }">
+    <div v-if="(!compact || isHoverDelayed) && (monster.heartsCurrent > 0 || isHoverDelayed)"
+      class="mb-4 hearts-display">
       <div class="flex items-center gap-2">
         <span class="font-medium rpg-body">Hearts:</span>
         <div class="flex gap-1">
@@ -62,7 +63,8 @@
     </div>
 
     <!-- Quick HP Adjust Buttons -->
-    <div class="compact-hidden flex flex-wrap gap-2 mb-4" :class="{ 'show': isHoverDelayed }">
+    <div v-if="(!compact || isHoverDelayed) && (monster.heartsCurrent > 0 || isHoverDelayed)"
+      class="flex flex-wrap gap-2 mb-4">
       <button @click="applyDamage(-1)"
         class="bg-white hover:bg-danger px-3 py-1 border-2 border-danger rounded-md font-heading font-black text-danger hover:text-white text-sm uppercase tracking-wide transition-colors">
         -1
@@ -86,7 +88,7 @@
     </div>
 
     <!-- Conditions -->
-    <div class="compact-hidden mb-4" :class="{ 'show': isHoverDelayed }">
+    <div v-if="(!compact || isHoverDelayed) && (monster.heartsCurrent > 0 || isHoverDelayed)" class="mb-4">
       <div class="mb-3 font-medium text-sm rpg-body">Conditions:</div>
       <div class="flex flex-wrap gap-2">
         <span v-for="condition in CONDITIONS" :key="condition.name" @click="toggleCondition(condition.name)"
@@ -97,7 +99,7 @@
     </div>
 
     <!-- Expandable Details -->
-    <details class="group compact-hidden" :class="{ 'show': isHoverDelayed }">
+    <details v-if="(!compact || isHoverDelayed) && (monster.heartsCurrent > 0 || isHoverDelayed)" class="group">
       <summary class="cursor-pointer list-none">
         <div
           class="flex justify-between items-center bg-neutral-50 hover:bg-neutral-100 p-3 rounded-lg transition-colors">
@@ -312,7 +314,7 @@ import type { Monster } from '@/types'
 import { CONDITIONS, TIER_CONFIGS } from '@/types'
 import { formatMonsterIdentifier, getTierColor, getMonsterColor, getTextColorForBackground } from '@/utils/combat'
 import { generateMonsterAbilities, generateMonsterUpgrades, rollMonsterState, rollMonsterMotivation } from '@/utils/monsterGenerator'
-import { Trash2, ChevronDown } from 'lucide-vue-next'
+import { Trash2, ChevronDown, RotateCw } from 'lucide-vue-next'
 import InlineEditableText from './InlineEditableText.vue'
 import { useHoverDelay } from '@/composables/useHoverDelay'
 
@@ -568,24 +570,5 @@ const applyAbilitiesAndUpgrades = () => {
 .monster-card.compact {
   padding: 1rem;
   margin-bottom: 0.5rem;
-}
-
-.monster-card.compact .compact-hidden {
-  display: none;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
-
-.monster-card.compact .compact-hidden.show {
-  display: block;
-  opacity: 1;
-}
-
-.monster-card.compact .compact-hidden.show.flex {
-  display: flex;
-}
-
-.monster-card.compact .compact-hidden.show details {
-  display: block;
 }
 </style>

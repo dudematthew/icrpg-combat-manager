@@ -367,20 +367,11 @@ body {
 /* Dead Monster Styling */
 .monster-card.dead {
   opacity: 0.6;
-  max-height: 80px;
-  overflow: hidden;
-  padding-top: 1rem;
-  padding-bottom: 0.5rem;
-  transition: all 0.3s ease;
-  transition-delay: 0s;
+  transition: opacity 0.3s ease;
 }
 
 .monster-card.dead:hover {
   opacity: 0.8;
-  max-height: none;
-  padding-top: 1.5rem;
-  padding-bottom: 1.5rem;
-  transition-delay: 1.5s;
 }
 
 /* Hearts Display */

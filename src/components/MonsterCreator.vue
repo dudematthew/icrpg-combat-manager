@@ -112,7 +112,7 @@
                   </div>
 
                   <!-- State & Motivation -->
-                  <div class="flex flex-wrap gap-1 mb-3 grow">
+                  <div class="flex flex-wrap gap-1 mb-2 grow">
                     <button @click="generateState"
                       class="flex items-center gap-1 text-xs rpg-button rpg-button-secondary"
                       title="Generate monster state" style="padding-inline: 16px;">
@@ -125,8 +125,12 @@
                       <img src="/images/d6_dice_icon.png" class="w-4 h-4 icon-filter" alt="Generate motivation" />
                       Motivation
                     </button>
+                  </div>
+                  <div v-if="hasStateOrMotivation" class="flex flex-wrap gap-1 mb-3">
                     <button @click="applyStateAndMotivation"
                       class="text-xs rpg-button rpg-button-primary">Apply</button>
+                    <button @click="clearStateAndMotivation"
+                      class="text-xs rpg-button rpg-button-secondary">Clear</button>
                   </div>
                   <div v-if="generatedState || generatedMotivation"
                     class="space-y-2 bg-neutral-50 p-2 border border-neutral-200 rounded">
@@ -139,7 +143,7 @@
                   </div>
 
                   <!-- Abilities & Upgrades -->
-                  <div class="flex flex-wrap gap-1 mb-3 grow">
+                  <div class="flex flex-wrap gap-1 mb-2 grow">
                     <button @click="generateAbilities"
                       class="flex items-center gap-1 text-xs rpg-button rpg-button-secondary" title="Generate abilities"
                       style="padding-inline: 16px;">
@@ -152,8 +156,12 @@
                       <img src="/images/d6_dice_icon.png" class="w-4 h-4 icon-filter" alt="Generate upgrades" />
                       Upgrades
                     </button>
+                  </div>
+                  <div v-if="hasAbilitiesOrUpgrades" class="flex flex-wrap gap-1 mb-3">
                     <button @click="applyAbilitiesAndUpgrades"
                       class="text-xs rpg-button rpg-button-primary">Apply</button>
+                    <button @click="clearAbilitiesAndUpgrades"
+                      class="text-xs rpg-button rpg-button-secondary">Clear</button>
                   </div>
                   <div v-if="generatedAbilities || generatedUpgrades"
                     class="space-y-2 bg-neutral-50 p-2 border border-neutral-200 rounded">
@@ -296,6 +304,15 @@ const generatedState = ref('')
 const generatedMotivation = ref('')
 const generatedAbilities = ref('')
 const generatedUpgrades = ref('')
+
+// Computed properties for conditional buttons
+const hasStateOrMotivation = computed(() => 
+  generatedState.value !== '' || generatedMotivation.value !== ''
+)
+
+const hasAbilitiesOrUpgrades = computed(() => 
+  generatedAbilities.value !== '' || generatedUpgrades.value !== ''
+)
 
 const getTierBonus = (tier: string) => TIER_CONFIGS[tier as keyof typeof TIER_CONFIGS]?.bonus || 0
 const getTierEffortBonus = (tier: string) => TIER_CONFIGS[tier as keyof typeof TIER_CONFIGS]?.effortBonus || 0
@@ -452,6 +469,17 @@ const applyAbilitiesAndUpgrades = () => {
   if (parts.length > 0) {
     newMonster.specialAbilities = parts.join('\n\n')
   }
+}
+
+// Clear functions - clear generated content without applying
+const clearStateAndMotivation = () => {
+  generatedState.value = ''
+  generatedMotivation.value = ''
+}
+
+const clearAbilitiesAndUpgrades = () => {
+  generatedAbilities.value = ''
+  generatedUpgrades.value = ''
 }
 
 const scrollToBattlefield = () => {

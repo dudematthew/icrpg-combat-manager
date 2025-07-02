@@ -211,7 +211,7 @@
                 </div>
 
                 <!-- State & Motivation -->
-                <div class="flex flex-wrap gap-1 mb-3 grow">
+                <div class="flex flex-wrap gap-1 mb-2 grow">
                   <button @click="generateState" class="flex items-center gap-1 text-xs rpg-button rpg-button-secondary"
                     title="Generate monster state" style="padding-inline: 16px;">
                     <img src="/images/d6_dice_icon.png" class="w-4 h-4 icon-filter" alt="Generate state" />
@@ -223,7 +223,11 @@
                     <img src="/images/d6_dice_icon.png" class="w-4 h-4 icon-filter" alt="Generate motivation" />
                     Motivation
                   </button>
+                </div>
+                <div v-if="hasStateOrMotivation" class="flex flex-wrap gap-1 mb-3">
                   <button @click="applyStateAndMotivation" class="text-xs rpg-button rpg-button-primary">Apply</button>
+                  <button @click="clearStateAndMotivation"
+                    class="text-xs rpg-button rpg-button-secondary">Clear</button>
                 </div>
                 <div class="space-y-2 bg-neutral-50 py-2 rounded">
                   <div v-if="generatedState" class="mb-2 text-md text-neutral-700">
@@ -236,7 +240,7 @@
                 </div>
 
                 <!-- Abilities & Upgrades -->
-                <div class="flex flex-wrap gap-1 mb-3 grow">
+                <div class="flex flex-wrap gap-1 mb-2 grow">
                   <button @click="generateAbilities"
                     class="flex items-center gap-1 text-xs rpg-button rpg-button-secondary" title="Generate abilities"
                     style="padding-inline: 16px;">
@@ -249,8 +253,12 @@
                     <img src="/images/d6_dice_icon.png" class="w-4 h-4 icon-filter" alt="Generate upgrades" />
                     Upgrade
                   </button>
+                </div>
+                <div v-if="hasAbilitiesOrUpgrades" class="flex flex-wrap gap-1 mb-3">
                   <button @click="applyAbilitiesAndUpgrades"
                     class="text-xs rpg-button rpg-button-primary">Apply</button>
+                  <button @click="clearAbilitiesAndUpgrades"
+                    class="text-xs rpg-button rpg-button-secondary">Clear</button>
                 </div>
                 <div class="space-y-2 bg-neutral-50 py-2 rounded">
                   <div v-if="generatedAbilities" class="mb-2 text-md text-neutral-700">
@@ -353,6 +361,15 @@ const generatedState = ref('')
 const generatedMotivation = ref('')
 const generatedAbilities = ref('')
 const generatedUpgrades = ref('')
+
+// Computed properties for conditional buttons
+const hasStateOrMotivation = computed(() => 
+  generatedState.value !== '' || generatedMotivation.value !== ''
+)
+
+const hasAbilitiesOrUpgrades = computed(() => 
+  generatedAbilities.value !== '' || generatedUpgrades.value !== ''
+)
 
 const colors = [
   { label: 'Red', value: 'Red' },
@@ -561,6 +578,17 @@ const applyAbilitiesAndUpgrades = () => {
   if (parts.length > 0) {
     localAbilities.value = parts.join('\n\n')
   }
+}
+
+// Clear functions - clear generated content without applying
+const clearStateAndMotivation = () => {
+  generatedState.value = ''
+  generatedMotivation.value = ''
+}
+
+const clearAbilitiesAndUpgrades = () => {
+  generatedAbilities.value = ''
+  generatedUpgrades.value = ''
 }
 </script>
 

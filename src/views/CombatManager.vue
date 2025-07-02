@@ -125,12 +125,11 @@
                   </div>
                 </div>
                 <button @click="settingsStore.toggleTierMode"
-                  :class="settingsStore.tierMode ? 'bg-accent' : 'bg-neutral-300'"
                   class="inline-flex relative items-center rounded-full w-10 h-5 transition-colors">
                   <span :class="settingsStore.tierMode ? 'translate-x-5' : 'translate-x-0.5'"
                     class="inline-block flex justify-center items-center bg-white shadow-sm rounded-full w-4 h-4 transition-transform transform">
-                    <EyeOff v-if="settingsStore.tierMode" class="w-2.5 h-2.5 text-neutral-400" />
-                    <Eye v-else class="w-2.5 h-2.5 text-accent" />
+                    <EyeOff v-if="settingsStore.tierMode" class="w-3 h-3 text-neutral-400" />
+                    <Eye v-else class="w-3 h-3 text-accent" />
                   </span>
                 </button>
               </div>
@@ -162,12 +161,11 @@
                   <!-- Toggle Switch -->
                   <div class="flex-shrink-0">
                     <button @click="settingsStore.toggleCard(card.id)"
-                      :class="card.enabled ? 'bg-accent' : 'bg-neutral-300'"
                       class="inline-flex relative items-center rounded-full w-10 h-5 transition-colors">
                       <span :class="card.enabled ? 'translate-x-5' : 'translate-x-0.5'"
                         class="inline-block flex justify-center items-center bg-white shadow-sm rounded-full w-4 h-4 transition-transform transform">
-                        <Eye v-if="card.enabled" class="w-2.5 h-2.5 text-accent" />
-                        <EyeOff v-else class="w-2.5 h-2.5 text-neutral-400" />
+                        <Eye v-if="card.enabled" class="w-3 h-3 text-accent" />
+                        <EyeOff v-else class="w-3 h-3 text-neutral-400" />
                       </span>
                     </button>
                   </div>

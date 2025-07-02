@@ -81,53 +81,54 @@
             <div class="md:col-span-2">
               <div class="space-y-3 bg-neutral-50 p-3 border border-neutral-200 rounded-lg">
                 <div class="flex justify-between items-center">
-                  <h4 class="rpg-label">Generate Monster</h4>
+                  <h4 class="rpg-label">Generate Traits</h4>
                 </div>
 
                 <!-- State & Motivation -->
-                <div class="mb-3">
-                  <span class="font-semibold text-neutral-600 text-xs">🎲 STATE & MOTIVATION</span>
-                </div>
-                <div class="flex flex-wrap gap-1 mb-3">
-                  <button @click="generateState" class="text-xs rpg-button rpg-button-secondary"
-                    title="Generate monster state">
-                    <img src="/images/d6_dice_icon.png" class="w-3 h-3 icon-filter" alt="Generate state" />
+                <div class="flex flex-wrap gap-1 mb-3 grow">
+                  <button @click="generateState" class="flex items-center gap-1 text-xs rpg-button rpg-button-secondary"
+                    title="Generate monster state" style="padding-inline: 16px;">
+                    <img src="/images/d6_dice_icon.png" class="w-4 h-4 icon-filter" alt="Generate state" />
+                    State
                   </button>
-                  <button @click="generateMotivation" class="text-xs rpg-button rpg-button-secondary"
-                    title="Generate monster motivation">
-                    <img src="/images/d6_dice_icon.png" class="w-3 h-3 icon-filter" alt="Generate motivation" />
+                  <button @click="generateMotivation"
+                    class="flex items-center gap-1 text-xs rpg-button rpg-button-secondary"
+                    title="Generate monster motivation" style="padding-inline: 16px;">
+                    <img src="/images/d6_dice_icon.png" class="w-4 h-4 icon-filter" alt="Generate motivation" />
+                    Motivation
                   </button>
                   <button @click="applyStateAndMotivation" class="text-xs rpg-button rpg-button-primary">Apply</button>
                 </div>
                 <div v-if="generatedState || generatedMotivation"
                   class="space-y-2 bg-neutral-50 p-2 border border-neutral-200 rounded">
-                  <div v-if="generatedState" class="text-neutral-700 text-sm">
+                  <div v-if="generatedState" class="mb-2 text-neutral-700 text-sm">
                     <strong class="font-semibold">State:</strong> {{ generatedState }}
                   </div>
-                  <div v-if="generatedMotivation" class="text-neutral-700 text-sm">
+                  <div v-if="generatedMotivation" class="mb-2 text-neutral-700 text-sm">
                     <strong class="font-semibold">Motivation:</strong> {{ generatedMotivation }}
                   </div>
                 </div>
 
                 <!-- Abilities & Upgrades -->
-                <div class="mb-3">
-                  <span class="font-semibold text-neutral-600 text-xs">⚔️ ABILITIES & UPGRADES</span>
-                </div>
-                <div class="flex flex-wrap gap-1 mb-3">
-                  <button @click="generateAbilities" class="text-xs rpg-button rpg-button-secondary"
-                    title="Generate abilities">
-                    <img src="/images/d6_dice_icon.png" class="w-3 h-3 icon-filter" alt="Generate abilities" />
+                <div class="flex flex-wrap gap-1 mb-3 grow">
+                  <button @click="generateAbilities"
+                    class="flex items-center gap-1 text-xs rpg-button rpg-button-secondary" title="Generate abilities"
+                    style="padding-inline: 16px;">
+                    <img src="/images/d6_dice_icon.png" class="w-4 h-4 icon-filter" alt="Generate abilities" />
+                    Abilities
                   </button>
-                  <button @click="generateUpgrades" class="text-xs rpg-button rpg-button-secondary"
-                    title="Generate upgrades">
-                    <img src="/images/d6_dice_icon.png" class="w-3 h-3 icon-filter" alt="Generate upgrades" />
+                  <button @click="generateUpgrades"
+                    class="flex items-center gap-1 text-xs rpg-button rpg-button-secondary" title="Generate upgrades"
+                    style="padding-inline: 16px;">
+                    <img src="/images/d6_dice_icon.png" class="w-4 h-4 icon-filter" alt="Generate upgrades" />
+                    Upgrades
                   </button>
                   <button @click="applyAbilitiesAndUpgrades"
                     class="text-xs rpg-button rpg-button-primary">Apply</button>
                 </div>
                 <div v-if="generatedAbilities || generatedUpgrades"
                   class="space-y-2 bg-neutral-50 p-2 border border-neutral-200 rounded">
-                  <div v-if="generatedAbilities" class="text-neutral-700 text-sm">
+                  <div v-if="generatedAbilities" class="mb-2 text-neutral-700 text-sm">
                     <strong class="font-semibold">Abilities:</strong> {{ generatedAbilities }}
                   </div>
                   <div v-if="generatedUpgrades" class="text-neutral-700 text-sm">

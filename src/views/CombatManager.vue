@@ -11,12 +11,13 @@
 
     <!-- Main Content -->
     <div class="space-y-6">
-      <!-- Timers & Battlefield (Most Used Features) -->
-      <div class="space-y-4">
-        <TimerManager />
+      <!-- Dynamic Content Based on Settings -->
+      <template v-for="card in settingsStore.getVisibleCards()" :key="card.id">
+        <!-- Timers -->
+        <TimerManager v-if="card.id === 'timers'" />
 
         <!-- Battlefield -->
-        <div class="rpg-card">
+        <div v-if="card.id === 'battlefield'" class="rpg-card">
           <!-- Battlefield Title at Top -->
           <div class="flex items-baseline gap-3 mb-4">
             <img src="/images/sword_icon.png" class="flex-shrink-0 w-6 h-6 text-accent icon-filter" alt="Battlefield" />
@@ -36,22 +37,12 @@
           <!-- Turn/Round Control Buttons -->
           <div class="flex justify-center gap-3 mb-6">
             <button @click="nextTurn" class="rpg-button rpg-button-primary rpg-button-sm">
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd"
-                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                  clip-rule="evenodd" />
-              </svg>
+              <ChevronRight class="w-4 h-4" />
               Next Turn
             </button>
             <button @click="nextRound" class="rpg-button rpg-button-secondary rpg-button-sm">
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd"
-                  d="M10.293 15.707a1 1 0 010-1.414L14.586 10l-4.293-4.293a1 1 0 111.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z"
-                  clip-rule="evenodd" />
-                <path fill-rule="evenodd"
-                  d="M3.293 15.707a1 1 0 010-1.414L7.586 10 3.293 5.707a1 1 0 111.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z"
-                  clip-rule="evenodd" />
-              </svg>
+              <ChevronRight class="w-4 h-4" />
+              <ChevronRight class="w-4 h-4" />
               Next Round
             </button>
           </div>
@@ -72,11 +63,7 @@
             <div class="mb-4 text-neutral-500 text-sm">Add monsters using the form below</div>
             <button @click="scrollToCreator"
               class="flex justify-center items-center gap-2 text-xs rpg-button rpg-button-secondary">
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" style="transform: rotate(180deg);">
-                <path fill-rule="evenodd"
-                  d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"
-                  clip-rule="evenodd" />
-              </svg>
+              <ChevronUp class="w-4 h-4" />
               Go to Quick Monster Entry
             </button>
           </div>
@@ -85,11 +72,7 @@
           <div class="flex justify-center gap-3 pt-4 border-neutral-200 border-t">
             <button @click="resetRoundsAndTurns"
               class="bg-warning hover:bg-yellow-600 px-3 py-2 border-2 border-warning rounded-md font-heading text-white text-sm uppercase tracking-wide transition-colors cursor-pointer">
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd"
-                  d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
-                  clip-rule="evenodd" />
-              </svg>
+              <RotateCcw class="w-4 h-4" />
               Reset Rounds
             </button>
             <button @click="confirmClear"
@@ -100,14 +83,85 @@
           </div>
         </div>
 
+        <!-- Target -->
+        <CombatMechanics v-if="card.id === 'target'" />
+
+        <!-- Monster Creation -->
+        <div v-if="card.id === 'monster-creator'" id="monster-creator">
+          <MonsterCreator />
+        </div>
+      </template>
+
+      <!-- Settings -->
+      <div class="rpg-card">
+        <button @click="showSettingsModal = true" class="w-full rpg-button rpg-button-secondary">
+          <Settings class="w-6 h-6" />
+          Settings
+        </button>
       </div>
 
-      <!-- Target -->
-      <CombatMechanics />
+      <!-- Settings Modal -->
+      <div v-if="showSettingsModal"
+        class="z-50 fixed inset-0 flex justify-center items-start bg-black bg-opacity-50 p-4 overflow-y-auto"
+        @click="showSettingsModal = false" style="top: -24px;">
+        <div class="bg-white shadow-xl mx-4 mt-4 p-6 rounded-lg w-full max-w-md" style="min-height: fit-content;"
+          @click.stop>
+          <div class="mb-6">
+            <h3 class="mb-4 text-lg rpg-title">Settings</h3>
 
-      <!-- Monster Creation -->
-      <div id="monster-creator">
-        <MonsterCreator />
+            <!-- App Cards Management -->
+            <div class="mb-6">
+              <h4 class="mb-3 rpg-label">Application Cards</h4>
+              <p class="mb-4 text-neutral-600 rpg-body">Drag to reorder and toggle visibility of application sections.
+              </p>
+
+              <div class="space-y-1">
+                <div v-for="(card, index) in settingsStore.appCards" :key="card.id"
+                  class="flex items-center gap-2 bg-neutral-50 p-2 border border-neutral-200 rounded-lg cursor-move"
+                  draggable="true" @dragstart="dragStart($event, index)" @dragover.prevent @drop="drop($event, index)"
+                  @dragenter.prevent>
+
+                  <!-- Drag Handle -->
+                  <div class="flex-shrink-0 text-neutral-400">
+                    <GripVertical class="w-4 h-4" />
+                  </div>
+
+                  <!-- Card Info -->
+                  <div class="flex-1">
+                    <div class="font-medium text-sm rpg-heading">{{ card.name }}</div>
+                    <div class="text-neutral-600 text-xs rpg-body">{{ card.description }}</div>
+                  </div>
+
+                  <!-- Toggle Switch -->
+                  <div class="flex-shrink-0">
+                    <button @click="settingsStore.toggleCard(card.id)"
+                      :class="card.enabled ? 'bg-accent' : 'bg-neutral-300'"
+                      class="inline-flex relative items-center rounded-full w-10 h-5 transition-colors">
+                      <span :class="card.enabled ? 'translate-x-5' : 'translate-x-0.5'"
+                        class="inline-block flex justify-center items-center bg-white shadow-sm rounded-full w-4 h-4 transition-transform transform">
+                        <Eye v-if="card.enabled" class="w-2.5 h-2.5 text-accent" />
+                        <EyeOff v-else class="w-2.5 h-2.5 text-neutral-400" />
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Reset Button -->
+            <div class="flex justify-center">
+              <button @click="settingsStore.resetToDefaults" class="rpg-button rpg-button-secondary">
+                Reset to Defaults
+              </button>
+            </div>
+          </div>
+
+          <div class="flex justify-end">
+            <button @click="showSettingsModal = false" class="rpg-button rpg-button-primary">
+              Close
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- Clear Confirmation Modal -->
@@ -140,6 +194,8 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useCombatStore } from '@/stores/combat'
+import { useSettingsStore } from '@/stores/settings'
+import { Settings, ChevronRight, RotateCcw, Trash2, GripVertical, ChevronDown, ChevronUp, Eye, EyeOff } from 'lucide-vue-next'
 import MonsterCreator from '@/components/MonsterCreator.vue'
 import MonsterCard from '@/components/MonsterCard.vue'
 import CombatMechanics from '@/components/CombatMechanics.vue'
@@ -148,8 +204,11 @@ import GitHubVersion from '@/components/GitHubVersion.vue'
 import AppFooter from '@/components/AppFooter.vue'
 
 const combatStore = useCombatStore()
+const settingsStore = useSettingsStore()
 
 const showClearDialog = ref(false)
+const showSettingsModal = ref(false)
+const draggedIndex = ref<number | null>(null)
 
 const currentTurn = computed(() => combatStore.currentTurn)
 const currentRound = computed(() => combatStore.currentRound)
@@ -190,5 +249,25 @@ const scrollToCreator = () => {
 
 const resetRoundsAndTurns = () => {
   combatStore.resetRoundsAndTurns()
+}
+
+// Drag and drop functions
+const dragStart = (event: DragEvent, index: number) => {
+  draggedIndex.value = index
+  if (event.dataTransfer) {
+    event.dataTransfer.effectAllowed = 'move'
+  }
+}
+
+const drop = (event: DragEvent, index: number) => {
+  event.preventDefault()
+  if (draggedIndex.value !== null && draggedIndex.value !== index) {
+    const cards = [...settingsStore.appCards]
+    const draggedCard = cards[draggedIndex.value]
+    cards.splice(draggedIndex.value, 1)
+    cards.splice(index, 0, draggedCard)
+    settingsStore.reorderCards(cards)
+  }
+  draggedIndex.value = null
 }
 </script>

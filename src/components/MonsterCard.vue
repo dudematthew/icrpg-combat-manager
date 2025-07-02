@@ -34,11 +34,7 @@
           <span class="ml-1 text-xs">Revive</span>
         </button>
         <button @click="$emit('remove')" class="rpg-icon-button rpg-icon-button-danger">
-          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd"
-              d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-              clip-rule="evenodd" />
-          </svg>
+          <Trash2 class="w-4 h-4" />
         </button>
       </div>
     </div>
@@ -94,11 +90,7 @@
         <div
           class="flex justify-between items-center bg-neutral-50 hover:bg-neutral-100 p-3 border border-neutral-200 rounded-lg transition-colors">
           <span class="text-sm rpg-heading">Details & Notes</span>
-          <svg class="w-4 h-4 group-open:rotate-180 transition-transform" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd"
-              d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-              clip-rule="evenodd" />
-          </svg>
+          <ChevronDown class="w-4 h-4 group-open:rotate-180 transition-transform" />
         </div>
       </summary>
       <div class="space-y-4 mt-4">
@@ -157,11 +149,7 @@
               <div
                 class="flex justify-between items-center bg-neutral-50 hover:bg-neutral-100 p-3 border border-neutral-200 rounded-lg transition-colors">
                 <span class="text-sm rpg-heading">Advanced Options</span>
-                <svg class="w-4 h-4 group-open:rotate-180 transition-transform" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd"
-                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                    clip-rule="evenodd" />
-                </svg>
+                <ChevronDown class="w-4 h-4 group-open:rotate-180 transition-transform" />
               </div>
             </summary>
             <div class="space-y-4 mt-4">
@@ -283,6 +271,7 @@ import type { Monster } from '@/types'
 import { CONDITIONS, TIER_CONFIGS } from '@/types'
 import { formatMonsterIdentifier, getTierColor, getMonsterColor, getTextColorForBackground } from '@/utils/combat'
 import { generateMonsterAbilities, generateMonsterUpgrades, rollMonsterState, rollMonsterMotivation } from '@/utils/monsterGenerator'
+import { Trash2, ChevronDown } from 'lucide-vue-next'
 import InlineEditableText from './InlineEditableText.vue'
 import { useHoverDelay } from '@/composables/useHoverDelay'
 

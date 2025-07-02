@@ -24,11 +24,15 @@
             <span :style="{ color: getMonsterColor(monster.color) }" class="ml-2 font-bold text-lg">+{{
               monster.statsBonus
               }}</span>
+
           </div>
           <div class="flex items-center gap-2 text-neutral-500 text-sm rpg-body">
             <div class="bg-neutral-700 px-2 py-0.5 rounded font-bold text-white text-sm">
               {{ monster.actions }} Action{{ monster.actions > 1 ? 's' : '' }}
             </div>
+            <span v-if="monster.effortBonus > 0" class="ml-1 font-bold text-red-500 text-sm">+{{
+              monster.effortBonus
+              }} EFFORT</span>
           </div>
         </div>
       </div>
@@ -96,7 +100,7 @@
     <details class="group compact-hidden" :class="{ 'show': isHoverDelayed }">
       <summary class="cursor-pointer list-none">
         <div
-          class="flex justify-between items-center bg-neutral-50 hover:bg-neutral-100 p-3 border border-neutral-200 rounded-lg transition-colors">
+          class="flex justify-between items-center bg-neutral-50 hover:bg-neutral-100 p-3 rounded-lg transition-colors">
           <span class="text-sm rpg-heading">Details & Notes</span>
           <ChevronDown class="w-4 h-4 group-open:rotate-180 transition-transform" />
         </div>
@@ -151,25 +155,52 @@
             </select>
           </div>
 
+          <!-- Notes and Special Abilities (moved out of Advanced Options) -->
+          <div class="mb-4">
+            <label class="rpg-label">Notes</label>
+            <textarea v-model="localNotes" rows="4" class="rpg-input" @blur="() => updateNotes(localNotes)"
+              placeholder="Add notes about this monster..."></textarea>
+          </div>
+          <div class="mb-4">
+            <label class="rpg-label">Special Abilities</label>
+            <textarea v-model="localAbilities" rows="4" class="rpg-input" @blur="() => updateAbilities(localAbilities)"
+              placeholder="Describe special abilities..."></textarea>
+          </div>
+
+
           <!-- Advanced Options -->
           <details class="group">
             <summary class="cursor-pointer list-none">
               <div
-                class="flex justify-between items-center bg-neutral-50 hover:bg-neutral-100 p-3 border border-neutral-200 rounded-lg transition-colors">
-                <span class="text-sm rpg-heading">Advanced Options</span>
-                <ChevronDown class="w-4 h-4 group-open:rotate-180 transition-transform" />
+                class="flex justify-between items-center bg-neutral-100 hover:bg-neutral-200 p-4 rounded-lg transition-colors"
+                style="border-bottom: 2px solid #d4d4d4;">
+                <span class="font-bold text-base rpg-heading">Advanced Options</span>
+                <ChevronDown class="w-5 h-5 group-open:rotate-180 transition-transform" />
               </div>
             </summary>
             <div class="space-y-4 mt-4">
-              <div>
-                <label class="rpg-label">Notes</label>
-                <textarea v-model="localNotes" rows="4" class="rpg-input" @blur="() => updateNotes(localNotes)"
-                  placeholder="Add notes about this monster..."></textarea>
-              </div>
-              <div>
-                <label class="rpg-label">Special Abilities</label>
-                <textarea v-model="localAbilities" rows="4" class="rpg-input"
-                  @blur="() => updateAbilities(localAbilities)" placeholder="Describe special abilities..."></textarea>
+              <!-- Manual Overrides -->
+              <div class="gap-4 grid grid-cols-2">
+                <div>
+                  <label class="rpg-label">Stats Bonus Override</label>
+                  <input v-model.number="localStatsBonus" type="number" :min="0" :max="20" class="rpg-input"
+                    placeholder="Default from tier" />
+                </div>
+                <div>
+                  <label class="rpg-label">Effort Bonus Override</label>
+                  <input v-model.number="localEffortBonus" type="number" :min="0" :max="10" class="rpg-input"
+                    placeholder="Default from tier" />
+                </div>
+                <div>
+                  <label class="rpg-label">Actions Override</label>
+                  <input v-model.number="localActions" type="number" :min="1" :max="5" class="rpg-input"
+                    placeholder="Default from tier" />
+                </div>
+                <div>
+                  <label class="rpg-label">Hearts Override</label>
+                  <input v-model.number="localHearts" type="number" :min="1" :max="10" class="rpg-input"
+                    placeholder="Default from tier" />
+                </div>
               </div>
 
               <!-- Generator Section -->
@@ -193,11 +224,11 @@
                   </button>
                   <button @click="applyStateAndMotivation" class="text-xs rpg-button rpg-button-primary">Apply</button>
                 </div>
-                <div class="space-y-2 bg-neutral-50 py-2 border border-neutral-200 rounded">
-                  <div v-if="generatedState" class="mb-2 text-neutral-700 text-sm">
+                <div class="space-y-2 bg-neutral-50 py-2 rounded">
+                  <div v-if="generatedState" class="mb-2 text-md text-neutral-700">
                     <strong class="font-semibold">State:</strong> {{ generatedState }}
                   </div>
-                  <div v-if="generatedMotivation" class="mb-2 text-neutral-700 text-sm">
+                  <div v-if="generatedMotivation" class="mb-2 text-md text-neutral-700">
                     <strong class="font-semibold">Motivation:</strong> {{ generatedMotivation }}
                   </div>
                   <div v-if="!generatedState && !generatedMotivation" class="text-neutral-400 text-sm">...</div>
@@ -209,39 +240,41 @@
                     class="flex items-center gap-1 text-xs rpg-button rpg-button-secondary" title="Generate abilities"
                     style="padding-inline: 16px;">
                     <img src="/images/d6_dice_icon.png" class="w-4 h-4 icon-filter" alt="Generate abilities" />
-                    Abilities
+                    Ability
                   </button>
                   <button @click="generateUpgrades"
                     class="flex items-center gap-1 text-xs rpg-button rpg-button-secondary" title="Generate upgrades"
                     style="padding-inline: 16px;">
                     <img src="/images/d6_dice_icon.png" class="w-4 h-4 icon-filter" alt="Generate upgrades" />
-                    Upgrades
+                    Upgrade
                   </button>
                   <button @click="applyAbilitiesAndUpgrades"
                     class="text-xs rpg-button rpg-button-primary">Apply</button>
                 </div>
-                <div class="space-y-2 bg-neutral-50 py-2 border border-neutral-200 rounded">
-                  <div v-if="generatedAbilities" class="mb-2 text-neutral-700 text-sm">
-                    <strong class="font-semibold">Abilities:</strong> {{ generatedAbilities }}
+                <div class="space-y-2 bg-neutral-50 py-2 rounded">
+                  <div v-if="generatedAbilities" class="mb-2 text-md text-neutral-700">
+                    <strong class="font-semibold">Ability:</strong> {{ generatedAbilities }}
                   </div>
-                  <div v-if="generatedUpgrades" class="mb-2 text-neutral-700 text-sm">
-                    <strong class="font-semibold">Upgrades:</strong> {{ generatedUpgrades }}
+                  <div v-if="generatedUpgrades" class="mb-2 text-md text-neutral-700">
+                    <strong class="font-semibold">Upgrade:</strong> {{ generatedUpgrades }}
                   </div>
                   <div v-if="!generatedAbilities && !generatedUpgrades" class="text-neutral-400 text-sm">...</div>
                 </div>
               </div>
             </div>
           </details>
+
+          <div class="flex justify-end gap-3">
+            <button @click="saveChanges" class="rpg-button rpg-button-primary">
+              Save
+            </button>
+            <button @click="cancelEdit" class="rpg-button rpg-button-secondary">
+              Cancel
+            </button>
+          </div>
         </div>
       </div>
-      <div class="flex justify-end gap-3">
-        <button @click="saveChanges" class="rpg-button rpg-button-primary">
-          Save
-        </button>
-        <button @click="cancelEdit" class="rpg-button rpg-button-secondary">
-          Cancel
-        </button>
-      </div>
+
     </div>
   </div>
 
@@ -303,6 +336,10 @@ const localName = ref(props.monster.name || '')
 const localColor = ref(props.monster.color)
 const localLetter = ref(props.monster.letter)
 const localTier = ref(props.monster.tier)
+const localStatsBonus = ref(props.monster.manualStatsBonus || props.monster.statsBonus)
+const localEffortBonus = ref(props.monster.manualEffortBonus || props.monster.effortBonus)
+const localActions = ref(props.monster.manualActions || props.monster.actions)
+const localHearts = ref(props.monster.manualHearts || props.monster.heartsMax)
 
 // Hover delay for compact view
 const { isHoverDelayed, handleMouseEnter, handleMouseLeave } = useHoverDelay({
@@ -332,8 +369,8 @@ const colors = [
 const tierOptions = [
   { label: 'Tier I (+2, 1 action, 1 heart)', value: 'I' },
   { label: 'Tier II (+4, 1 action, 2 hearts)', value: 'II' },
-  { label: 'Tier III (+6, 2 actions, 4 hearts)', value: 'III' },
-  { label: 'Tier IV (+8, 3 actions, 4+ hearts)', value: 'IV' }
+  { label: 'Tier III (+6, +2 effort, 2 actions, 4 hearts)', value: 'III' },
+  { label: 'Tier IV (+8, +4 effort, 3 actions, 4+ hearts)', value: 'IV' }
 ]
 
 const applyDamage = (amount: number) => {
@@ -377,6 +414,7 @@ const updateTierDefaults = () => {
       emit('update', {
         tier: localTier.value,
         statsBonus: config.bonus,
+        effortBonus: config.effortBonus || 0,
         actions: config.actions,
         heartsMax: config.hearts,
         heartsCurrent: config.hearts
@@ -386,12 +424,35 @@ const updateTierDefaults = () => {
 }
 
 const saveChanges = () => {
-  emit('update', { 
+  const updates: Partial<Monster> = {
     name: localName.value,
     color: localColor.value,
     letter: localLetter.value.toUpperCase(),
     tier: localTier.value
-  })
+  }
+
+  // Add manual overrides if they differ from tier defaults
+  const config = TIER_CONFIGS[localTier.value]
+  if (config) {
+    if (localStatsBonus.value !== config.bonus) {
+      updates.manualStatsBonus = localStatsBonus.value
+      updates.statsBonus = localStatsBonus.value
+    }
+    if (localEffortBonus.value !== config.effortBonus) {
+      updates.manualEffortBonus = localEffortBonus.value
+      updates.effortBonus = localEffortBonus.value
+    }
+    if (localActions.value !== config.actions) {
+      updates.manualActions = localActions.value
+      updates.actions = localActions.value
+    }
+    if (localHearts.value !== config.hearts) {
+      updates.manualHearts = localHearts.value
+      updates.heartsMax = localHearts.value
+    }
+  }
+
+  emit('update', updates)
   showEditModal.value = false
 }
 
@@ -401,6 +462,10 @@ const cancelEdit = () => {
   localColor.value = props.monster.color
   localLetter.value = props.monster.letter
   localTier.value = props.monster.tier
+  localStatsBonus.value = props.monster.manualStatsBonus || props.monster.statsBonus
+  localEffortBonus.value = props.monster.manualEffortBonus || props.monster.effortBonus
+  localActions.value = props.monster.manualActions || props.monster.actions
+  localHearts.value = props.monster.manualHearts || props.monster.heartsMax
   clearPreviews()
   showEditModal.value = false
 }

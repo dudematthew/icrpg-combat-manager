@@ -9,7 +9,7 @@
     <!-- Scene Target Number and Difficulty Modifiers stacked vertically -->
     <div class="flex flex-col items-center space-y-6 mx-auto mb-6 max-w-md" style="flex-direction: column;">
       <!-- Base Target Number Section -->
-      <div class="bg-neutral-50 p-4 border-2 border-neutral-200 rounded-lg">
+      <div class="bg-neutral-50 p-4 rounded-lg">
         <label class="mb-3 rpg-label">Base Scene Target Number</label>
         <div class="flex justify-center items-center gap-3">
           <button @click="adjustTarget(-1)" class="rpg-icon-button rpg-icon-button-neutral">
@@ -33,8 +33,7 @@
       </div>
 
       <!-- Difficulty Modifiers Section -->
-      <div class="flex flex-col items-center bg-neutral-50 p-4 border-2 border-neutral-200 rounded-lg"
-        style="flex-direction: column;">
+      <div class="flex flex-col items-center bg-neutral-50 p-4 rounded-lg" style="flex-direction: column;">
         <label class="mb-3 rpg-label">Difficulty Modifiers</label>
         <div class="flex flex-wrap gap-2">
           <button @click="setDifficulty('easy')"
@@ -55,7 +54,7 @@
         </div>
       </div>
       <!-- Current Target Display -->
-      <div class="bg-gradient-to-r from-accent to-red-600 shadow-lg mt-4 p-4 border-2 border-accent rounded-lg">
+      <div class="bg-gradient-to-r from-accent to-red-600 shadow-lg mt-4 p-4 rounded-lg">
         <div class="text-center">
           <div class="mb-1 font-heading text-white text-sm uppercase tracking-wider">Current Target</div>
           <div class="mb-1 font-black text-white text-4xl">{{ effectiveTarget }}</div>
@@ -138,10 +137,6 @@
               </div>
             </div>
           </div>
-        </div>
-        <div v-else class="bg-white p-8 border-2 border-neutral-300 rounded-lg text-center">
-          <img src="/images/empty_state.png" class="mx-auto mb-2 text-neutral-400 icon-filter" alt="No roll" />
-          <div class="mb-4 text-neutral-500 text-sm">No roll yet</div>
         </div>
       </div>
     </div>

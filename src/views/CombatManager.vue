@@ -17,7 +17,7 @@
         <TimerManager v-if="card.id === 'timers'" />
 
         <!-- Battlefield -->
-        <div v-if="card.id === 'battlefield'" class="rpg-card">
+        <div v-if="card.id === 'battlefield'" class="rpg-card battlefield-section">
           <!-- Battlefield Title at Top -->
           <div class="flex items-baseline gap-3 mb-4">
             <img src="/images/sword_icon.png" class="flex-shrink-0 w-6 h-6 text-accent icon-filter" alt="Battlefield" />
@@ -41,8 +41,7 @@
               Next Turn
             </button>
             <button @click="nextRound" class="rpg-button rpg-button-secondary rpg-button-sm">
-              <ChevronRight class="w-4 h-4" />
-              <ChevronRight class="w-4 h-4" />
+              <ChevronsRight class="w-4 h-4" />
               Next Round
             </button>
           </div>
@@ -56,28 +55,30 @@
           </div>
 
           <!-- No Monsters Message -->
-          <div v-else class="flex items-center mb-6 py-12 text-center" style="flex-direction: column;">
+          <div v-else class="flex justify-center items-center mb-6 py-12 text-center" style="flex-direction: column;">
             <img src="/images/battlefield_empty_state.png" class="mx-auto mb-4 h-24 text-neutral-400 icon-filter"
               alt="No monsters" />
             <div class="mb-2 text-neutral-600 rpg-body">No monsters on the battlefield</div>
-            <div class="mb-4 text-neutral-500 text-sm">Add monsters using the form below</div>
+            <div class="mb-4 text-neutral-500 text-sm">Add monsters using the form <span
+                v-if="isMonsterCreatorAboveBattlefield">above</span><span v-else>below</span></div>
             <button @click="scrollToCreator"
-              class="flex justify-center items-center gap-2 text-xs rpg-button rpg-button-secondary">
-              <ChevronUp class="w-4 h-4" />
-              Go to Quick Monster Entry
+              class="flex justify-center items-center gap-1 bg-neutral-100 hover:bg-neutral-200 px-3 py-1 rounded text-neutral-600 text-xs transition-colors cursor-pointer">
+              <ChevronUp v-if="isMonsterCreatorAboveBattlefield" class="w-3 h-3" />
+              <ChevronDown v-else class="w-3 h-3" />
+              Jump
             </button>
           </div>
 
           <!-- Clear Battlefield Button at Bottom -->
-          <div class="flex justify-center gap-3 pt-4 border-neutral-200 border-t">
+          <div class="flex justify-center items-center gap-3 pt-4 border-neutral-200 border-t">
             <button @click="resetRoundsAndTurns"
-              class="bg-warning hover:bg-yellow-600 px-3 py-2 border-2 border-warning rounded-md font-heading text-white text-sm uppercase tracking-wide transition-colors cursor-pointer">
-              <RotateCcw class="w-4 h-4" />
+              class="flex flex-row items-center gap-1 bg-warning hover:bg-yellow-600 px-3 py-2 border-2 border-warning rounded-md font-heading text-white text-sm uppercase tracking-wide transition-colors cursor-pointer">
+              <RotateCcw class="h-6 icon-filter" />
               Reset Rounds
             </button>
             <button @click="confirmClear"
-              class="bg-danger hover:bg-red-700 px-3 py-2 border-2 border-danger rounded-md font-heading text-white text-sm uppercase tracking-wide transition-colors cursor-pointer">
-              <img src="/images/sword_icon.png" class="w-4 h-4 icon-filter" alt="Clear battlefield" />
+              class="flex flex-row items-center gap-1 bg-danger hover:bg-red-700 px-3 py-2 border-2 border-danger rounded-md font-heading text-white text-sm uppercase tracking-wide transition-colors cursor-pointer">
+              <img src="/images/sword_icon.png" class="h-6 icon-filter" alt="Clear battlefield" />
               Clear Battlefield
             </button>
           </div>
@@ -88,7 +89,7 @@
 
         <!-- Monster Creation -->
         <div v-if="card.id === 'monster-creator'" id="monster-creator">
-          <MonsterCreator />
+          <MonsterCreator :isAboveBattlefield="isMonsterCreatorAboveBattlefield" />
         </div>
       </template>
 
@@ -128,8 +129,8 @@
                   class="inline-flex relative items-center rounded-full w-10 h-5 transition-colors">
                   <span :class="settingsStore.tierMode ? 'translate-x-5' : 'translate-x-0.5'"
                     class="inline-block flex justify-center items-center bg-white shadow-sm rounded-full w-4 h-4 transition-transform transform">
-                    <Eye v-if="settingsStore.tierMode" class="w-2.5 h-2.5 text-accent" />
-                    <EyeOff v-else class="w-2.5 h-2.5 text-neutral-400" />
+                    <EyeOff v-if="settingsStore.tierMode" class="w-2.5 h-2.5 text-neutral-400" />
+                    <Eye v-else class="w-2.5 h-2.5 text-accent" />
                   </span>
                 </button>
               </div>
@@ -173,16 +174,12 @@
                 </div>
               </div>
             </div>
-
-            <!-- Reset Button -->
-            <div class="flex justify-center">
-              <button @click="settingsStore.resetToDefaults" class="rpg-button rpg-button-secondary">
-                Reset to Defaults
-              </button>
-            </div>
           </div>
 
-          <div class="flex justify-end">
+          <div class="flex justify-between">
+            <button @click="settingsStore.resetToDefaults" class="rpg-button rpg-button-secondary">
+              Reset to Defaults
+            </button>
             <button @click="showSettingsModal = false" class="rpg-button rpg-button-primary">
               Close
             </button>
@@ -221,7 +218,7 @@
 import { ref, computed } from 'vue'
 import { useCombatStore } from '@/stores/combat'
 import { useSettingsStore } from '@/stores/settings'
-import { Settings, ChevronRight, RotateCcw, Trash2, GripVertical, ChevronDown, ChevronUp, Eye, EyeOff } from 'lucide-vue-next'
+import { Settings, ChevronRight, RotateCcw, Trash2, GripVertical, ChevronDown, ChevronUp, Eye, EyeOff, ChevronsRight } from 'lucide-vue-next'
 import MonsterCreator from '@/components/MonsterCreator.vue'
 import MonsterCard from '@/components/MonsterCard.vue'
 import CombatMechanics from '@/components/CombatMechanics.vue'
@@ -240,6 +237,14 @@ const currentTurn = computed(() => combatStore.currentTurn)
 const currentRound = computed(() => combatStore.currentRound)
 const activeMonsters = computed(() => combatStore.activeMonsters)
 const shouldUseCompactView = computed(() => activeMonsters.value.length > 2)
+
+const isMonsterCreatorAboveBattlefield = computed(() => {
+  const monsterCreatorCard = settingsStore.appCards.find(card => card.id === 'monster-creator')
+  const battlefieldCard = settingsStore.appCards.find(card => card.id === 'battlefield')
+  
+  if (!monsterCreatorCard || !battlefieldCard) return false
+  return monsterCreatorCard.order < battlefieldCard.order
+})
 
 const nextTurn = () => {
   combatStore.nextTurn()

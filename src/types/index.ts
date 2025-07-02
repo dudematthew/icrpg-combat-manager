@@ -6,6 +6,7 @@ export interface Monster {
   heartsCurrent: number;
   tier: "I" | "II" | "III" | "IV";
   statsBonus: number;
+  effortBonus: number;
   actions: number;
   conditions: string[];
   notes: string;
@@ -13,6 +14,7 @@ export interface Monster {
   specialAbilities?: string;
   // Manual mode overrides
   manualStatsBonus?: number;
+  manualEffortBonus?: number;
   manualActions?: number;
   manualHearts?: number;
 }
@@ -41,8 +43,8 @@ export interface TierConfig {
 }
 
 export const TIER_CONFIGS: Record<string, TierConfig> = {
-  I: { bonus: 2, actions: 1, hearts: 1 },
-  II: { bonus: 4, actions: 1, hearts: 2 },
+  I: { bonus: 2, actions: 1, hearts: 1, effortBonus: 0 },
+  II: { bonus: 4, actions: 1, hearts: 2, effortBonus: 0 },
   III: { bonus: 6, actions: 2, hearts: 4, effortBonus: 2 },
   IV: { bonus: 8, actions: 3, hearts: 4, effortBonus: 4 },
 };

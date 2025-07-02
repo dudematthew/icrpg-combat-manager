@@ -6,7 +6,7 @@
           :style="{ borderBottomColor: '#dc2626', borderBottomWidth: progressWidth + '%' }">
           <div class="monitor-content">
             <div class="monitor-icon">
-              <img src="/images/hourglass_icon.png" class="w-6 h-6 icon-filter" alt="Timer complete" />
+              <img src="/images/clock_icon.png" class="w-6 h-6 icon-filter" alt="Timer complete" />
             </div>
             <div class="monitor-text">
               <div class="monitor-title">Timer Complete!</div>

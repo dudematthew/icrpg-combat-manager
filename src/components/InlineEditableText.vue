@@ -1,19 +1,19 @@
 <template>
-    <div class="inline-editable-text">
-        <!-- Text Display Mode -->
-        <div v-if="!isEditing" @click="startEditing"
-            class="p-2 border hover:border-neutral-300 border-transparent rounded min-h-[2rem] transition-colors cursor-pointer"
-            :class="{ 'text-neutral-500 italic': !modelValue || modelValue.trim() === '' }">
-            <div v-if="modelValue && modelValue.trim() !== ''"
-                class="overflow-wrap-anywhere break-words whitespace-pre-wrap rpg-body">{{ modelValue }}</div>
-            <div v-else class="text-neutral-500 italic rpg-body">{{ placeholder || 'Click to edit...' }}</div>
-        </div>
-
-        <!-- Textarea Edit Mode -->
-        <textarea v-if="isEditing" ref="textareaRef" v-model="localValue" @blur="finishEditing"
-            @keydown.escape="cancelEditing" @keydown.ctrl.enter="finishEditing" :placeholder="placeholder" :rows="rows"
-            class="p-2 border-2 border-accent rounded w-full resize-none rpg-input"></textarea>
+  <div class="inline-editable-text">
+    <!-- Text Display Mode -->
+    <div v-if="!isEditing" @click="startEditing" class="p-2 rounded min-h-[2rem] transition-colors cursor-pointer"
+      :class="{ 'text-neutral-500 italic': !modelValue || modelValue.trim() === '' }">
+      <div v-if="modelValue && modelValue.trim() !== ''"
+        class="overflow-wrap-anywhere break-words whitespace-pre-wrap rpg-body" style="white-space: pre-wrap;">{{
+        modelValue }}</div>
+      <div v-else class="text-neutral-500 italic rpg-body">{{ placeholder || 'Click to edit...' }}</div>
     </div>
+
+    <!-- Textarea Edit Mode -->
+    <textarea v-if="isEditing" ref="textareaRef" v-model="localValue" @blur="finishEditing"
+      @keydown.escape="cancelEditing" @keydown.ctrl.enter="finishEditing" :placeholder="placeholder" :rows="rows"
+      class="p-2 border-2 border-accent rounded w-full resize-none rpg-input"></textarea>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -71,16 +71,16 @@ const cancelEditing = () => {
 
 <style scoped>
 .inline-editable-text {
-    width: 100%;
-    max-width: 100%;
-    overflow: hidden;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 /* Ensure consistent styling */
 .inline-editable-text .rpg-body {
-    margin: 0;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    hyphens: auto;
+  margin: 0;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 </style>

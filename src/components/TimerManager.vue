@@ -2,7 +2,7 @@
   <div class="timer-manager">
     <div class="mb-3 rpg-card">
       <div class="flex items-center gap-2 mb-6">
-        <img src="/images/hourglass_icon.png" class="flex-shrink-0 mb-3 w-5 h-5 text-accent icon-filter" alt="Timers" />
+        <img src="/images/clock_icon.png" class="flex-shrink-0 mb-3 w-5 h-5 text-accent icon-filter" alt="Timers" />
         <h2 class="rpg-heading">Timers</h2>
       </div>
 
@@ -37,8 +37,8 @@
         </div>
         <div class="flex items-end">
           <button @click="addTimer" :disabled="!newTimer.name || !newTimer.duration"
-            class="disabled:opacity-50 w-full disabled:cursor-not-allowed rpg-button rpg-button-primary">
-            <img src="/images/hourglass_icon.png" class="mb-1 h-5 icon-filter" alt="Add timer" />
+            class="disabled:opacity-50 disabled:cursor-not-allowed rpg-button rpg-button-primary">
+            <img src="/images/clock_icon.png" class="mb-1 h-5 icon-filter" alt="Add timer" />
             Add Timer
           </button>
         </div>
@@ -78,8 +78,7 @@
       </div>
 
       <div v-else class="py-8 text-center">
-        <img src="/images/hourglass_icon.png" class="mx-auto mb-3 w-12 h-12 text-neutral-400 icon-filter"
-          alt="No timers" />
+        <img src="/images/hourglass.png" class="mx-auto mb-3 h-12 text-neutral-400 icon-filter" alt="No timers" />
         <div class="text-neutral-500 rpg-body">No active timers</div>
       </div>
     </div>

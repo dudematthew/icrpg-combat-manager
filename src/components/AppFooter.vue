@@ -1,5 +1,5 @@
 <template>
-    <footer class="mt-6 pt-6 pb-3 border-neutral-200 border-t">
+    <footer class="space-y-3 mt-6 pt-6 pb-3">
         <div class="text-neutral-600 text-xs text-center">
             <div class="flex flex-wrap justify-center gap-4 mb-2">
                 <a href="https://opensource.org/licenses/MIT" target="_blank"

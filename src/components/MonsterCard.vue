@@ -53,11 +53,23 @@
         * 10 }} HP)</span>
     </div>
 
-    <!-- Quick Damage Buttons -->
+    <!-- Quick HP Adjust Buttons -->
     <div class="compact-hidden flex flex-wrap gap-2 mb-4" :class="{ 'show': isHoverDelayed }">
-      <button v-for="damage in [1, 2, 5, 10]" :key="damage" @click="applyDamage(damage)"
+      <button @click="applyDamage(-1)"
         class="bg-white hover:bg-danger px-3 py-1 border-2 border-danger rounded-md font-heading font-black text-danger hover:text-white text-sm uppercase tracking-wide transition-colors">
-        -{{ damage }}
+        -1
+      </button>
+      <button @click="applyDamage(-5)"
+        class="bg-white hover:bg-danger px-3 py-1 border-2 border-danger rounded-md font-heading font-black text-danger hover:text-white text-sm uppercase tracking-wide transition-colors">
+        -5
+      </button>
+      <button @click="applyDamage(1)"
+        class="bg-white hover:bg-success px-3 py-1 border-2 border-success rounded-md font-heading font-black text-success hover:text-white text-sm uppercase tracking-wide transition-colors">
+        +1
+      </button>
+      <button @click="applyDamage(5)"
+        class="bg-white hover:bg-success px-3 py-1 border-2 border-success rounded-md font-heading font-black text-success hover:text-white text-sm uppercase tracking-wide transition-colors">
+        +5
       </button>
       <button @click="showDamageDialog = true"
         class="px-3 py-1 font-heading font-black text-sm uppercase tracking-wide rpg-button rpg-button-secondary">
@@ -242,18 +254,18 @@
     @click="showDamageDialog = false">
     <div class="bg-white shadow-xl p-6 rounded-lg w-full max-w-sm" @click.stop>
       <div class="mb-4">
-        <h3 class="mb-4 text-lg rpg-heading">Apply Damage</h3>
+        <h3 class="mb-4 text-lg rpg-heading">Adjust HP</h3>
         <div>
-          <label class="rpg-label">Damage Amount (HP)</label>
-          <input v-model.number="customDamage" type="number" :min="1" :max="100" class="rpg-input"
-            placeholder="Enter HP damage (1-100)" />
+          <label class="rpg-label">Adjust HP (negative = damage, positive = heal)</label>
+          <input v-model.number="customDamage" type="number" :min="-100" :max="100" class="rpg-input"
+            placeholder="Enter HP adjustment (e.g. -3 or 5)" />
           <div class="mt-1 text-neutral-500 text-xs">
             Monsters have {{ monster.heartsMax }} hearts = {{ monster.heartsMax * 10 }} total HP
           </div>
         </div>
       </div>
       <div class="flex justify-end gap-3">
-        <button @click="applyCustomDamage" :disabled="!customDamage || customDamage <= 0"
+        <button @click="applyCustomDamage" :disabled="!customDamage || customDamage === 0"
           class="disabled:opacity-50 disabled:cursor-not-allowed rpg-button rpg-button-primary">
           Apply
         </button>
@@ -327,20 +339,20 @@ const tierOptions = [
   { label: 'Tier IV (+8, 3 actions, 4+ hearts)', value: 'IV' }
 ]
 
-const applyDamage = (damage: number) => {
-  // In ICRPG, monsters have hearts but take HP damage. Hearts * 10 = total HP.
-  // We track current HP (heartsCurrent * 10) and apply damage directly to HP
-  const currentHP = props.monster.heartsCurrent * 10
-  const newHP = Math.max(0, currentHP - damage)
-  const newHearts = newHP / 10
-  emit('update', { heartsCurrent: newHearts })
+const applyDamage = (amount: number) => {
+  const currentHP = props.monster.heartsCurrent * 10;
+  const maxHP = props.monster.heartsMax * 10;
+  let newHP = currentHP + amount;
+  newHP = Math.max(0, Math.min(newHP, maxHP));
+  const newHearts = newHP / 10;
+  emit('update', { heartsCurrent: newHearts });
 }
 
 const applyCustomDamage = () => {
-  if (customDamage.value) {
-    applyDamage(customDamage.value)
-    customDamage.value = null
-    showDamageDialog.value = false
+  if (customDamage.value && customDamage.value !== 0) {
+    applyDamage(customDamage.value);
+    customDamage.value = null;
+    showDamageDialog.value = false;
   }
 }
 

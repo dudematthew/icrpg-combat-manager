@@ -27,7 +27,7 @@
           </div>
 
           <!-- Turn/Round Info -->
-          <div class="bg-neutral-50 mb-4 p-3 border border-neutral-200 rounded-lg text-center">
+          <div class="bg-neutral-50 mb-4 p-3 text-center">
             <div class="text-neutral-700 text-lg rpg-heading">
               Turn <span class="font-bold text-accent">{{ currentTurn }}</span> | Round <span
                 class="font-bold text-accent">{{ currentRound }}</span>

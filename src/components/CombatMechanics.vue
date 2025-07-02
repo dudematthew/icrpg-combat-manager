@@ -94,9 +94,9 @@
       </div>
 
       <!-- Last Roll Result -->
-      <div>
+      <div v-if="lastAttackResult">
         <h3 class="mb-4 text-base rpg-heading">Last Roll Result</h3>
-        <div v-if="lastAttackResult" class="bg-white p-4 border-2 border-neutral-300 rounded-lg">
+        <div class="bg-white p-4 border-2 border-neutral-300 rounded-lg">
           <div class="gap-4 grid grid-cols-4 mb-4 text-center">
             <div>
               <div class="mb-1 text-neutral-700 text-sm rpg-body">Roll:</div>

@@ -124,7 +124,7 @@
                       : 'Manually set stats, actions, and hearts' }}
                     </div>
                   </div>
-                  <button @click="settingsStore.toggleTierMode"
+                  <button @click="settingsStore.toggleTierMode" @mousedown.stop @touchstart.stop
                     class="inline-flex relative items-center rounded-full w-10 h-5 transition-colors">
                     <span :class="settingsStore.tierMode ? 'translate-x-5' : 'translate-x-0.5'"
                       class="inline-block flex justify-center items-center bg-white shadow-sm rounded-full w-4 h-4 transition-transform transform">
@@ -158,7 +158,7 @@
 
                     <!-- Toggle Switch -->
                     <div class="flex-shrink-0">
-                      <button @click="settingsStore.toggleCard(card.id)"
+                      <button @click="settingsStore.toggleCard(card.id)" @mousedown.stop @touchstart.stop
                         class="inline-flex relative items-center rounded-full w-10 h-5 transition-colors">
                         <span :class="card.enabled ? 'translate-x-5' : 'translate-x-0.5'"
                           class="inline-block flex justify-center items-center bg-white shadow-sm rounded-full w-4 h-4 transition-transform transform">

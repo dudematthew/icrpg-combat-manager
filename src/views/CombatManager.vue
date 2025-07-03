@@ -103,7 +103,7 @@
 
       <!-- Settings Modal -->
       <div v-if="showSettingsModal"
-        class="z-50 fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 p-4"
+        class="z-50 fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 p-4 w-[110vw] h-[110vh]"
         @click="showSettingsModal = false" style="top: -24px;">
         <div class="bg-white shadow-xl rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto" @click.stop>
           <div class="p-6">
@@ -125,13 +125,13 @@
                     </div>
                   </div>
                   <button ref="tierModeButton"
-                    class="inline-flex relative items-center rounded-full w-10 h-5 transition-colors"
-                    style="pointer-events: auto; position: relative; z-index: 10;" @mousedown.prevent.stop
-                    @touchstart.prevent.stop @click.prevent.stop="handleTierModeToggle">
-                    <span :class="settingsStore.tierMode ? 'translate-x-5' : 'translate-x-0.5'"
-                      class="inline-block flex justify-center items-center bg-white shadow-sm rounded-full w-4 h-4 transition-transform transform">
-                      <EyeOff v-if="settingsStore.tierMode" class="w-4 h-4 text-neutral-400" />
-                      <Eye v-else class="w-4 h-4 text-accent" />
+                    class="inline-flex relative items-center rounded-full w-10 h-10 transition-colors"
+                    style="pointer-events: auto; position: relative; z-index: 10; touch-action: manipulation; user-select: none;"
+                    @click="handleTierModeToggle">
+                    <span
+                      class="inline-block flex justify-center items-center bg-white shadow-sm mt-1 rounded-full w-6 h-6 transition-transform transform">
+                      <EyeOff v-if="settingsStore.tierMode" class="w-5 h-5 text-neutral-400" />
+                      <Eye v-else class="w-5 h-5 text-accent" />
                     </span>
                   </button>
                 </div>
@@ -160,13 +160,13 @@
 
                     <!-- Toggle Switch -->
                     <div class="flex-shrink-0" style="pointer-events: auto;">
-                      <button class="inline-flex relative items-center rounded-full w-10 h-5 transition-colors"
-                        style="pointer-events: auto; position: relative; z-index: 10;" @mousedown.prevent.stop
-                        @touchstart.prevent.stop @click.prevent.stop="() => handleCardToggle(card.id)">
-                        <span :class="card.enabled ? 'translate-x-5' : 'translate-x-0.5'"
-                          class="inline-block flex justify-center items-center bg-white shadow-sm rounded-full w-4 h-4 transition-transform transform">
-                          <Eye v-if="card.enabled" class="w-4 h-4 text-accent" />
-                          <EyeOff v-else class="w-4 h-4 text-neutral-400" />
+                      <button class="inline-flex relative items-center rounded-full w-10 h-10 transition-colors"
+                        style="pointer-events: auto; position: relative; z-index: 10; touch-action: manipulation; user-select: none;"
+                        @click="() => handleCardToggle(card.id)">
+                        <span
+                          class="inline-block flex justify-center items-center bg-white shadow-sm mt-1 rounded-full w-6 h-6 transition-transform transform">
+                          <Eye v-if="card.enabled" class="w-5 h-5 text-accent" />
+                          <EyeOff v-else class="w-5 h-5 text-neutral-400" />
                         </span>
                       </button>
                     </div>

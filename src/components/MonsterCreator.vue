@@ -49,7 +49,7 @@
         <div class="md:col-span-2">
           <label for="abilities" class="rpg-label">Special Abilities (Optional)</label>
           <textarea id="abilities" v-model="newMonster.specialAbilities" placeholder="Poison, blast, regeneration, etc."
-            rows="12" class="rpg-input"></textarea>
+            rows="6" class="rpg-input"></textarea>
         </div>
 
         <!-- Advanced Options -->

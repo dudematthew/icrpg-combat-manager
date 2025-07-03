@@ -330,7 +330,7 @@ body {
   font-family: "Source Serif Pro", "Georgia", serif;
   transition: all 0.2s ease;
   resize: vertical;
-  height: 3rem;
+  min-height: 3rem;
   box-sizing: border-box;
 }
 

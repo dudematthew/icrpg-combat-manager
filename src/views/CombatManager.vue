@@ -103,84 +103,85 @@
 
       <!-- Settings Modal -->
       <div v-if="showSettingsModal"
-        class="z-50 fixed inset-0 flex justify-center items-start bg-black bg-opacity-50 p-4 overflow-y-auto"
-        @click="showSettingsModal = false" style="top: -24px;">
-        <div class="bg-white shadow-xl mx-4 mt-4 p-6 rounded-lg w-full max-w-md" style="min-height: fit-content;"
-          @click.stop>
-          <div class="mb-6">
-            <h3 class="mb-4 text-lg rpg-title">Settings</h3>
-
-            <!-- Tier Mode Setting -->
+        class="z-50 fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 p-4"
+        @click="showSettingsModal = false">
+        <div class="bg-white shadow-xl rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto" @click.stop>
+          <div class="p-6">
             <div class="mb-6">
-              <h4 class="mb-3 rpg-label">Monster Creation Mode</h4>
-              <div class="flex justify-between items-center bg-neutral-50 p-3 border border-neutral-200 rounded-lg">
-                <div>
-                  <div class="font-medium text-sm rpg-heading">
-                    {{ settingsStore.tierMode ? 'Tier Mode' : 'Manual Mode' }}
+              <h3 class="mb-4 text-lg rpg-title">Settings</h3>
+
+              <!-- Tier Mode Setting -->
+              <div class="mb-6">
+                <h4 class="mb-3 rpg-label">Monster Creation Mode</h4>
+                <div class="flex justify-between items-center bg-neutral-50 p-3 border border-neutral-200 rounded-lg">
+                  <div>
+                    <div class="font-medium text-sm rpg-heading">
+                      {{ settingsStore.tierMode ? 'Tier Mode' : 'Manual Mode' }}
+                    </div>
+                    <div class="text-neutral-600 text-xs rpg-body">
+                      {{ settingsStore.tierMode
+                      ? 'Tier automatically sets stats, actions, and hearts'
+                      : 'Manually set stats, actions, and hearts' }}
+                    </div>
                   </div>
-                  <div class="text-neutral-600 text-xs rpg-body">
-                    {{ settingsStore.tierMode
-                    ? 'Tier automatically sets stats, actions, and hearts'
-                    : 'Manually set stats, actions, and hearts' }}
+                  <button @click="settingsStore.toggleTierMode"
+                    class="inline-flex relative items-center rounded-full w-10 h-5 transition-colors">
+                    <span :class="settingsStore.tierMode ? 'translate-x-5' : 'translate-x-0.5'"
+                      class="inline-block flex justify-center items-center bg-white shadow-sm rounded-full w-4 h-4 transition-transform transform">
+                      <EyeOff v-if="settingsStore.tierMode" class="w-4 h-4 text-neutral-400" />
+                      <Eye v-else class="w-4 h-4 text-accent" />
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- App Cards Management -->
+              <div class="mb-6">
+                <h4 class="mb-3 rpg-label">Application Cards</h4>
+                <p class="mb-4 text-neutral-600 rpg-body">Drag to reorder and toggle visibility of application sections.
+                </p>
+
+                <div ref="cardListParent" class="space-y-1">
+                  <div v-for="(card, index) in appCardsRef" :key="card.id" :index="index"
+                    class="flex items-center gap-2 bg-neutral-50 p-2 border border-neutral-200 rounded-lg cursor-move">
+
+                    <!-- Drag Handle -->
+                    <div class="flex-shrink-0 text-neutral-400">
+                      <GripVertical class="w-4 h-4" />
+                    </div>
+
+                    <!-- Card Info -->
+                    <div class="flex-1">
+                      <div class="font-medium text-sm rpg-heading">{{ card.name }}</div>
+                      <div class="text-neutral-600 text-xs rpg-body">{{ card.description }}</div>
+                    </div>
+
+                    <!-- Toggle Switch -->
+                    <div class="flex-shrink-0">
+                      <button @click="settingsStore.toggleCard(card.id)"
+                        class="inline-flex relative items-center rounded-full w-10 h-5 transition-colors">
+                        <span :class="card.enabled ? 'translate-x-5' : 'translate-x-0.5'"
+                          class="inline-block flex justify-center items-center bg-white shadow-sm rounded-full w-4 h-4 transition-transform transform">
+                          <Eye v-if="card.enabled" class="w-4 h-4 text-accent" />
+                          <EyeOff v-else class="w-4 h-4 text-neutral-400" />
+                        </span>
+                      </button>
+                    </div>
                   </div>
                 </div>
-                <button @click="settingsStore.toggleTierMode"
-                  class="inline-flex relative items-center rounded-full w-10 h-5 transition-colors">
-                  <span :class="settingsStore.tierMode ? 'translate-x-5' : 'translate-x-0.5'"
-                    class="inline-block flex justify-center items-center bg-white shadow-sm rounded-full w-4 h-4 transition-transform transform">
-                    <EyeOff v-if="settingsStore.tierMode" class="w-3 h-3 text-neutral-400" />
-                    <Eye v-else class="w-3 h-3 text-accent" />
-                  </span>
-                </button>
               </div>
             </div>
 
-            <!-- App Cards Management -->
-            <div class="mb-6">
-              <h4 class="mb-3 rpg-label">Application Cards</h4>
-              <p class="mb-4 text-neutral-600 rpg-body">Drag to reorder and toggle visibility of application sections.
-              </p>
-
-              <div class="space-y-1">
-                <div v-for="(card, index) in settingsStore.appCards" :key="card.id"
-                  class="flex items-center gap-2 bg-neutral-50 p-2 border border-neutral-200 rounded-lg cursor-move"
-                  draggable="true" @dragstart="dragStart($event, index)" @dragover.prevent @drop="drop($event, index)"
-                  @dragenter.prevent>
-
-                  <!-- Drag Handle -->
-                  <div class="flex-shrink-0 text-neutral-400">
-                    <GripVertical class="w-4 h-4" />
-                  </div>
-
-                  <!-- Card Info -->
-                  <div class="flex-1">
-                    <div class="font-medium text-sm rpg-heading">{{ card.name }}</div>
-                    <div class="text-neutral-600 text-xs rpg-body">{{ card.description }}</div>
-                  </div>
-
-                  <!-- Toggle Switch -->
-                  <div class="flex-shrink-0">
-                    <button @click="settingsStore.toggleCard(card.id)"
-                      class="inline-flex relative items-center rounded-full w-10 h-5 transition-colors">
-                      <span :class="card.enabled ? 'translate-x-5' : 'translate-x-0.5'"
-                        class="inline-block flex justify-center items-center bg-white shadow-sm rounded-full w-4 h-4 transition-transform transform">
-                        <Eye v-if="card.enabled" class="w-3 h-3 text-accent" />
-                        <EyeOff v-else class="w-3 h-3 text-neutral-400" />
-                      </span>
-                    </button>
-                  </div>
-                </div>
-              </div>
+            <div class="flex sm:flex-row flex-col justify-between gap-3">
+              <button @click="settingsStore.resetToDefaults"
+                class="px-3 sm:px-4 py-2 text-sm sm:text-base rpg-button rpg-button-secondary">
+                Reset to Defaults
+              </button>
+              <button @click="showSettingsModal = false"
+                class="px-3 sm:px-4 py-2 text-sm sm:text-base rpg-button rpg-button-primary">
+                Close
+              </button>
             </div>
-          </div>
-
-          <div class="flex justify-between">
-            <button @click="settingsStore.resetToDefaults" class="rpg-button rpg-button-secondary">
-              Reset to Defaults
-            </button>
-            <button @click="showSettingsModal = false" class="rpg-button rpg-button-primary">
-              Close
-            </button>
           </div>
         </div>
       </div>
@@ -191,7 +192,8 @@
         <div class="bg-white shadow-xl p-6 rounded-lg w-full max-w-md">
           <div class="mb-4">
             <h3 class="mb-2 text-lg rpg-heading">Clear All Data</h3>
-            <p class="mb-2 text-neutral-700 rpg-body">Are you sure you want to clear all monsters, timers, and reset the
+            <p class="mb-2 text-neutral-700 rpg-body">Are you sure you want to clear all monsters, timers, and reset
+              the
               combat state?</p>
             <p class="text-neutral-500 text-sm">This action cannot be undone.</p>
           </div>
@@ -213,9 +215,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useCombatStore } from '@/stores/combat'
-import { useSettingsStore } from '@/stores/settings'
+import { useSettingsStore, type AppCard } from '@/stores/settings'
+import { useDragAndDrop } from 'vue-fluid-dnd'
 import { Settings, ChevronRight, RotateCcw, Trash2, GripVertical, ChevronDown, ChevronUp, Eye, EyeOff, ChevronsRight } from 'lucide-vue-next'
 import MonsterCreator from '@/components/MonsterCreator.vue'
 import MonsterCard from '@/components/MonsterCard.vue'
@@ -229,7 +232,15 @@ const settingsStore = useSettingsStore()
 
 const showClearDialog = ref(false)
 const showSettingsModal = ref(false)
-const draggedIndex = ref<number | null>(null)
+
+// Vue Fluid DnD setup for application cards
+const appCardsRef = ref(settingsStore.appCards)
+const { parent: cardListParent } = useDragAndDrop(appCardsRef)
+
+// Watch for changes and update the store
+watch(appCardsRef, (newCards: AppCard[]) => {
+  settingsStore.reorderCards(newCards)
+}, { deep: true })
 
 const currentTurn = computed(() => combatStore.currentTurn)
 const currentRound = computed(() => combatStore.currentRound)
@@ -278,25 +289,5 @@ const scrollToCreator = () => {
 
 const resetRoundsAndTurns = () => {
   combatStore.resetRoundsAndTurns()
-}
-
-// Drag and drop functions
-const dragStart = (event: DragEvent, index: number) => {
-  draggedIndex.value = index
-  if (event.dataTransfer) {
-    event.dataTransfer.effectAllowed = 'move'
-  }
-}
-
-const drop = (event: DragEvent, index: number) => {
-  event.preventDefault()
-  if (draggedIndex.value !== null && draggedIndex.value !== index) {
-    const cards = [...settingsStore.appCards]
-    const draggedCard = cards[draggedIndex.value]
-    cards.splice(draggedIndex.value, 1)
-    cards.splice(index, 0, draggedCard)
-    settingsStore.reorderCards(cards)
-  }
-  draggedIndex.value = null
 }
 </script>

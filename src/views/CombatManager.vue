@@ -104,7 +104,7 @@
       <!-- Settings Modal -->
       <div v-if="showSettingsModal"
         class="z-50 fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 p-4"
-        @click="showSettingsModal = false">
+        @click="showSettingsModal = false" style="top: -24px;">
         <div class="bg-white shadow-xl rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto" @click.stop>
           <div class="p-6">
             <div class="mb-6">
@@ -124,8 +124,10 @@
                       : 'Manually set stats, actions, and hearts' }}
                     </div>
                   </div>
-                  <button @click="settingsStore.toggleTierMode" @mousedown.stop @touchstart.stop
-                    class="inline-flex relative items-center rounded-full w-10 h-5 transition-colors">
+                  <button ref="tierModeButton"
+                    class="inline-flex relative items-center rounded-full w-10 h-5 transition-colors"
+                    style="pointer-events: auto; position: relative; z-index: 10;" @mousedown.prevent.stop
+                    @touchstart.prevent.stop @click.prevent.stop="handleTierModeToggle">
                     <span :class="settingsStore.tierMode ? 'translate-x-5' : 'translate-x-0.5'"
                       class="inline-block flex justify-center items-center bg-white shadow-sm rounded-full w-4 h-4 transition-transform transform">
                       <EyeOff v-if="settingsStore.tierMode" class="w-4 h-4 text-neutral-400" />
@@ -143,10 +145,10 @@
 
                 <div ref="cardListParent" class="space-y-1">
                   <div v-for="(card, index) in appCardsRef" :key="card.id" :index="index"
-                    class="flex items-center gap-2 bg-neutral-50 p-2 border border-neutral-200 rounded-lg cursor-move">
+                    class="flex items-center gap-2 bg-neutral-50 p-2 border border-neutral-200 rounded-lg">
 
                     <!-- Drag Handle -->
-                    <div class="flex-shrink-0 text-neutral-400">
+                    <div class="flex-shrink-0 text-neutral-400 cursor-move drag-handle">
                       <GripVertical class="w-4 h-4" />
                     </div>
 
@@ -157,9 +159,10 @@
                     </div>
 
                     <!-- Toggle Switch -->
-                    <div class="flex-shrink-0">
-                      <button @click="settingsStore.toggleCard(card.id)" @mousedown.stop @touchstart.stop
-                        class="inline-flex relative items-center rounded-full w-10 h-5 transition-colors">
+                    <div class="flex-shrink-0" style="pointer-events: auto;">
+                      <button class="inline-flex relative items-center rounded-full w-10 h-5 transition-colors"
+                        style="pointer-events: auto; position: relative; z-index: 10;" @mousedown.prevent.stop
+                        @touchstart.prevent.stop @click.prevent.stop="() => handleCardToggle(card.id)">
                         <span :class="card.enabled ? 'translate-x-5' : 'translate-x-0.5'"
                           class="inline-block flex justify-center items-center bg-white shadow-sm rounded-full w-4 h-4 transition-transform transform">
                           <Eye v-if="card.enabled" class="w-4 h-4 text-accent" />
@@ -171,6 +174,8 @@
                 </div>
               </div>
             </div>
+
+
 
             <div class="flex sm:flex-row flex-col justify-between gap-3">
               <button @click="settingsStore.resetToDefaults"
@@ -215,7 +220,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { useCombatStore } from '@/stores/combat'
 import { useSettingsStore, type AppCard } from '@/stores/settings'
 import { useDragAndDrop } from 'vue-fluid-dnd'
@@ -233,14 +238,16 @@ const settingsStore = useSettingsStore()
 const showClearDialog = ref(false)
 const showSettingsModal = ref(false)
 
-// Vue Fluid DnD setup for application cards
-const appCardsRef = ref(settingsStore.appCards)
-const { parent: cardListParent } = useDragAndDrop(appCardsRef)
 
-// Watch for changes and update the store
-watch(appCardsRef, (newCards: AppCard[]) => {
-  settingsStore.reorderCards(newCards)
-}, { deep: true })
+
+// Vue Fluid DnD setup for application cards
+const appCardsRef = computed({
+  get: () => settingsStore.appCards,
+  set: (newCards: AppCard[]) => {
+    settingsStore.reorderCards(newCards)
+  }
+})
+const { parent: cardListParent } = useDragAndDrop(appCardsRef)
 
 const currentTurn = computed(() => combatStore.currentTurn)
 const currentRound = computed(() => combatStore.currentRound)
@@ -289,5 +296,13 @@ const scrollToCreator = () => {
 
 const resetRoundsAndTurns = () => {
   combatStore.resetRoundsAndTurns()
+}
+
+const handleTierModeToggle = () => {
+  settingsStore.toggleTierMode()
+}
+
+const handleCardToggle = (cardId: string) => {
+  settingsStore.toggleCard(cardId)
 }
 </script>

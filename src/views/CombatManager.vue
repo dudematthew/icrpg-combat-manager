@@ -1,7 +1,7 @@
 <template>
   <div class="rpg-container">
     <!-- Header -->
-    <div class="mb-6 rpg-card">
+    <div v-if="settingsStore.showTitleCard" class="mb-6 rpg-card">
       <h1 class="rpg-title">ICRPG Combat Manager</h1>
       <div class="mt-2 text-neutral-500 text-sm text-center" style="font-family: 'Chalkduster', cursive;">
         <GitHubVersion /> by <a href="https://github.com/dudematthew" target="_blank"
@@ -125,7 +125,7 @@
                     </div>
                   </div>
                   <button ref="tierModeButton"
-                    class="inline-flex relative items-center rounded-full w-10 h-10 transition-colors"
+                    class="inline-flex relative items-center rounded-full w-10 h-10 transition-colors cursor-pointer"
                     style="pointer-events: auto; position: relative; z-index: 10; touch-action: manipulation; user-select: none;"
                     @click="handleTierModeToggle">
                     <span
@@ -134,6 +134,27 @@
                       <Eye v-else class="w-5 h-5 text-accent" />
                     </span>
                   </button>
+                </div>
+              </div>
+
+              <!-- Title Card Visibility -->
+              <div class="mb-6">
+                <h4 class="mb-3 rpg-label">Title Card</h4>
+                <div class="bg-neutral-50 p-3 border border-neutral-200 rounded-lg">
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm rpg-body">Show title card at top</span>
+                    <button @click="settingsStore.toggleTitleCard"
+                      class="inline-flex relative items-center rounded-full w-10 h-10 transition-colors cursor-pointer">
+                      <span
+                        class="inline-block flex justify-center items-center bg-white shadow-sm mt-1 rounded-full w-6 h-6 transition-transform transform">
+                        <Eye v-if="settingsStore.showTitleCard" class="w-5 h-5 text-accent" />
+                        <EyeOff v-else class="w-5 h-5 text-neutral-400" />
+                      </span>
+                    </button>
+                  </div>
+                  <div class="mt-2 text-neutral-600 text-xs rpg-body">
+                    Hide the title card to save space on mobile devices
+                  </div>
                 </div>
               </div>
 
@@ -178,7 +199,8 @@
 
                     <!-- Toggle Switch -->
                     <div class="flex-shrink-0" style="pointer-events: auto;">
-                      <button class="inline-flex relative items-center rounded-full w-10 h-10 transition-colors"
+                      <button
+                        class="inline-flex relative items-center rounded-full w-10 h-10 transition-colors cursor-pointer"
                         style="pointer-events: auto; position: relative; z-index: 10; touch-action: manipulation; user-select: none;"
                         @click="() => handleCardToggle(card.id)">
                         <span
@@ -238,9 +260,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useCombatStore } from '@/stores/combat'
-import { useSettingsStore, type AppCard } from '@/stores/settings'
+import { useSettingsStore } from '@/stores/settings'
 import type { Monster } from '@/types'
 import { useDragAndDrop } from 'vue-fluid-dnd'
 import { Settings, ChevronRight, RotateCcw, GripVertical, ChevronDown, ChevronUp, Eye, EyeOff, ChevronsRight } from 'lucide-vue-next'
@@ -260,13 +282,27 @@ const showSettingsModal = ref(false)
 
 
 // Vue Fluid DnD setup for application cards
-const appCardsRef = computed({
-  get: () => settingsStore.appCards,
-  set: (newCards: AppCard[]) => {
+const appCardsRef = ref([...settingsStore.appCards])
+
+// Keep ref in sync with store
+watch(() => settingsStore.appCards, (newCards) => {
+  appCardsRef.value = [...newCards]
+}, { immediate: true })
+
+// Set up drag and drop with callback
+const { parent: cardListParent } = useDragAndDrop(appCardsRef)
+
+// Watch for drag changes and update store
+watch(appCardsRef, (newCards) => {
+  // Only update store if the order actually changed
+  const currentOrder = settingsStore.appCards.map(c => c.id).join(',')
+  const newOrder = newCards.map(c => c.id).join(',')
+
+  if (currentOrder !== newOrder) {
+    console.log('Drag detected, updating store')
     settingsStore.reorderCards(newCards)
   }
-})
-const { parent: cardListParent } = useDragAndDrop(appCardsRef)
+}, { deep: true })
 
 const currentTurn = computed(() => combatStore.currentTurn)
 const currentRound = computed(() => combatStore.currentRound)
@@ -274,11 +310,11 @@ const activeMonsters = computed(() => combatStore.activeMonsters)
 const shouldUseCompactView = computed(() => activeMonsters.value.length > settingsStore.compactThreshold)
 
 const isMonsterCreatorAboveBattlefield = computed(() => {
-  const monsterCreatorCard = settingsStore.appCards.find(card => card.id === 'monster-creator')
-  const battlefieldCard = settingsStore.appCards.find(card => card.id === 'battlefield')
+  const monsterCreatorIndex = settingsStore.appCards.findIndex(card => card.id === 'monster-creator')
+  const battlefieldIndex = settingsStore.appCards.findIndex(card => card.id === 'battlefield')
 
-  if (!monsterCreatorCard || !battlefieldCard) return false
-  return monsterCreatorCard.order < battlefieldCard.order
+  if (monsterCreatorIndex === -1 || battlefieldIndex === -1) return false
+  return monsterCreatorIndex < battlefieldIndex
 })
 
 const nextTurn = () => {

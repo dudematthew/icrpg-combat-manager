@@ -87,6 +87,8 @@
 - **Touch-friendly button sizes** ✅
 - **Enter key support** for forms - Quick monster entry, monster edit, timer creation, target input, and damage dialogs ✅
 - **Compact view threshold setting** - Configurable number of monsters before switching to compact view (default 2) ✅
+- **Title card toggle** - Option to hide the title card to save space on mobile devices ✅
+- **Application cards drag & drop reordering** - Fixed and simplified using array index instead of order property ✅
 - **Swipe gestures** for common actions
 - **Offline functionality** considerations
 - **Progressive Web App** features

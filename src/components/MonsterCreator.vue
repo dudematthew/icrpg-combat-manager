@@ -3,7 +3,7 @@
     <div class="mb-3 rpg-card">
       <div class="flex items-center gap-2 mb-6">
         <img src="/images/monster_icon.png" class="mb-3 w-5 h-5 text-accent icon-filter" alt="Add monster" />
-        <h2 class="rpg-heading">Quick Monster Entry</h2>
+        <h2 class="rpg-heading">Monster Creator</h2>
       </div>
 
       <div class="space-y-4">
@@ -238,7 +238,7 @@
 import { ref, reactive, computed } from 'vue'
 import { useCombatStore } from '@/stores/combat'
 import { useSettingsStore } from '@/stores/settings'
-import { TIER_CONFIGS } from '@/types'
+import { TIER_CONFIGS, type Monster } from '@/types'
 import { formatMonsterIdentifier } from '@/utils/combat'
 import { generateMonsterAbilities, generateMonsterUpgrades, rollMonsterState, rollMonsterMotivation } from '@/utils/monsterGenerator'
 import { ChevronDown, ChevronUp } from 'lucide-vue-next'
@@ -364,7 +364,7 @@ const addMonster = () => {
   const config = TIER_CONFIGS[newMonster.tier]
   if (!config) return
 
-  const monsterData: any = {
+  const monsterData: Partial<Monster> = {
     color: newMonster.color,
     letter: newMonster.letter,
     tier: newMonster.tier,
@@ -395,7 +395,7 @@ const addMonster = () => {
     }
   }
 
-  combatStore.addMonster(monsterData)
+  combatStore.addMonster(monsterData as Omit<Monster, "id">)
 
   // Auto-increment letter for easier batch creation
   const currentLetterIndex = letters.findIndex(l => l.value === newMonster.letter)

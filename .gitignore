@@ -64,6 +64,9 @@ Desktop.ini
 # TypeScript
 *.tsbuildinfo
 
+# Vite
+*.timestamp-*.mjs
+
 # Optional npm cache directory
 .npm
 

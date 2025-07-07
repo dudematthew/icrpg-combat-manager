@@ -6,60 +6,80 @@ export interface AppCard {
   name: string;
   description: string;
   enabled: boolean;
-  order: number;
+}
+
+// Legacy interface for backward compatibility with old localStorage data
+interface LegacyAppCard extends AppCard {
+  order?: number;
 }
 
 export const useSettingsStore = defineStore("settings", () => {
-  // Default app cards configuration
+  // Default app cards configuration (order is based on array index)
   const defaultAppCards: AppCard[] = [
     {
       id: "timers",
       name: "Timers",
       description: "Manage round and turn-based timers",
       enabled: true,
-      order: 1,
     },
     {
       id: "battlefield",
       name: "Battlefield",
       description: "Combat management and monster tracking",
       enabled: true,
-      order: 2,
     },
     {
       id: "target",
       name: "Target",
       description: "Scene target numbers and attack rolls",
       enabled: true,
-      order: 3,
     },
     {
       id: "monster-creator",
       name: "Monster Creator",
       description: "Quick monster creation and management",
       enabled: true,
-      order: 4,
     },
   ];
 
   const appCards = ref<AppCard[]>([]);
   const tierMode = ref(true); // true = tier mode, false = manual mode
   const compactThreshold = ref(2); // Number of monsters before switching to compact view
+  const showTitleCard = ref(true); // Whether to show the title card at the top
 
   // Load settings from localStorage
   const loadSettings = () => {
     const saved = localStorage.getItem("icrpg-settings");
     if (saved) {
       const settings = JSON.parse(saved);
-      appCards.value = settings.appCards || defaultAppCards;
+
+      // Handle appCards - clean up any old order properties and ensure proper array
+      if (settings.appCards && Array.isArray(settings.appCards)) {
+        appCards.value = settings.appCards.map((card: LegacyAppCard) => ({
+          id: card.id,
+          name: card.name,
+          description: card.description,
+          enabled: card.enabled,
+        }));
+      } else {
+        appCards.value = [...defaultAppCards];
+      }
+
       tierMode.value = settings.tierMode !== undefined ? settings.tierMode : true;
       compactThreshold.value =
         settings.compactThreshold !== undefined ? settings.compactThreshold : 2;
+      showTitleCard.value = settings.showTitleCard !== undefined ? settings.showTitleCard : true;
     } else {
       appCards.value = [...defaultAppCards];
       tierMode.value = true;
       compactThreshold.value = 2;
+      showTitleCard.value = true;
     }
+
+    console.log(
+      "Loaded appCards:",
+      appCards.value.map((c, i) => `${i}: ${c.name}`)
+    );
   };
 
   // Save settings to localStorage
@@ -68,7 +88,12 @@ export const useSettingsStore = defineStore("settings", () => {
       appCards: appCards.value,
       tierMode: tierMode.value,
       compactThreshold: compactThreshold.value,
+      showTitleCard: showTitleCard.value,
     };
+    console.log(
+      "Saving appCards:",
+      appCards.value.map((c, i) => `${i}: ${c.name}`)
+    );
     localStorage.setItem("icrpg-settings", JSON.stringify(settings));
   };
 
@@ -101,18 +126,27 @@ export const useSettingsStore = defineStore("settings", () => {
     }
   };
 
-  // Reorder cards
+  // Reorder cards (just update the array order)
   const reorderCards = (newOrder: AppCard[]) => {
-    appCards.value = newOrder.map((card, index) => ({
-      ...card,
-      order: index + 1,
-    }));
+    console.log(
+      "Reordering from:",
+      appCards.value.map((c, i) => `${i}: ${c.name}`)
+    );
+    console.log(
+      "Reordering to:",
+      newOrder.map((c, i) => `${i}: ${c.name}`)
+    );
+    appCards.value = [...newOrder];
+    console.log(
+      "After reorder:",
+      appCards.value.map((c, i) => `${i}: ${c.name}`)
+    );
     saveSettings();
   };
 
-  // Get visible cards in order
+  // Get visible cards in order (based on array index)
   const getVisibleCards = () => {
-    return appCards.value.filter((card) => card.enabled).sort((a, b) => a.order - b.order);
+    return appCards.value.filter((card) => card.enabled);
   };
 
   // Toggle tier mode
@@ -127,11 +161,18 @@ export const useSettingsStore = defineStore("settings", () => {
     saveSettings();
   };
 
+  // Toggle title card visibility
+  const toggleTitleCard = () => {
+    showTitleCard.value = !showTitleCard.value;
+    saveSettings();
+  };
+
   // Reset to defaults
   const resetToDefaults = () => {
     appCards.value = [...defaultAppCards];
     tierMode.value = true;
     compactThreshold.value = 2;
+    showTitleCard.value = true;
     saveSettings();
   };
 
@@ -139,9 +180,11 @@ export const useSettingsStore = defineStore("settings", () => {
     appCards,
     tierMode,
     compactThreshold,
+    showTitleCard,
     toggleCard,
     toggleTierMode,
     updateCompactThreshold,
+    toggleTitleCard,
     reorderCards,
     getVisibleCards,
     resetToDefaults,

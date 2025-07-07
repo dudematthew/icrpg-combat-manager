@@ -47,7 +47,7 @@
           </div>
         </div>
       </div>
-      <div class="flex gap-2">
+      <div class="flex xs:flex-row flex-col gap-1">
         <button v-if="monster.heartsCurrent <= 0" @click="reviveMonster"
           class="flex items-center gap-1 rpg-icon-button rpg-icon-button-neutral" title="Revive Monster to Full Health">
           <img src="/images/revive_icon.png" class="h-4 icon-filter" alt="Revive Monster" />

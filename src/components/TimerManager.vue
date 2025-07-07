@@ -55,7 +55,7 @@
               <div class="text-neutral-600 text-sm rpg-body">
                 Duration: {{ timer.duration }} {{ timer.type }} |
                 Remaining: <span :class="timer.remaining <= 0 ? 'text-danger font-bold' : 'text-accent font-bold'">{{
-                  timer.remaining }}</span> {{ timer.type }}
+                  timer.remaining <= 0 ? 'done' : `${timer.remaining} ${timer.type}` }}</span>
               </div>
             </div>
             <div class="flex items-center gap-2">
@@ -108,7 +108,7 @@ const addTimer = () => {
       remaining: newTimer.value.duration,
       type: newTimer.value.type
     })
-    
+
     // Reset form
     newTimer.value = {
       name: '',

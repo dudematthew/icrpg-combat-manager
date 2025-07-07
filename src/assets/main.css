@@ -1,8 +1,7 @@
-@import "tailwindcss/preflight";
-@tailwind utilities;
-
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap");
 @import "base.css";
+@import "tailwindcss/preflight";
+@tailwind utilities;
 
 /* ICRPG Custom Font Faces from CDN */
 @font-face {
@@ -495,6 +494,14 @@ body {
 /* Responsive and Layout Utilities */
 .flex {
   display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.flex-row {
+  flex-direction: row;
 }
 
 .inline-flex {

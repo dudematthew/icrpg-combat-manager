@@ -22,11 +22,13 @@
           {{ monster.letter }}
         </div>
         <div class="flex-1 cursor-pointer" @click="showEditModal = true">
-          <div class="mb-2 text-base rpg-heading">
+          <div class="flex flex-row items-center gap-2 mb-2 text-base rpg-heading">
+            <img v-if="monster.heartsCurrent <= 0" src="/images/skull_icon.png" class="inline icon-filter" alt="Dead"
+              style="height: 1.1rem;" />
             <span :class="{ 'line-through': monster.doneTurn && monster.heartsCurrent > 0 }">
               {{ monster.name || formatMonsterIdentifier(monster.color, monster.letter) }}
             </span>
-            <span :style="{ color: getMonsterColor(monster.color) }" class="ml-2 font-bold text-lg">+{{
+            <span :style="{ color: getMonsterColor(monster.color) }" class="font-bold text-lg">+{{
               monster.statsBonus
               }}</span>
 
@@ -38,6 +40,10 @@
             <span v-if="monster.effortBonus > 0" class="ml-1 font-bold text-red-500 text-sm">+{{
               monster.effortBonus
               }} EFFORT</span>
+            <span class="ml-2 font-bold text-base" v-if="(compact && !isHoverDelayed) && monster.heartsCurrent > 0">
+              <i v-for="i in monster.heartsMax" :key="i" class="heart"
+                :class="{ 'empty': i > monster.heartsCurrent }">♥</i>
+            </span>
           </div>
         </div>
       </div>
@@ -47,7 +53,7 @@
           <img src="/images/revive_icon.png" class="h-4 icon-filter" alt="Revive Monster" />
         </button>
         <!-- For alive monsters: show done turn button -->
-        <button v-if="monster.heartsCurrent > 0" @click="toggleDoneTurn" class="rpg-icon-button"
+        <button v-if="monster.heartsCurrent > 0" @click="toggleDoneTurn" class="p-1 rpg-icon-button"
           :class="monster.doneTurn ? 'rpg-icon-button-warning' : 'rpg-icon-button-neutral'"
           :title="monster.doneTurn ? 'Reset turn (mark as not done)' : 'Mark turn as done'">
           <Undo2 v-if="monster.doneTurn" class="w-4 h-4 icon-filter" alt="Reset turn" />
@@ -222,7 +228,7 @@
                 </div>
                 <div>
                   <label class="rpg-label">Hearts Override</label>
-                  <input v-model.number="localHearts" type="number" :min="1" :max="10" class="rpg-input"
+                  <input v-model.number="localHearts" type="number" :min="1" :max="18" class="rpg-input"
                     placeholder="Default from tier" />
                 </div>
               </div>
@@ -402,7 +408,6 @@ const colors = [
   { label: 'Purple', value: 'Purple' },
   { label: 'Orange', value: 'Orange' },
   { label: 'Black', value: 'Black' },
-  { label: 'White', value: 'White' },
   { label: 'Grey', value: 'Grey' },
   { label: 'Brown', value: 'Brown' }
 ]
@@ -527,11 +532,6 @@ const toggleDoneTurn = () => {
   }
 }
 
-const editMonster = () => {
-  showEditModal.value = true
-  clearPreviews()
-}
-
 const clearPreviews = () => {
   generatedState.value = ''
   generatedMotivation.value = ''
@@ -539,7 +539,7 @@ const clearPreviews = () => {
   generatedUpgrades.value = ''
 }
 
-// Monster generator functions - now populate preview instead of directly updating fields
+// Monster generator functions - populate preview instead of directly updating fields
 const generateState = () => {
   generatedState.value = rollMonsterState()
 }
@@ -554,35 +554,6 @@ const generateAbilities = () => {
 
 const generateUpgrades = () => {
   generatedUpgrades.value = generateMonsterUpgrades()
-}
-
-// Apply functions - replace existing content with generated content
-const applyState = () => {
-  if (generatedState.value) {
-    localNotes.value = generatedState.value
-    generatedState.value = ''
-  }
-}
-
-const applyMotivation = () => {
-  if (generatedMotivation.value) {
-    localNotes.value = generatedMotivation.value
-    generatedMotivation.value = ''
-  }
-}
-
-const applyAbilities = () => {
-  if (generatedAbilities.value) {
-    localAbilities.value = generatedAbilities.value
-    generatedAbilities.value = ''
-  }
-}
-
-const applyUpgrades = () => {
-  if (generatedUpgrades.value) {
-    localAbilities.value = generatedUpgrades.value
-    generatedUpgrades.value = ''
-  }
 }
 
 const applyStateAndMotivation = () => {
@@ -643,8 +614,17 @@ const clearAbilitiesAndUpgrades = () => {
 
 /* Strikethrough for done monsters */
 .line-through {
-  text-decoration: line-through;
-  text-decoration-thickness: 2px;
-  text-decoration-color: #6b7280;
+  position: relative;
+}
+
+.line-through::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  height: 2px;
+  background-color: #6b7280;
+  transform: translateY(-50%);
 }
 </style>

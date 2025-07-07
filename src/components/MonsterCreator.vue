@@ -76,7 +76,7 @@
 
               <div>
                 <label for="hearts" class="rpg-label">Hearts Override</label>
-                <input id="hearts" v-model.number="newMonster.heartsMax" type="number" :min="1" :max="10"
+                <input id="hearts" v-model.number="newMonster.heartsMax" type="number" :min="1" :max="18"
                   placeholder="Default from tier" class="rpg-input" />
               </div>
 
@@ -99,7 +99,7 @@
                 </div>
                 <div>
                   <label for="manualHearts" class="rpg-label">Hearts Override</label>
-                  <input id="manualHearts" v-model.number="newMonster.manualHearts" type="number" :min="1" :max="10"
+                  <input id="manualHearts" v-model.number="newMonster.manualHearts" type="number" :min="1" :max="18"
                     placeholder="Default from tier" class="rpg-input" />
                 </div>
               </template>
@@ -260,7 +260,6 @@ const colors = [
   { label: 'Purple', value: 'Purple' },
   { label: 'Orange', value: 'Orange' },
   { label: 'Black', value: 'Black' },
-  { label: 'White', value: 'White' },
   { label: 'Grey', value: 'Grey' },
   { label: 'Brown', value: 'Brown' }
 ]
@@ -306,11 +305,11 @@ const generatedAbilities = ref('')
 const generatedUpgrades = ref('')
 
 // Computed properties for conditional buttons
-const hasStateOrMotivation = computed(() => 
+const hasStateOrMotivation = computed(() =>
   generatedState.value !== '' || generatedMotivation.value !== ''
 )
 
-const hasAbilitiesOrUpgrades = computed(() => 
+const hasAbilitiesOrUpgrades = computed(() =>
   generatedAbilities.value !== '' || generatedUpgrades.value !== ''
 )
 
@@ -359,7 +358,7 @@ const updateTierDefaults = () => {
 
 const addMonster = () => {
   if (!newMonster.tier) return
-  
+
   const config = TIER_CONFIGS[newMonster.tier]
   if (!config) return
 
@@ -401,7 +400,7 @@ const addMonster = () => {
   if (currentLetterIndex >= 0 && currentLetterIndex < letters.length - 1) {
     newMonster.letter = letters[currentLetterIndex + 1].value
   }
-  
+
   // Clear name and notes for next monster (but keep other fields)
   newMonster.name = ''
   newMonster.notes = ''

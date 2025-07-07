@@ -43,7 +43,7 @@
                 monster.effortBonus
                 }} EFFORT</span>
             </div>
-            <div class="flex flex-wrap font-bold text-base"
+            <div class="flex flex-wrap gap-[0.1rem] mt-[-0.5rem] h-[1.4rem] font-bold text-base"
               v-if="(compact && !isHoverDelayed) && monster.heartsCurrent > 0">
               <i v-for="i in monster.heartsMax" :key="i" class="heart"
                 :class="{ 'empty': i > monster.heartsCurrent }">♥</i>
@@ -58,7 +58,7 @@
         </button>
         <!-- For alive monsters: show done turn button -->
         <button v-if="monster.heartsCurrent > 0" @click="toggleDoneTurn" class="p-1 rpg-icon-button"
-          :class="monster.doneTurn ? 'rpg-icon-button-warning' : 'rpg-icon-button-neutral'"
+          :class="monster.doneTurn ? 'rpg-icon-button-warning' : 'rpg-icon-button-success'"
           :title="monster.doneTurn ? 'Reset turn (mark as not done)' : 'Mark turn as done'">
           <Undo2 v-if="monster.doneTurn" class="w-4 h-4 icon-filter" alt="Reset turn" />
           <img v-else src="/images/checkmark_icon.png" class="w-4 h-4 icon-filter" alt="Mark done" />

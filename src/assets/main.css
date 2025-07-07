@@ -278,6 +278,30 @@ body {
     brightness(100%) contrast(100%);
 }
 
+/* Green filter for icons in success buttons */
+.rpg-icon-button-success .icon-filter {
+  filter: brightness(0) saturate(100%) invert(39%) sepia(57%) saturate(1196%) hue-rotate(121deg)
+    brightness(93%) contrast(96%);
+}
+
+/* White filter for icons in success buttons on hover */
+.rpg-icon-button-success:hover .icon-filter {
+  filter: brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg)
+    brightness(100%) contrast(100%);
+}
+
+/* Orange filter for icons in warning buttons */
+.rpg-icon-button-warning .icon-filter {
+  filter: brightness(0) saturate(100%) invert(53%) sepia(98%) saturate(1206%) hue-rotate(21deg)
+    brightness(96%) contrast(101%);
+}
+
+/* White filter for icons in warning buttons on hover */
+.rpg-icon-button-warning:hover .icon-filter {
+  filter: brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg)
+    brightness(100%) contrast(100%);
+}
+
 /* With consistent 128px height, no special alignment needed */
 
 /* Icon Button for Actions like Trash */
@@ -315,6 +339,30 @@ body {
   background: #e5e7eb;
   color: #374151;
   border-color: #d1d5db;
+}
+
+.rpg-icon-button-success {
+  color: #059669;
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.rpg-icon-button-success:hover {
+  background: #059669;
+  color: white;
+  border-color: #059669;
+}
+
+.rpg-icon-button-warning {
+  color: #d97706;
+  background: #fffbeb;
+  border-color: #fde68a;
+}
+
+.rpg-icon-button-warning:hover {
+  background: #d97706;
+  color: white;
+  border-color: #d97706;
 }
 
 /* Form Components */

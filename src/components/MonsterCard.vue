@@ -11,7 +11,7 @@
     }" @mouseenter="handleMouseEnter" @mouseleave="handleMouseLeave">
 
     <!-- Header -->
-    <div class="flex justify-between items-center mb-4">
+    <div class="flex justify-between items-center">
       <div class="flex flex-1 items-center gap-3">
         <div class="flex justify-center items-center rounded-full w-8 h-8 font-bold text-sm cursor-pointer" :style="{
             backgroundColor: getTierColor(monster.tier),
@@ -21,11 +21,12 @@
           }" @click="showEditModal = true">
           {{ monster.letter }}
         </div>
-        <div class="flex-1 cursor-pointer" @click="showEditModal = true">
+        <div class="flex-1">
           <div class="flex flex-row items-center gap-2 mb-2 text-base rpg-heading">
             <img v-if="monster.heartsCurrent <= 0" src="/images/skull_icon.png" class="inline icon-filter" alt="Dead"
               style="height: 1.1rem;" />
-            <span :class="{ 'line-through': monster.doneTurn && monster.heartsCurrent > 0 }">
+            <span :class="{ 'line-through': monster.doneTurn && monster.heartsCurrent > 0 }" class="cursor-pointer"
+              @click="showEditModal = true">
               {{ monster.name || formatMonsterIdentifier(monster.color, monster.letter) }}
             </span>
             <span :style="{ color: getMonsterColor(monster.color) }" class="font-bold text-lg">+{{
@@ -33,17 +34,20 @@
               }}</span>
 
           </div>
-          <div class="flex items-center gap-2 text-neutral-500 text-sm rpg-body">
-            <div class="bg-neutral-700 px-2 py-0.5 rounded font-bold text-white text-sm">
-              {{ monster.actions }} Action{{ monster.actions > 1 ? 's' : '' }}
+          <div class="flex flex-wrap items-center gap-2 text-neutral-500 text-sm rpg-body">
+            <div class="flex items-center gap-2">
+              <div class="bg-neutral-700 px-2 py-0.5 rounded font-bold text-white text-sm">
+                {{ monster.actions }} Action{{ monster.actions > 1 ? 's' : '' }}
+              </div>
+              <span v-if="monster.effortBonus > 0" class="ml-1 font-bold text-red-500 text-sm">+{{
+                monster.effortBonus
+                }} EFFORT</span>
             </div>
-            <span v-if="monster.effortBonus > 0" class="ml-1 font-bold text-red-500 text-sm">+{{
-              monster.effortBonus
-              }} EFFORT</span>
-            <span class="ml-2 font-bold text-base" v-if="(compact && !isHoverDelayed) && monster.heartsCurrent > 0">
+            <div class="flex flex-wrap font-bold text-base"
+              v-if="(compact && !isHoverDelayed) && monster.heartsCurrent > 0">
               <i v-for="i in monster.heartsMax" :key="i" class="heart"
                 :class="{ 'empty': i > monster.heartsCurrent }">♥</i>
-            </span>
+            </div>
           </div>
         </div>
       </div>
@@ -69,10 +73,10 @@
 
     <!-- Hearts Display -->
     <div v-if="(!compact || isHoverDelayed) && (monster.heartsCurrent > 0 || isHoverDelayed)"
-      class="mb-4 hearts-display">
+      class="mt-4 mb-4 hearts-display">
       <div class="flex items-center gap-2">
         <span class="font-medium rpg-body">Hearts:</span>
-        <div class="flex gap-1">
+        <div class="flex flex-wrap gap-1">
           <i v-for="i in monster.heartsMax" :key="i" class="heart" :class="{ 'empty': i > monster.heartsCurrent }">♥</i>
         </div>
         <span class="text-neutral-500 text-sm rpg-body">({{ Math.round(monster.heartsCurrent * 10) }}/{{
@@ -614,17 +618,8 @@ const clearAbilitiesAndUpgrades = () => {
 
 /* Strikethrough for done monsters */
 .line-through {
-  position: relative;
-}
-
-.line-through::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 50%;
-  width: 100%;
-  height: 2px;
-  background-color: #6b7280;
-  transform: translateY(-50%);
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+  text-decoration-color: currentColor;
 }
 </style>

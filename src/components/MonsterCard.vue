@@ -143,7 +143,7 @@
     <!-- Full-width delete button for alive monsters -->
     <div v-if="(!compact || isHoverDelayed) && monster.heartsCurrent > 0" class="mt-4">
       <button @click="$emit('remove')"
-        class="flex justify-center items-center gap-2 bg-danger hover:bg-red-700 px-4 py-2 border-2 border-danger rounded-md w-full font-heading text-white text-sm uppercase tracking-wide transition-colors cursor-pointer">
+        class="flex justify-center items-center gap-2 hover:bg-red-700 px-4 py-2 border-2 border-danger rounded-md w-full font-heading text-white text-xs uppercase tracking-wide transition-colors cursor-pointer rpg-icon-button rpg-icon-button-danger">
         <Trash2 class="w-4 h-4" />
         Remove Monster
       </button>

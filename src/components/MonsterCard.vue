@@ -43,14 +43,31 @@
                 monster.effortBonus
                 }} EFFORT</span>
             </div>
-            <div class="flex flex-wrap gap-[0.1rem] mt-[-0.5rem] h-[1.4rem] font-bold text-base"
-              v-if="(compact && !isHoverDelayed) && monster.heartsCurrent > 0">
-              <i v-for="i in monster.heartsMax" :key="i" class="heart"
-                :class="{ 'empty': i > monster.heartsCurrent }">♥</i>
+            <!-- Hearts unit - completely separate -->
+            <div v-if="(compact && !isHoverDelayed) && monster.heartsCurrent > 0" class="flex items-center">
+              <!-- Show x/y format for monsters with >10 hearts, otherwise show heart icons -->
+              <div v-if="monster.heartsMax > 10" class="mb-[0.1rem] font-bold text-danger text-base">
+                {{ monster.heartsCurrent }}/{{ monster.heartsMax }} ♥
+              </div>
+              <div v-else class="flex gap-[0.1rem] font-bold text-base">
+                <i v-for="i in monster.heartsMax" :key="i" class="font-bold heart"
+                  :class="{ 'empty': i > monster.heartsCurrent }">♥</i>
+              </div>
+            </div>
+            <!-- Conditions unit - completely separate div -->
+            <div
+              v-if="(compact && !isHoverDelayed) && monster.heartsCurrent > 0 && monster.conditions.length > 0 && settingsStore.showCompactConditions"
+              class="flex flex-wrap gap-0 mt-[0.2rem]">
+              <span v-for="condition in monster.conditions" :key="condition"
+                class="text-clip leading-tight condition-badge active"
+                style="font-size: 0.4rem; padding-inline: 0.2rem;">
+                {{ condition }}
+              </span>
             </div>
           </div>
         </div>
       </div>
+
       <div class="flex xs:flex-row flex-col gap-1">
         <button v-if="monster.heartsCurrent <= 0" @click="reviveMonster"
           class="flex items-center gap-1 rpg-icon-button rpg-icon-button-neutral" title="Revive Monster to Full Health">
@@ -357,6 +374,7 @@ import { generateMonsterAbilities, generateMonsterUpgrades, rollMonsterState, ro
 import { Trash2, ChevronDown, Undo2 } from 'lucide-vue-next'
 import InlineEditableText from './InlineEditableText.vue'
 import { useHoverDelay } from '@/composables/useHoverDelay'
+import { useSettingsStore } from '@/stores/settings'
 
 interface Props {
   monster: Monster
@@ -368,6 +386,8 @@ const emit = defineEmits<{
   remove: []
   update: [updates: Partial<Monster>]
 }>()
+
+const settingsStore = useSettingsStore()
 
 const showDamageDialog = ref(false)
 const showEditModal = ref(false)

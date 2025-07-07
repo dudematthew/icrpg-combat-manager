@@ -46,6 +46,7 @@ export const useSettingsStore = defineStore("settings", () => {
   const tierMode = ref(true); // true = tier mode, false = manual mode
   const compactThreshold = ref(2); // Number of monsters before switching to compact view
   const showTitleCard = ref(true); // Whether to show the title card at the top
+  const showCompactConditions = ref(false); // Whether to show condition pills in compact view
 
   // Load settings from localStorage
   const loadSettings = () => {
@@ -69,11 +70,14 @@ export const useSettingsStore = defineStore("settings", () => {
       compactThreshold.value =
         settings.compactThreshold !== undefined ? settings.compactThreshold : 2;
       showTitleCard.value = settings.showTitleCard !== undefined ? settings.showTitleCard : true;
+      showCompactConditions.value =
+        settings.showCompactConditions !== undefined ? settings.showCompactConditions : false;
     } else {
       appCards.value = [...defaultAppCards];
       tierMode.value = true;
       compactThreshold.value = 2;
       showTitleCard.value = true;
+      showCompactConditions.value = false;
     }
 
     console.log(
@@ -89,6 +93,7 @@ export const useSettingsStore = defineStore("settings", () => {
       tierMode: tierMode.value,
       compactThreshold: compactThreshold.value,
       showTitleCard: showTitleCard.value,
+      showCompactConditions: showCompactConditions.value,
     };
     console.log(
       "Saving appCards:",
@@ -167,12 +172,19 @@ export const useSettingsStore = defineStore("settings", () => {
     saveSettings();
   };
 
+  // Toggle compact conditions visibility
+  const toggleCompactConditions = () => {
+    showCompactConditions.value = !showCompactConditions.value;
+    saveSettings();
+  };
+
   // Reset to defaults
   const resetToDefaults = () => {
     appCards.value = [...defaultAppCards];
     tierMode.value = true;
     compactThreshold.value = 2;
     showTitleCard.value = true;
+    showCompactConditions.value = false;
     saveSettings();
   };
 
@@ -181,10 +193,12 @@ export const useSettingsStore = defineStore("settings", () => {
     tierMode,
     compactThreshold,
     showTitleCard,
+    showCompactConditions,
     toggleCard,
     toggleTierMode,
     updateCompactThreshold,
     toggleTitleCard,
+    toggleCompactConditions,
     reorderCards,
     getVisibleCards,
     resetToDefaults,

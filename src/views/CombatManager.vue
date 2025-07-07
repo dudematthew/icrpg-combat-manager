@@ -158,20 +158,35 @@
                 </div>
               </div>
 
-              <!-- Compact View Setting -->
+              <!-- Compact View Settings -->
               <div class="mb-6">
-                <h4 class="mb-3 rpg-label">Compact View Threshold</h4>
-                <div class="bg-neutral-50 p-3 border border-neutral-200 rounded-lg">
-                  <div class="mb-2">
+                <h4 class="mb-3 rpg-label">Compact View</h4>
+                <div class="space-y-3 bg-neutral-50 p-3 border border-neutral-200 rounded-lg">
+                  <div>
                     <label class="text-xs rpg-label">Monsters before compact view activates</label>
                     <input :value="settingsStore.compactThreshold"
                       @input="(e) => settingsStore.updateCompactThreshold(parseInt((e.target as HTMLInputElement).value))"
                       @keyup.enter="showSettingsModal = false" type="number" :min="1" :max="10" class="rpg-input"
                       style="max-width: 120px;" />
+                    <div class="mt-1 text-neutral-600 text-xs rpg-body">
+                      Monsters will switch to compact view when there are more than {{ settingsStore.compactThreshold }}
+                      monsters
+                    </div>
+                  </div>
+
+                  <div class="flex justify-between items-center">
+                    <span class="text-sm rpg-body">Show condition pills in compact view</span>
+                    <button @click="settingsStore.toggleCompactConditions"
+                      class="inline-flex relative items-center rounded-full w-10 h-10 transition-colors cursor-pointer">
+                      <span
+                        class="inline-block flex justify-center items-center bg-white shadow-sm mt-1 rounded-full w-6 h-6 transition-transform transform">
+                        <Eye v-if="settingsStore.showCompactConditions" class="w-5 h-5 text-accent" />
+                        <EyeOff v-else class="w-5 h-5 text-neutral-400" />
+                      </span>
+                    </button>
                   </div>
                   <div class="text-neutral-600 text-xs rpg-body">
-                    Monsters will switch to compact view when there are more than {{ settingsStore.compactThreshold }}
-                    monsters
+                    Show small condition pills (bleeding, paralyzed, etc.) next to hearts in compact view
                   </div>
                 </div>
               </div>

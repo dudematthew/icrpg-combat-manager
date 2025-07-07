@@ -10,7 +10,8 @@
         <div>
           <label class="rpg-label">Timer Name</label>
           <div class="flex gap-2">
-            <input v-model="newTimer.name" placeholder="e.g., Building collapses" class="flex-1 rpg-input" />
+            <input v-model="newTimer.name" placeholder="e.g., Building collapses" @keyup.enter="addTimer"
+              class="flex-1 rpg-input" />
             <button @click="generateTimerName" class="p-0 rpg-button rpg-button-secondary"
               title="Generate random clock name">
               <img src="/images/d6_dice_icon.png" class="h-5 icon-filter" alt="Generate name" />
@@ -28,7 +29,7 @@
           <label class="rpg-label">Duration ({{ newTimer.type }})</label>
           <div class="flex gap-2">
             <input v-model.number="newTimer.duration" type="number" :min="1" :max="20" placeholder="5"
-              class="flex-1 rpg-input" />
+              @keyup.enter="addTimer" class="flex-1 rpg-input" />
             <button @click="generateDuration" class="p-0 rpg-button rpg-button-secondary"
               title="Roll d4 for random duration">
               <img src="/images/d4_dice_icon.png" class="h-5 icon-filter" alt="Roll d4" />

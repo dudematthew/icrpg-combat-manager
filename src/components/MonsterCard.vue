@@ -158,19 +158,19 @@
   <div v-if="showEditModal" class="z-50 fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 p-4"
     @click="cancelEdit">
     <div class="bg-white shadow-xl mx-4 my-8 p-6 rounded-lg w-full max-w-md"
-      style="max-height: 95vh; overflow-y: auto; overflow-x: none;" @click.stop>
+      style="max-height: 90vh; overflow-y: auto; overflow-x: none;" @click.stop>
       <div class="mb-4">
         <h3 class="mb-4 text-lg rpg-heading">Edit Monster</h3>
         <div class="space-y-4">
           <div>
             <label class="rpg-label">Monster Letter</label>
-            <input v-model="localLetter" type="text" maxlength="1" class="rpg-input"
-              placeholder="Letter (A, B, C...)" />
+            <input v-model="localLetter" type="text" maxlength="1" class="rpg-input" placeholder="Letter (A, B, C...)"
+              @keyup.enter="saveChanges" />
           </div>
           <div>
             <label class="rpg-label">Monster Name</label>
             <input v-model="localName" type="text" class="rpg-input"
-              :placeholder="formatMonsterIdentifier(localColor, localLetter)" />
+              :placeholder="formatMonsterIdentifier(localColor, localLetter)" @keyup.enter="saveChanges" />
           </div>
           <div>
             <label class="rpg-label">Color</label>
@@ -329,7 +329,7 @@
         <div>
           <label class="rpg-label">Adjust HP (negative = damage, positive = heal)</label>
           <input v-model.number="customDamage" type="number" :min="-100" :max="100" class="rpg-input"
-            placeholder="Enter HP adjustment (e.g. -3 or 5)" />
+            placeholder="Enter HP adjustment (e.g. -3 or 5)" @keyup.enter="applyCustomDamage" />
           <div class="mt-1 text-neutral-500 text-xs">
             Monsters have {{ monster.heartsMax }} hearts = {{ monster.heartsMax * 10 }} total HP
           </div>

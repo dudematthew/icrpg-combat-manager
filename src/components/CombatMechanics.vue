@@ -19,6 +19,7 @@
           </button>
           <div class="text-center">
             <input v-model.number="sceneTargetNumber" type="number" :min="1" :max="25" @change="updateTarget"
+              @keyup.enter="updateTarget"
               class="bg-white px-4 py-2 border-2 border-accent rounded-lg w-20 font-black text-2xl text-center" />
             <div class="mt-1 text-neutral-600 text-xs">Base Target</div>
           </div>

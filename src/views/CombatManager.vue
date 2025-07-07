@@ -103,8 +103,8 @@
 
       <!-- Settings Modal -->
       <div v-if="showSettingsModal"
-        class="z-50 fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 p-4 w-[110vw] h-[110vh]"
-        @click="showSettingsModal = false" style="top: -24px;">
+        class="z-50 fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 p-4"
+        @click="showSettingsModal = false" style="margin-top: 0;">
         <div class="bg-white shadow-xl rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto" @click.stop>
           <div class="p-6">
             <div class="mb-6">

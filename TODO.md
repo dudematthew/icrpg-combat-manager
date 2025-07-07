@@ -83,8 +83,9 @@
 
 ### Medium Priority Tasks
 
-#### 6. Mobile Optimization
-- **Touch-friendly button sizes**
+#### 6. Mobile Optimization ✅ 
+- **Touch-friendly button sizes** ✅
+- **Enter key support** for forms - Quick monster entry, monster edit, timer creation, target input, and damage dialogs ✅
 - **Swipe gestures** for common actions
 - **Offline functionality** considerations
 - **Progressive Web App** features

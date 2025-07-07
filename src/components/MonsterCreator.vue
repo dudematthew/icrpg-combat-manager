@@ -31,7 +31,8 @@
 
           <div class="md:col-span-2">
             <label for="tier" class="rpg-label">Tier</label>
-            <select id="tier" v-model="newMonster.tier" @change="updateTierDefaults" class="rpg-input">
+            <select id="tier" v-model="newMonster.tier" @change="updateTierDefaults" @keyup.enter="addMonster"
+              class="rpg-input">
               <option value="">Choose tier</option>
               <option v-for="tier in tierOptions" :key="tier.value" :value="tier.value">
                 {{ tier.label }}
@@ -71,7 +72,8 @@
             <div class="gap-4 grid grid-cols-1 md:grid-cols-2 mt-4">
               <div>
                 <label for="name" class="rpg-label">Name (Optional)</label>
-                <input id="name" v-model="newMonster.name" placeholder="Custom name" class="rpg-input" />
+                <input id="name" v-model="newMonster.name" placeholder="Custom name" @keyup.enter="addMonster"
+                  class="rpg-input" />
               </div>
 
               <div>

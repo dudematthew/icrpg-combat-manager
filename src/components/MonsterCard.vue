@@ -1,16 +1,19 @@
 <template>
   <div class="rpg-card monster-card" :class="[
       { 'dead': monster.heartsCurrent <= 0 },
-      { 'compact': compact }
-    ]" :style="{ 
+      { 'compact': compact },
+      { 'done-turn': monster.doneTurn && monster.heartsCurrent > 0 }
+    ]" :style="{
       borderTopColor: getMonsterColor(monster.color),
-      borderBottomColor: getMonsterColor(monster.color)
+      borderBottomColor: getMonsterColor(monster.color),
+      borderLeftColor: monster.doneTurn && monster.heartsCurrent > 0 ? getMonsterColor(monster.color) : 'transparent',
+      borderRightColor: monster.doneTurn && monster.heartsCurrent > 0 ? getMonsterColor(monster.color) : 'transparent'
     }" @mouseenter="handleMouseEnter" @mouseleave="handleMouseLeave">
 
     <!-- Header -->
     <div class="flex justify-between items-center mb-4">
       <div class="flex flex-1 items-center gap-3">
-        <div class="flex justify-center items-center rounded-full w-8 h-8 font-bold text-sm cursor-pointer" :style="{ 
+        <div class="flex justify-center items-center rounded-full w-8 h-8 font-bold text-sm cursor-pointer" :style="{
             backgroundColor: getTierColor(monster.tier),
             color: getTextColorForBackground(getTierColor(monster.tier)),
             boxShadow: `0 0 0 2px ${getMonsterColor(monster.color)}88`,
@@ -20,7 +23,9 @@
         </div>
         <div class="flex-1 cursor-pointer" @click="showEditModal = true">
           <div class="mb-2 text-base rpg-heading">
-            {{ monster.name || formatMonsterIdentifier(monster.color, monster.letter) }}
+            <span :class="{ 'line-through': monster.doneTurn && monster.heartsCurrent > 0 }">
+              {{ monster.name || formatMonsterIdentifier(monster.color, monster.letter) }}
+            </span>
             <span :style="{ color: getMonsterColor(monster.color) }" class="ml-2 font-bold text-lg">+{{
               monster.statsBonus
               }}</span>
@@ -39,9 +44,18 @@
       <div class="flex gap-2">
         <button v-if="monster.heartsCurrent <= 0" @click="reviveMonster"
           class="flex items-center gap-1 rpg-icon-button rpg-icon-button-neutral" title="Revive Monster to Full Health">
-          <RotateCw class="w-4 h-4 icon-filter" />
+          <img src="/images/revive_icon.png" class="h-4 icon-filter" alt="Revive Monster" />
         </button>
-        <button @click="$emit('remove')" class="rpg-icon-button rpg-icon-button-danger">
+        <!-- For alive monsters: show done turn button -->
+        <button v-if="monster.heartsCurrent > 0" @click="toggleDoneTurn" class="rpg-icon-button"
+          :class="monster.doneTurn ? 'rpg-icon-button-warning' : 'rpg-icon-button-neutral'"
+          :title="monster.doneTurn ? 'Reset turn (mark as not done)' : 'Mark turn as done'">
+          <Undo2 v-if="monster.doneTurn" class="w-4 h-4 icon-filter" alt="Reset turn" />
+          <img v-else src="/images/checkmark_icon.png" class="w-4 h-4 icon-filter" alt="Mark done" />
+        </button>
+        <!-- For dead monsters: show remove button -->
+        <button v-if="monster.heartsCurrent <= 0" @click="$emit('remove')"
+          class="rpg-icon-button rpg-icon-button-danger">
           <Trash2 class="w-4 h-4" />
         </button>
       </div>
@@ -119,6 +133,15 @@
         </div>
       </div>
     </details>
+
+    <!-- Full-width delete button for alive monsters -->
+    <div v-if="(!compact || isHoverDelayed) && monster.heartsCurrent > 0" class="mt-4">
+      <button @click="$emit('remove')"
+        class="flex justify-center items-center gap-2 bg-danger hover:bg-red-700 px-4 py-2 border-2 border-danger rounded-md w-full font-heading text-white text-sm uppercase tracking-wide transition-colors cursor-pointer">
+        <Trash2 class="w-4 h-4" />
+        Remove Monster
+      </button>
+    </div>
   </div>
 
   <!-- Edit Monster Modal -->
@@ -321,7 +344,7 @@ import type { Monster } from '@/types'
 import { CONDITIONS, TIER_CONFIGS } from '@/types'
 import { formatMonsterIdentifier, getTierColor, getMonsterColor, getTextColorForBackground } from '@/utils/combat'
 import { generateMonsterAbilities, generateMonsterUpgrades, rollMonsterState, rollMonsterMotivation } from '@/utils/monsterGenerator'
-import { Trash2, ChevronDown, RotateCw } from 'lucide-vue-next'
+import { Trash2, ChevronDown, Undo2 } from 'lucide-vue-next'
 import InlineEditableText from './InlineEditableText.vue'
 import { useHoverDelay } from '@/composables/useHoverDelay'
 
@@ -351,7 +374,7 @@ const localActions = ref(props.monster.manualActions || props.monster.actions)
 const localHearts = ref(props.monster.manualHearts || props.monster.heartsMax)
 
 // Hover delay for compact view
-const { isHoverDelayed, handleMouseEnter, handleMouseLeave } = useHoverDelay({
+const { isHoverDelayed, handleMouseEnter, handleMouseLeave, forceReset } = useHoverDelay({
   delay: 100, // 100ms delay before showing content
   hoverEndDelay: 300 // 300ms delay before hiding content
 })
@@ -363,11 +386,11 @@ const generatedAbilities = ref('')
 const generatedUpgrades = ref('')
 
 // Computed properties for conditional buttons
-const hasStateOrMotivation = computed(() => 
+const hasStateOrMotivation = computed(() =>
   generatedState.value !== '' || generatedMotivation.value !== ''
 )
 
-const hasAbilitiesOrUpgrades = computed(() => 
+const hasAbilitiesOrUpgrades = computed(() =>
   generatedAbilities.value !== '' || generatedUpgrades.value !== ''
 )
 
@@ -490,6 +513,18 @@ const cancelEdit = () => {
 
 const reviveMonster = () => {
   emit('update', { heartsCurrent: props.monster.heartsMax })
+  // Reset hover state after clicking button to collapse compact view
+  if (props.compact) {
+    forceReset()
+  }
+}
+
+const toggleDoneTurn = () => {
+  emit('update', { doneTurn: !props.monster.doneTurn })
+  // Reset hover state after clicking button to collapse compact view
+  if (props.compact) {
+    forceReset()
+  }
 }
 
 const editMonster = () => {
@@ -597,5 +632,19 @@ const clearAbilitiesAndUpgrades = () => {
 .monster-card.compact {
   padding: 1rem;
   margin-bottom: 0.5rem;
+}
+
+/* Done turn styles */
+.monster-card.done-turn {
+  border-width: 3px;
+  opacity: 0.8;
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.05) 0%, rgba(255, 255, 255, 1) 100%);
+}
+
+/* Strikethrough for done monsters */
+.line-through {
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+  text-decoration-color: #6b7280;
 }
 </style>

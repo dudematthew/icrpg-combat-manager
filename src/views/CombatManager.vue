@@ -223,8 +223,9 @@
 import { ref, computed } from 'vue'
 import { useCombatStore } from '@/stores/combat'
 import { useSettingsStore, type AppCard } from '@/stores/settings'
+import type { Monster } from '@/types'
 import { useDragAndDrop } from 'vue-fluid-dnd'
-import { Settings, ChevronRight, RotateCcw, Trash2, GripVertical, ChevronDown, ChevronUp, Eye, EyeOff, ChevronsRight } from 'lucide-vue-next'
+import { Settings, ChevronRight, RotateCcw, GripVertical, ChevronDown, ChevronUp, Eye, EyeOff, ChevronsRight } from 'lucide-vue-next'
 import MonsterCreator from '@/components/MonsterCreator.vue'
 import MonsterCard from '@/components/MonsterCard.vue'
 import CombatMechanics from '@/components/CombatMechanics.vue'
@@ -257,7 +258,7 @@ const shouldUseCompactView = computed(() => activeMonsters.value.length > 2)
 const isMonsterCreatorAboveBattlefield = computed(() => {
   const monsterCreatorCard = settingsStore.appCards.find(card => card.id === 'monster-creator')
   const battlefieldCard = settingsStore.appCards.find(card => card.id === 'battlefield')
-  
+
   if (!monsterCreatorCard || !battlefieldCard) return false
   return monsterCreatorCard.order < battlefieldCard.order
 })
@@ -274,8 +275,13 @@ const removeMonster = (id: string) => {
   combatStore.removeMonster(id)
 }
 
-const updateMonster = (id: string, updates: any) => {
-  combatStore.updateMonster(id, updates)
+const updateMonster = (id: string, updates: Partial<Monster>) => {
+  // If this is a doneTurn update, use the special toggleDoneTurn method
+  if ('doneTurn' in updates && Object.keys(updates).length === 1) {
+    combatStore.toggleDoneTurn(id)
+  } else {
+    combatStore.updateMonster(id, updates)
+  }
 }
 
 const confirmClear = () => {

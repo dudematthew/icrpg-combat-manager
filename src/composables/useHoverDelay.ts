@@ -1,4 +1,4 @@
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref } from "vue";
 
 interface UseHoverDelayOptions {
   delay?: number; // Delay in milliseconds before triggering hover start
@@ -61,6 +61,13 @@ export function useHoverDelay(options: UseHoverDelayOptions = {}) {
     }
   };
 
+  // Force reset hover state (useful for button clicks)
+  const forceReset = () => {
+    cleanup();
+    isHovered.value = false;
+    isHoverDelayed.value = false;
+  };
+
   // Return the composable interface
   return {
     isHovered,
@@ -68,5 +75,6 @@ export function useHoverDelay(options: UseHoverDelayOptions = {}) {
     handleMouseEnter,
     handleMouseLeave,
     cleanup,
+    forceReset,
   };
 }

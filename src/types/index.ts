@@ -12,6 +12,9 @@ export interface Monster {
   notes: string;
   name?: string;
   specialAbilities?: string;
+  doneTurn?: boolean;
+  turnOrder?: number; // For remembering turn order
+  completionOrder?: number; // Order in which monster was marked done this round
   // Manual mode overrides
   manualStatsBonus?: number;
   manualEffortBonus?: number;

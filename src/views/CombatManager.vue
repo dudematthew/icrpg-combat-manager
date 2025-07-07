@@ -137,6 +137,24 @@
                 </div>
               </div>
 
+              <!-- Compact View Setting -->
+              <div class="mb-6">
+                <h4 class="mb-3 rpg-label">Compact View Threshold</h4>
+                <div class="bg-neutral-50 p-3 border border-neutral-200 rounded-lg">
+                  <div class="mb-2">
+                    <label class="text-xs rpg-label">Monsters before compact view activates</label>
+                    <input :value="settingsStore.compactThreshold"
+                      @input="(e) => settingsStore.updateCompactThreshold(parseInt((e.target as HTMLInputElement).value))"
+                      @keyup.enter="showSettingsModal = false" type="number" :min="1" :max="10" class="rpg-input"
+                      style="max-width: 120px;" />
+                  </div>
+                  <div class="text-neutral-600 text-xs rpg-body">
+                    Monsters will switch to compact view when there are more than {{ settingsStore.compactThreshold }}
+                    monsters
+                  </div>
+                </div>
+              </div>
+
               <!-- App Cards Management -->
               <div class="mb-6">
                 <h4 class="mb-3 rpg-label">Application Cards</h4>
@@ -253,7 +271,7 @@ const { parent: cardListParent } = useDragAndDrop(appCardsRef)
 const currentTurn = computed(() => combatStore.currentTurn)
 const currentRound = computed(() => combatStore.currentRound)
 const activeMonsters = computed(() => combatStore.activeMonsters)
-const shouldUseCompactView = computed(() => activeMonsters.value.length > 2)
+const shouldUseCompactView = computed(() => activeMonsters.value.length > settingsStore.compactThreshold)
 
 const isMonsterCreatorAboveBattlefield = computed(() => {
   const monsterCreatorCard = settingsStore.appCards.find(card => card.id === 'monster-creator')

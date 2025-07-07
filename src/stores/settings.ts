@@ -44,6 +44,7 @@ export const useSettingsStore = defineStore("settings", () => {
 
   const appCards = ref<AppCard[]>([]);
   const tierMode = ref(true); // true = tier mode, false = manual mode
+  const compactThreshold = ref(2); // Number of monsters before switching to compact view
 
   // Load settings from localStorage
   const loadSettings = () => {
@@ -52,9 +53,12 @@ export const useSettingsStore = defineStore("settings", () => {
       const settings = JSON.parse(saved);
       appCards.value = settings.appCards || defaultAppCards;
       tierMode.value = settings.tierMode !== undefined ? settings.tierMode : true;
+      compactThreshold.value =
+        settings.compactThreshold !== undefined ? settings.compactThreshold : 2;
     } else {
       appCards.value = [...defaultAppCards];
       tierMode.value = true;
+      compactThreshold.value = 2;
     }
   };
 
@@ -63,6 +67,7 @@ export const useSettingsStore = defineStore("settings", () => {
     const settings = {
       appCards: appCards.value,
       tierMode: tierMode.value,
+      compactThreshold: compactThreshold.value,
     };
     localStorage.setItem("icrpg-settings", JSON.stringify(settings));
   };
@@ -116,18 +121,27 @@ export const useSettingsStore = defineStore("settings", () => {
     saveSettings();
   };
 
+  // Update compact threshold
+  const updateCompactThreshold = (threshold: number) => {
+    compactThreshold.value = Math.max(1, threshold); // Minimum of 1
+    saveSettings();
+  };
+
   // Reset to defaults
   const resetToDefaults = () => {
     appCards.value = [...defaultAppCards];
     tierMode.value = true;
+    compactThreshold.value = 2;
     saveSettings();
   };
 
   return {
     appCards,
     tierMode,
+    compactThreshold,
     toggleCard,
     toggleTierMode,
+    updateCompactThreshold,
     reorderCards,
     getVisibleCards,
     resetToDefaults,

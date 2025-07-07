@@ -86,6 +86,7 @@
 #### 6. Mobile Optimization ✅ 
 - **Touch-friendly button sizes** ✅
 - **Enter key support** for forms - Quick monster entry, monster edit, timer creation, target input, and damage dialogs ✅
+- **Compact view threshold setting** - Configurable number of monsters before switching to compact view (default 2) ✅
 - **Swipe gestures** for common actions
 - **Offline functionality** considerations
 - **Progressive Web App** features

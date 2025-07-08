@@ -76,7 +76,7 @@
         <div>
           <label class="rpg-label">Effort Type</label>
           <select v-model="attackEffortType" class="rpg-input">
-            <option value="">Choose type</option>
+            <option value="none">None</option>
             <option v-for="type in effortTypes" :key="type.value" :value="type.value">
               {{ type.label }}
             </option>
@@ -86,7 +86,7 @@
 
       <!-- Roll Button -->
       <div class="mb-2">
-        <button @click="rollAttack" :disabled="!attackEffortType || isRolling"
+        <button @click="rollAttack" :disabled="isRolling"
           class="disabled:opacity-50 w-full disabled:cursor-not-allowed rpg-button rpg-button-primary">
           <img v-if="!isRolling" src="/images/d20_dice_icon.png" class="w-5 h-5 icon-filter" alt="Roll" />
           <div v-else class="border-2 border-white border-t-transparent rounded-full w-4 h-4 animate-spin"></div>
@@ -120,8 +120,8 @@
           </div>
 
           <!-- Effort Display -->
-          <div v-if="lastAttackResult.success" class="text-center">
-            <div class="mb-1 text-neutral-700 text-sm rpg-body">Effort:</div>
+          <div v-if="lastAttackResult.success && lastAttackResult.effort !== undefined" class="text-center">
+            <div class="mb-1 text-md text-neutral-700 rpg-body">Effort:</div>
             <div class="font-bold text-xl">
               <span class="text-accent">{{ lastAttackResult.effort }}</span>
               <span v-if="lastAttackResult.critical" class="ml-2 text-warning">+ CRIT!</span>
@@ -157,7 +157,7 @@ const combatStore = useCombatStore()
 const sceneTargetNumber = ref(combatStore.sceneTargetNumber)
 const difficulty = ref<'easy' | 'normal' | 'hard'>('normal')
 const attackStat = ref(0)
-const attackEffortType = ref('')
+const attackEffortType = ref('none')
 const lastAttackResult = ref<AttackResult | null>(null)
 const isRolling = ref(false)
 
@@ -189,7 +189,7 @@ const setDifficulty = (newDifficulty: 'easy' | 'normal' | 'hard') => {
 }
 
 const rollAttack = async () => {
-  if (!attackEffortType.value || isRolling.value) return
+  if (isRolling.value) return
 
   const effortDie = getEffortDie(attackEffortType.value)
   const isHard = difficulty.value === 'hard'

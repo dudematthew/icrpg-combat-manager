@@ -57,7 +57,7 @@ export const makeAttack = (
   let effort: number | undefined;
   let baseEffort: number | undefined;
   let criticalBonus: number | undefined;
-  if (success) {
+  if (success && effortDie > 0) {
     baseEffort = rollDie(effortDie);
     effort = baseEffort;
     if (critical) {
@@ -97,7 +97,7 @@ export const makeAttackAsync = async (
   let effort: number | undefined;
   let baseEffort: number | undefined;
   let criticalBonus: number | undefined;
-  if (success) {
+  if (success && effortDie > 0) {
     const effortResult = await rollDieAsync(effortDie, forcePseudo);
     baseEffort = effortResult.value;
     effort = baseEffort;
@@ -123,6 +123,8 @@ export const makeAttackAsync = async (
 
 export const getEffortDie = (effortType: string): number => {
   switch (effortType) {
+    case "none":
+      return 0;
     case "Basic":
       return 4;
     case "Weapons & Tools":

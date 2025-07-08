@@ -42,7 +42,7 @@
         <div>
           <label class="rpg-label">Duration ({{ newTimer.type }})</label>
           <div class="flex gap-2">
-            <input v-model.number="newTimer.duration" type="number" :min="1" :max="20" placeholder="5"
+            <input v-model.number="newTimer.duration" type="number" :min="1" :max="20" placeholder="4"
               @keyup.enter="addTimer" class="flex-1 rpg-input" />
             <button @click="generateDuration" class="p-0 rpg-button rpg-button-secondary"
               title="Roll d4 for random duration">

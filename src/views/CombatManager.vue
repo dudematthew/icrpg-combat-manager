@@ -73,13 +73,13 @@
           <!-- Clear Battlefield Button at Bottom -->
           <div class="flex justify-center items-center gap-3 pt-4 border-neutral-200 border-t">
             <button @click="resetRoundsAndTurns"
-              class="flex flex-row items-center gap-1 bg-warning hover:bg-yellow-600 px-3 py-2 border-2 border-warning rounded-md font-heading text-white text-sm uppercase tracking-wide transition-colors cursor-pointer">
-              <RotateCcw class="h-6 icon-filter" />
+              class="flex flex-row items-center gap-1 bg-warning hover:bg-yellow-600 px-3 py-2 border-2 border-warning rounded-md font-heading text-white text-xs uppercase tracking-wide transition-colors cursor-pointer">
+              <RotateCcw class="h-5 icon-filter" />
               Reset Rounds
             </button>
             <button @click="confirmClear"
-              class="flex flex-row items-center gap-1 bg-danger hover:bg-red-700 px-3 py-2 border-2 border-danger rounded-md font-heading text-white text-sm uppercase tracking-wide transition-colors cursor-pointer">
-              <img src="/images/sword_icon.png" class="h-6 icon-filter" alt="Clear battlefield" />
+              class="flex flex-row items-center gap-1 bg-danger hover:bg-red-700 px-3 py-2 border-2 border-danger rounded-md font-heading text-white text-xs uppercase tracking-wide transition-colors cursor-pointer">
+              <img src="/images/sword_icon.png" class="h-5 icon-filter" alt="Clear battlefield" />
               Clear Battlefield
             </button>
           </div>

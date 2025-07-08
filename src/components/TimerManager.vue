@@ -20,10 +20,24 @@
         </div>
         <div>
           <label class="rpg-label">Timer Type</label>
-          <select v-model="newTimer.type" class="rpg-input">
-            <option value="rounds">Rounds</option>
-            <option value="turns">Turns</option>
-          </select>
+          <div class="flex gap-2">
+            <button @click="newTimer.type = 'rounds'" :class="[
+                      'flex-1 text-xs rpg-button',
+                      newTimer.type === 'rounds'
+                        ? 'rpg-button-primary'
+                        : 'rpg-button-secondary'
+                    ]">
+              Rounds
+            </button>
+            <button @click="newTimer.type = 'turns'" :class="[
+                      'flex-1 text-xs rpg-button',
+                      newTimer.type === 'turns'
+                        ? 'rpg-button-primary'
+                        : 'rpg-button-secondary'
+                    ]">
+              Turns
+            </button>
+          </div>
         </div>
         <div>
           <label class="rpg-label">Duration ({{ newTimer.type }})</label>
@@ -36,11 +50,17 @@
             </button>
           </div>
         </div>
-        <div class="flex items-end">
+        <div class="flex justify-between gap-2 w-full">
           <button @click="addTimer" :disabled="!newTimer.name || !newTimer.duration"
-            class="disabled:opacity-50 disabled:cursor-not-allowed rpg-button rpg-button-primary">
-            <img src="/images/clock_icon.png" class="mb-1 h-5 icon-filter" alt="Add timer" />
+            class="disabled:opacity-50 text-xs disabled:cursor-not-allowed rpg-button rpg-button-primary grow">
+            <img src="/images/clock_icon.png" class="h-5 icon-filter" alt="Add timer" />
             Add Timer
+          </button>
+
+          <button v-if="doneTimers.length > 0" @click="clearDoneTimers"
+            class="text-xs rpg-button rpg-button-secondary grow">
+            <img src="/images/checkmark_icon.png" class="h-5 icon-filter" alt="Clear done" />
+            Clear Done ({{ doneTimers.length }})
           </button>
         </div>
       </div>
@@ -100,6 +120,7 @@ const newTimer = ref({
 })
 
 const activeTimers = computed(() => combatStore.timers)
+const doneTimers = computed(() => combatStore.timers.filter(timer => timer.remaining <= 0))
 
 const addTimer = () => {
   if (newTimer.value.name && newTimer.value.duration) {
@@ -130,5 +151,13 @@ const generateTimerName = () => {
 const generateDuration = () => {
   // Roll a d4 (1-4) for random duration
   newTimer.value.duration = Math.floor(Math.random() * 4) + 1
+}
+
+const clearDoneTimers = () => {
+  console.log('Clear Done clicked!')
+  console.log('Current timers:', combatStore.timers)
+  console.log('Done timers:', doneTimers.value)
+  combatStore.clearDoneTimers()
+  console.log('After clearing:', combatStore.timers)
 }
 </script>

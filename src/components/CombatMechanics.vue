@@ -38,17 +38,17 @@
         <label class="mb-3 rpg-label">Difficulty Modifiers</label>
         <div class="flex flex-wrap gap-2">
           <button @click="setDifficulty('easy')"
-            :class="difficulty === 'easy' ? 'bg-success text-white' : 'bg-white text-success border-success hover:bg-green-50 cursor-pointer'"
+            :class="difficulty === 'easy' ? 'bg-success text-[#fff]' : 'bg-white text-success border-success hover:bg-green-50 cursor-pointer'"
             class="px-3 py-2 border-2 rounded-md font-heading font-black text-xs uppercase tracking-wide transition-colors">
             Easy (-3)
           </button>
           <button @click="setDifficulty('normal')"
-            :class="difficulty === 'normal' ? 'bg-info text-white' : 'bg-white text-info border-info hover:bg-blue-50 cursor-pointer'"
+            :class="difficulty === 'normal' ? 'bg-info text-[#fff]' : 'bg-white text-info border-info hover:bg-blue-50 cursor-pointer'"
             class="px-3 py-2 border-2 rounded-md font-heading font-black text-xs uppercase tracking-wide transition-colors">
             Normal
           </button>
           <button @click="setDifficulty('hard')"
-            :class="difficulty === 'hard' ? 'bg-danger text-white' : 'bg-white text-danger border-danger hover:bg-red-50 cursor-pointer'"
+            :class="difficulty === 'hard' ? 'bg-danger text-[#fff]' : 'bg-white text-danger border-danger hover:bg-red-50 cursor-pointer'"
             class="px-3 py-2 border-2 rounded-md font-heading font-black text-xs uppercase tracking-wide transition-colors">
             Hard (+3)
           </button>
@@ -65,7 +65,7 @@
     </div>
     <!-- Attack Roll Section -->
     <div>
-      <h3 class="mb-4 text-base rpg-heading">Quick Attack Roll</h3>
+      <h3 class="mb-4 text-base rpg-heading">Quick Roll</h3>
 
       <!-- Stat Bonus and Effort Type in one row -->
       <div class="gap-4 grid grid-cols-1 md:grid-cols-2 mb-4">
@@ -85,17 +85,17 @@
       </div>
 
       <!-- Roll Button -->
-      <div class="mb-6">
+      <div class="mb-2">
         <button @click="rollAttack" :disabled="!attackEffortType || isRolling"
           class="disabled:opacity-50 w-full disabled:cursor-not-allowed rpg-button rpg-button-primary">
-          <img v-if="!isRolling" src="/images/sword_icon.png" class="w-6 h-6 icon-filter" alt="Attack" />
+          <img v-if="!isRolling" src="/images/d20_dice_icon.png" class="w-5 h-5 icon-filter" alt="Roll" />
           <div v-else class="border-2 border-white border-t-transparent rounded-full w-4 h-4 animate-spin"></div>
           {{ isRolling ? 'Rolling...' : 'Roll' }}
         </button>
       </div>
 
       <!-- Last Roll Result -->
-      <div v-if="lastAttackResult">
+      <div v-if="lastAttackResult" class="mt-4">
         <h3 class="mb-4 text-base rpg-heading">Last Roll Result</h3>
         <div class="bg-white p-4 border-2 border-neutral-300 rounded-lg">
           <div class="gap-4 grid grid-cols-4 mb-4 text-center">
@@ -151,7 +151,6 @@ import { useCombatStore } from '@/stores/combat'
 import { EFFORT_TYPES } from '@/types'
 import { makeAttack, makeAttackAsync, getEffortDie } from '@/utils/combat'
 import type { AttackResult } from '@/utils/combat'
-import { randomService, RandomSource } from '@/utils/randomService'
 
 const combatStore = useCombatStore()
 

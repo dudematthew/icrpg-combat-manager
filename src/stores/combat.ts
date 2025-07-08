@@ -151,6 +151,11 @@ export const useCombatStore = defineStore("combat", () => {
     saveState();
   };
 
+  const clearDoneTimers = () => {
+    timers.value = timers.value.filter((t) => t.remaining > 0);
+    saveState();
+  };
+
   const decrementTimer = (id: string) => {
     const timer = timers.value.find((t) => t.id === id);
     if (timer && timer.remaining > 0) {
@@ -343,6 +348,7 @@ export const useCombatStore = defineStore("combat", () => {
     addTimer,
     updateTimer,
     removeTimer,
+    clearDoneTimers,
     decrementTimer,
     nextTurn,
     nextRound,

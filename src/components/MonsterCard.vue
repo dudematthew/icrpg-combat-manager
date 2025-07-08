@@ -382,6 +382,7 @@ import { generateMonsterAbilities, generateMonsterUpgrades, rollMonsterState, ro
 import { Trash2, ChevronDown, Undo2 } from 'lucide-vue-next'
 import InlineEditableText from './InlineEditableText.vue'
 import { useHoverDelay } from '@/composables/useHoverDelay'
+import { useScrollLock } from '@/composables/useScrollLock'
 import { useSettingsStore } from '@/stores/settings'
 
 interface Props {
@@ -406,6 +407,12 @@ const isTargetSectionEnabled = computed(() => {
 const showDamageDialog = ref(false)
 const showEditModal = ref(false)
 const customDamage = ref<number | null>(null)
+
+// Computed for combined modal state for scroll lock
+const isModalOpen = computed(() => showEditModal.value || showDamageDialog.value)
+
+// Apply scroll lock when any modal is open
+useScrollLock(isModalOpen)
 const localNotes = ref(props.monster.notes)
 const localAbilities = ref(props.monster.specialAbilities || '')
 const localName = ref(props.monster.name || '')

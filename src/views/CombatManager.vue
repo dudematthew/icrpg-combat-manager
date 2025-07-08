@@ -356,6 +356,7 @@ import { useCombatStore } from '@/stores/combat'
 import { useSettingsStore } from '@/stores/settings'
 import type { Monster } from '@/types'
 import { useDragAndDrop } from 'vue-fluid-dnd'
+import { useScrollLock } from '@/composables/useScrollLock'
 import { Settings, ChevronRight, RotateCcw, GripVertical, ChevronDown, ChevronUp, Eye, EyeOff, ChevronsRight } from 'lucide-vue-next'
 import MonsterCreator from '@/components/MonsterCreator.vue'
 import MonsterCard from '@/components/MonsterCard.vue'
@@ -371,6 +372,12 @@ const showClearDialog = ref(false)
 const showSettingsModal = ref(false)
 const combatMechanicsRef = ref()
 const monsterCardRefs = ref<Array<{ forceReset: () => void } | null>>([])
+
+// Computed for combined modal state for scroll lock
+const isModalOpen = computed(() => showSettingsModal.value || showClearDialog.value)
+
+// Apply scroll lock when any modal is open
+useScrollLock(isModalOpen)
 
 
 

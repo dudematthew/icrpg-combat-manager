@@ -50,8 +50,9 @@
           <!-- Monster Grid -->
           <div v-if="activeMonsters.length > 0" class="space-y-4 mb-6">
             <div v-for="monster in activeMonsters" :key="monster.id">
-              <MonsterCard :monster="monster" :compact="shouldUseCompactView" @remove="removeMonster(monster.id)"
-                @update="updateMonster(monster.id, $event)" />
+              <MonsterCard ref="monsterCardRefs" :monster="monster" :compact="shouldUseCompactView"
+                @remove="removeMonster(monster.id)" @update="updateMonster(monster.id, $event)"
+                @rollDamage="handleRollDamage" />
             </div>
           </div>
 
@@ -86,7 +87,7 @@
         </div>
 
         <!-- Target -->
-        <CombatMechanics v-if="card.id === 'target'" />
+        <CombatMechanics v-if="card.id === 'target'" ref="combatMechanicsRef" data-target-section />
 
         <!-- Monster Creation -->
         <div v-if="card.id === 'monster-creator'" id="monster-creator">
@@ -368,6 +369,8 @@ const settingsStore = useSettingsStore()
 
 const showClearDialog = ref(false)
 const showSettingsModal = ref(false)
+const combatMechanicsRef = ref()
+const monsterCardRefs = ref<Array<{ forceReset: () => void } | null>>([])
 
 
 
@@ -455,5 +458,31 @@ const handleTierModeToggle = () => {
 
 const handleCardToggle = (cardId: string) => {
   settingsStore.toggleCard(cardId)
+}
+
+const handleRollDamage = (monster: Monster) => {
+  // Force reset all monster cards to collapse them before scrolling
+  if (monsterCardRefs.value) {
+    monsterCardRefs.value.forEach((cardRef) => {
+      if (cardRef && typeof cardRef.forceReset === 'function') {
+        cardRef.forceReset()
+      }
+    })
+  }
+
+  // Small delay to allow the cards to collapse before scrolling
+  setTimeout(() => {
+    // Scroll to the difficulty modifiers section
+    const targetElement = document.getElementById('difficulty-modifiers')
+    if (targetElement) {
+      targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+
+    // Set the stat bonus directly
+    const combatMechanicsComponent = combatMechanicsRef.value?.[0]
+    if (combatMechanicsComponent?.setAttackStat) {
+      combatMechanicsComponent.setAttackStat(monster.statsBonus)
+    }
+  }, 50)
 }
 </script>

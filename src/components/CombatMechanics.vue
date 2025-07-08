@@ -34,7 +34,8 @@
       </div>
 
       <!-- Difficulty Modifiers Section -->
-      <div class="flex flex-col items-center bg-neutral-50 p-4 rounded-lg" style="flex-direction: column;">
+      <div class="flex flex-col items-center bg-neutral-50 p-4 rounded-lg" style="flex-direction: column;"
+        id="difficulty-modifiers">
         <label class="mb-3 rpg-label">Difficulty Modifiers</label>
         <div class="flex flex-wrap gap-2">
           <button @click="setDifficulty('easy')"
@@ -65,15 +66,15 @@
     </div>
     <!-- Attack Roll Section -->
     <div>
-      <h3 class="mb-4 text-base rpg-heading">Quick Roll</h3>
+      <h3 class="mb-4 text-base rpg-heading">Check or Attempt</h3>
 
       <!-- Stat Bonus and Effort Type in one row -->
-      <div class="gap-4 grid grid-cols-1 md:grid-cols-2 mb-4">
+      <div class="gap-4 grid mb-4" :class="isTargetSectionEnabled ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'">
         <div>
           <label class="rpg-label">Stat Bonus</label>
           <input v-model.number="attackStat" type="number" :min="-5" :max="20" class="w-full rpg-input" />
         </div>
-        <div>
+        <div v-if="isTargetSectionEnabled">
           <label class="rpg-label">Effort Type</label>
           <select v-model="attackEffortType" class="rpg-input">
             <option value="none">None</option>
@@ -85,7 +86,7 @@
       </div>
 
       <!-- Roll Button -->
-      <div class="mb-2">
+      <div v-if="isTargetSectionEnabled" class="mb-2">
         <button @click="rollAttack" :disabled="isRolling"
           class="disabled:opacity-50 p-2 w-full disabled:cursor-not-allowed rpg-button rpg-button-primary">
           <img v-if="!isRolling" src="/images/d20_dice_icon.png" class="h-5 icon-filter" alt="Roll" />
@@ -95,7 +96,7 @@
       </div>
 
       <!-- Last Roll Result -->
-      <div v-if="lastAttackResult" class="mt-4">
+      <div v-if="lastAttackResult && isTargetSectionEnabled" class="mt-4">
         <h3 class="mb-4 text-base rpg-heading">Last Roll Result</h3>
         <div class="bg-white p-4 border-2 border-neutral-300 rounded-lg">
           <div class="gap-4 grid grid-cols-4 mb-4 text-center">
@@ -124,7 +125,7 @@
             <div class="mb-1 text-md text-neutral-700 rpg-body">Effort:</div>
             <div class="font-bold text-2xl">
               <span class="text-accent">{{ lastAttackResult.effort }}</span>
-              <span v-if="lastAttackResult.critical" class="ml-2 text-warning">+ CRIT!</span>
+              <span v-if="lastAttackResult.critical" class="ml-2 text-warning">CRIT!</span>
             </div>
             <!-- Critical Hit Breakdown -->
             <div v-if="lastAttackResult.critical"
@@ -148,11 +149,13 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useCombatStore } from '@/stores/combat'
+import { useSettingsStore } from '@/stores/settings'
 import { EFFORT_TYPES } from '@/types'
 import { makeAttack, makeAttackAsync, getEffortDie } from '@/utils/combat'
 import type { AttackResult } from '@/utils/combat'
 
 const combatStore = useCombatStore()
+const settingsStore = useSettingsStore()
 
 const sceneTargetNumber = ref(combatStore.sceneTargetNumber)
 const difficulty = ref<'easy' | 'normal' | 'hard'>('normal')
@@ -173,6 +176,11 @@ const effectiveTarget = computed(() => {
     case 'hard': return base + 3
     default: return base
   }
+})
+
+const isTargetSectionEnabled = computed(() => {
+  const targetCard = settingsStore.appCards.find(card => card.id === 'target')
+  return targetCard?.enabled ?? true
 })
 
 const updateTarget = () => {
@@ -221,4 +229,13 @@ const rollAttack = async () => {
     isRolling.value = false
   }
 }
+
+// Expose method to parent component for setting attack stat
+const setAttackStat = (statBonus: number) => {
+  attackStat.value = statBonus
+}
+
+defineExpose({
+  setAttackStat
+})
 </script>

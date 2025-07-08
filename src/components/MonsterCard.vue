@@ -161,12 +161,20 @@
       </div>
     </details>
 
-    <!-- Full-width delete button for alive monsters -->
-    <div v-if="(!compact || isHoverDelayed) && monster.heartsCurrent > 0" class="mt-4">
+    <!-- Action buttons for alive monsters -->
+    <div v-if="(!compact || isHoverDelayed) && monster.heartsCurrent > 0" class="flex gap-2 mt-4">
+      <button v-if="isTargetSectionEnabled" @click="$emit('rollDamage', monster)"
+        class="flex justify-center items-center gap-2 px-4 py-2 border-2 rounded-md font-heading text-xs uppercase tracking-wide transition-colors cursor-pointer grow rpg-icon-button rpg-icon-button-violet">
+        <img src="/images/d20_dice_icon.png" class="w-4 h-4 icon-filter" alt="Roll" />
+        Check or Attempt
+      </button>
       <button @click="$emit('remove')"
-        class="flex justify-center items-center gap-2 hover:bg-red-700 px-4 py-2 border-2 border-danger rounded-md w-full font-heading text-white text-xs uppercase tracking-wide transition-colors cursor-pointer rpg-icon-button rpg-icon-button-danger">
+        :class="isTargetSectionEnabled ?
+          'flex justify-center items-center px-2 py-2 border-2 rounded-md transition-colors cursor-pointer rpg-icon-button rpg-icon-button-danger' :
+          'flex justify-center items-center gap-2 px-4 py-2 border-2 rounded-md font-heading text-xs uppercase tracking-wide transition-colors cursor-pointer w-full rpg-icon-button rpg-icon-button-danger'"
+        :title="isTargetSectionEnabled ? 'Remove Monster' : undefined">
         <Trash2 class="w-4 h-4" />
-        Remove Monster
+        <span v-if="!isTargetSectionEnabled">Remove Monster</span>
       </button>
     </div>
   </div>
@@ -385,9 +393,15 @@ const props = defineProps<Props>()
 const emit = defineEmits<{
   remove: []
   update: [updates: Partial<Monster>]
+  rollDamage: [monster: Monster]
 }>()
 
 const settingsStore = useSettingsStore()
+
+const isTargetSectionEnabled = computed(() => {
+  const targetCard = settingsStore.appCards.find(card => card.id === 'target')
+  return targetCard?.enabled ?? true
+})
 
 const showDamageDialog = ref(false)
 const showEditModal = ref(false)
@@ -620,6 +634,11 @@ const clearAbilitiesAndUpgrades = () => {
   generatedAbilities.value = ''
   generatedUpgrades.value = ''
 }
+
+// Expose forceReset for parent component
+defineExpose({
+  forceReset
+})
 </script>
 
 <style scoped>

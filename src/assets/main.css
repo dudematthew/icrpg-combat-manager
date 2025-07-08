@@ -364,6 +364,27 @@ body {
   border-color: #d97706;
 }
 
+.rpg-icon-button-violet {
+  color: #7c3aed;
+  background: #faf5ff;
+  border-color: #ddd6fe;
+}
+
+.rpg-icon-button-violet:hover {
+  background: #7c3aed;
+  color: white;
+  border-color: #7c3aed;
+}
+
+.rpg-icon-button-violet .icon-filter {
+  filter: brightness(0) saturate(100%) invert(25%) sepia(81%) saturate(4771%) hue-rotate(267deg)
+    brightness(95%) contrast(109%);
+}
+
+.rpg-icon-button-violet:hover .icon-filter {
+  filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%);
+}
+
 /* Form Components */
 .rpg-input {
   width: 100%;
@@ -536,6 +557,22 @@ body {
 
 .border-info {
   border-color: #0369a1;
+}
+
+.text-violet {
+  color: #7c3aed;
+}
+
+.bg-violet {
+  background-color: #7c3aed;
+}
+
+.border-violet {
+  border-color: #7c3aed;
+}
+
+.hover\:bg-violet-50:hover {
+  background-color: #f5f3ff;
 }
 
 /* Responsive and Layout Utilities */

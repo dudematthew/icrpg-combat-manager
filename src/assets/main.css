@@ -575,6 +575,10 @@ body {
   background-color: #f5f3ff;
 }
 
+.shadow-violet {
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
+}
+
 /* Responsive and Layout Utilities */
 .flex {
   display: flex;

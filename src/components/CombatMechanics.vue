@@ -72,7 +72,8 @@
       <div class="gap-4 grid mb-4" :class="isTargetSectionEnabled ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'">
         <div>
           <label class="rpg-label">Stat Bonus</label>
-          <input v-model.number="attackStat" type="number" :min="-5" :max="20" class="w-full rpg-input" />
+          <input v-model.number="attackStat" type="number" :min="-5" :max="20"
+            :class="isStatHighlighted ? 'w-full rpg-input border-violet shadow-violet' : 'w-full rpg-input'" />
         </div>
         <div v-if="isTargetSectionEnabled">
           <label class="rpg-label">Effort Type</label>
@@ -163,6 +164,7 @@ const attackStat = ref(0)
 const attackEffortType = ref('none')
 const lastAttackResult = ref<AttackResult | null>(null)
 const isRolling = ref(false)
+const isStatHighlighted = ref(false)
 
 const effortTypes = EFFORT_TYPES.map(type => ({
   label: `${type.type} (d${type.die})`,
@@ -233,6 +235,12 @@ const rollAttack = async () => {
 // Expose method to parent component for setting attack stat
 const setAttackStat = (statBonus: number) => {
   attackStat.value = statBonus
+
+  // Highlight the input with violet border for visual feedback
+  isStatHighlighted.value = true
+  setTimeout(() => {
+    isStatHighlighted.value = false
+  }, 2000) // Remove highlight after 2 seconds
 }
 
 defineExpose({

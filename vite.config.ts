@@ -22,4 +22,7 @@ export default defineConfig({
     },
   },
   base: "/icrpgcm/", // Base path for subdirectory deployment
+  esbuild: {
+    drop: ["console", "debugger"],
+  },
 });

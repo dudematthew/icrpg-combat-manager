@@ -37,10 +37,23 @@
                     ]">
               Turns
             </button>
+            <button @click="newTimer.type = 'manual'" :class="[
+                      'flex-1 text-xs rpg-button',
+                      newTimer.type === 'manual'
+                        ? 'rpg-button-primary'
+                        : 'rpg-button-secondary'
+                    ]">
+              Manual
+            </button>
+          </div>
+          <div class="mt-2 text-neutral-600 text-xs rpg-body">
+            <span v-if="newTimer.type === 'rounds'">Decrements automatically when rounds advance</span>
+            <span v-else-if="newTimer.type === 'turns'">Decrements automatically when turns advance</span>
+            <span v-else-if="newTimer.type === 'manual'">Decrements only when manually clicked</span>
           </div>
         </div>
         <div>
-          <label class="rpg-label">Duration ({{ newTimer.type }})</label>
+          <label class="rpg-label">Duration{{ newTimer.type !== 'manual' ? ` (${newTimer.type})` : '' }}</label>
           <div class="flex gap-2">
             <input v-model.number="newTimer.duration" type="number" :min="1" :max="20" placeholder="4"
               @keyup.enter="addTimer" class="flex-1 rpg-input" />
@@ -74,14 +87,28 @@
             <div class="flex-1">
               <div class="text-sm rpg-heading">{{ timer.name }}</div>
               <div class="text-neutral-600 text-sm rpg-body">
-                Duration: {{ timer.duration }} {{ timer.type }} |
-                Remaining: <span :class="timer.remaining <= 0 ? 'text-danger font-bold' : 'text-accent font-bold'">{{
-                  timer.remaining <= 0 ? 'done' : `${timer.remaining} ${timer.type}` }}</span>
+                <template v-if="timer.type === 'manual'">
+                  Duration: {{ timer.duration }} |
+                  Remaining: <span :class="timer.remaining <= 0 ? 'text-danger font-bold' : 'text-accent font-bold'">{{
+                    timer.remaining <= 0 ? 'done' : timer.remaining }}</span>
+                </template>
+                <template v-else>
+                  Duration: {{ timer.duration }} {{ timer.type }} |
+                  Remaining: <span :class="timer.remaining <= 0 ? 'text-danger font-bold' : 'text-accent font-bold'">{{
+                    timer.remaining <= 0 ? 'done' : `${timer.remaining} ${timer.type}` }}</span>
+                </template>
               </div>
             </div>
             <div class="flex items-center gap-2">
-              <button @click="timer.remaining = Math.max(0, timer.remaining - 1)"
-                class="rpg-icon-button rpg-icon-button-neutral">
+              <button v-if="timer.type === 'manual'" @click="incrementTimer(timer.id)"
+                class="rpg-icon-button rpg-icon-button-success">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd"
+                    d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                    clip-rule="evenodd" />
+                </svg>
+              </button>
+              <button @click="decrementTimer(timer.id)" class="rpg-icon-button rpg-icon-button-neutral">
                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M5 10a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z" clip-rule="evenodd" />
                 </svg>
@@ -116,7 +143,7 @@ const combatStore = useCombatStore()
 const newTimer = ref({
   name: '',
   duration: null as number | null,
-  type: 'rounds' as 'rounds' | 'turns'
+  type: 'rounds' as 'rounds' | 'turns' | 'manual'
 })
 
 const activeTimers = computed(() => combatStore.timers)
@@ -143,6 +170,14 @@ const addTimer = () => {
 
 const removeTimer = (id: string) => {
   combatStore.removeTimer(id)
+}
+
+const decrementTimer = (id: string) => {
+  combatStore.decrementTimer(id)
+}
+
+const incrementTimer = (id: string) => {
+  combatStore.incrementTimer(id)
 }
 
 const generateTimerName = () => {

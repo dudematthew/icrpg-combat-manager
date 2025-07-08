@@ -162,14 +162,22 @@ export const useCombatStore = defineStore("combat", () => {
       const newRemaining = timer.remaining - 1;
       updateTimer(id, { remaining: newRemaining });
 
-      // Trigger info monitor when timer reaches 0
-      if (newRemaining === 0) {
+      // Trigger info monitor when timer reaches 0, but not for manual timers
+      if (newRemaining === 0 && timer.type !== "manual") {
         const infoMonitorStore = useInfoMonitorStore();
         infoMonitorStore.showMonitor({
           message: timer.name,
           type: "timer",
         });
       }
+    }
+  };
+
+  const incrementTimer = (id: string) => {
+    const timer = timers.value.find((t) => t.id === id);
+    if (timer) {
+      const newRemaining = timer.remaining + 1;
+      updateTimer(id, { remaining: newRemaining });
     }
   };
 
@@ -350,6 +358,7 @@ export const useCombatStore = defineStore("combat", () => {
     removeTimer,
     clearDoneTimers,
     decrementTimer,
+    incrementTimer,
     nextTurn,
     nextRound,
     toggleCondition,

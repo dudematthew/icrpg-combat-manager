@@ -164,6 +164,7 @@
     <!-- Action buttons for alive monsters -->
     <div v-if="(!compact || isHoverDelayed) && monster.heartsCurrent > 0" class="flex gap-2 mt-4">
       <button v-if="isTargetSectionEnabled" @click="$emit('rollDamage', monster)"
+        title="Roll for Check or Attempt with Monsters modifier"
         class="flex justify-center items-center gap-2 px-4 py-2 border-2 rounded-md font-heading text-xs uppercase tracking-wide transition-colors cursor-pointer grow rpg-icon-button rpg-icon-button-violet">
         <img src="/images/d20_dice_icon.png" class="w-4 h-4 icon-filter" alt="Roll" />
         Check or Attempt

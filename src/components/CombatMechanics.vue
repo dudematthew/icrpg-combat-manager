@@ -87,9 +87,9 @@
       <!-- Roll Button -->
       <div class="mb-2">
         <button @click="rollAttack" :disabled="isRolling"
-          class="disabled:opacity-50 w-full disabled:cursor-not-allowed rpg-button rpg-button-primary">
-          <img v-if="!isRolling" src="/images/d20_dice_icon.png" class="w-5 h-5 icon-filter" alt="Roll" />
-          <div v-else class="border-2 border-white border-t-transparent rounded-full w-4 h-4 animate-spin"></div>
+          class="disabled:opacity-50 p-2 w-full disabled:cursor-not-allowed rpg-button rpg-button-primary">
+          <img v-if="!isRolling" src="/images/d20_dice_icon.png" class="h-5 icon-filter" alt="Roll" />
+          <div v-else class="border-2 border-white border-t-transparent rounded-full w-5 h-5 animate-spin"></div>
           {{ isRolling ? 'Rolling...' : 'Roll' }}
         </button>
       </div>
@@ -101,19 +101,19 @@
           <div class="gap-4 grid grid-cols-4 mb-4 text-center">
             <div>
               <div class="mb-1 text-neutral-700 text-sm rpg-body">Roll:</div>
-              <div class="font-bold text-accent text-2xl">{{ lastAttackResult.naturalRoll }}</div>
+              <div class="font-bold text-accent text-xl">{{ lastAttackResult.naturalRoll }}</div>
             </div>
             <div>
               <div class="mb-1 text-neutral-700 text-sm rpg-body">Total:</div>
-              <div class="font-bold text-2xl">{{ lastAttackResult.totalRoll }}</div>
+              <div class="font-bold text-xl">{{ lastAttackResult.totalRoll }}</div>
             </div>
             <div>
               <div class="mb-1 text-neutral-700 text-sm rpg-body">Target:</div>
-              <div class="font-bold text-lg">{{ lastAttackResult.targetNumber }}</div>
+              <div class="font-bold text-xl">{{ lastAttackResult.targetNumber }}</div>
             </div>
             <div>
               <div class="mb-1 text-neutral-700 text-sm rpg-body">Result:</div>
-              <div class="font-bold text-lg" :class="lastAttackResult.success ? 'text-success' : 'text-danger'">
+              <div class="font-bold text-xl" :class="lastAttackResult.success ? 'text-success' : 'text-danger'">
                 {{ lastAttackResult.success ? 'SUCCESS' : 'FAIL' }}
               </div>
             </div>
@@ -122,7 +122,7 @@
           <!-- Effort Display -->
           <div v-if="lastAttackResult.success && lastAttackResult.effort !== undefined" class="text-center">
             <div class="mb-1 text-md text-neutral-700 rpg-body">Effort:</div>
-            <div class="font-bold text-xl">
+            <div class="font-bold text-2xl">
               <span class="text-accent">{{ lastAttackResult.effort }}</span>
               <span v-if="lastAttackResult.critical" class="ml-2 text-warning">+ CRIT!</span>
             </div>

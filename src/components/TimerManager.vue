@@ -131,11 +131,12 @@ const addTimer = () => {
       type: newTimer.value.type
     })
 
-    // Reset form
+    // Reset form but preserve the timer type
+    const currentType = newTimer.value.type
     newTimer.value = {
       name: '',
       duration: null,
-      type: 'rounds'
+      type: currentType
     }
   }
 }

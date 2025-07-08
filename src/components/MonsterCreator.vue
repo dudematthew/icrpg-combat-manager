@@ -70,13 +70,20 @@
               </div>
             </summary>
             <div class="gap-4 grid grid-cols-1 md:grid-cols-2 mt-4">
-              <div>
+              <div class="md:col-span-2">
                 <label for="name" class="rpg-label">Name (Optional)</label>
-                <input id="name" v-model="newMonster.name" placeholder="Custom name" @keyup.enter="addMonster"
-                  class="rpg-input" />
+                <div class="flex gap-2">
+                  <input id="name" v-model="newMonster.name" placeholder="Custom name" @keyup.enter="addMonster"
+                    class="flex-1 rpg-input" />
+                  <button @click="generateMonsterName" class="p-0 rpg-button rpg-button-secondary"
+                    title="Generate random monster name">
+                    <img src="/images/d6_dice_icon.png" class="h-5 icon-filter" alt="Generate name" />
+                  </button>
+                </div>
               </div>
 
-              <div>
+              <!-- Hearts field - different for each mode -->
+              <div v-if="settingsStore.tierMode">
                 <label for="hearts" class="rpg-label">Hearts Override</label>
                 <input id="hearts" v-model.number="newMonster.heartsMax" type="number" :min="1" :max="18"
                   placeholder="Default from tier" class="rpg-input" />
@@ -193,31 +200,24 @@
             +${effectiveEffortBonus} effort` : '' }}, {{ effectiveActions }} action(s), {{
             effectiveHearts
             }} heart(s)
-            <div
-              v-if="!settingsStore.tierMode && (newMonster.manualStatsBonus > 0 || newMonster.manualEffortBonus > 0 || newMonster.manualActions > 0 || newMonster.manualHearts > 0)"
-              class="mt-1 text-neutral-500 text-xs">
+            <div v-if="hasManualOverrides" class="mt-1 text-neutral-500 text-xs">
               (Manual overrides applied)
             </div>
           </div>
         </div>
 
         <!-- Action Buttons -->
-        <div class="flex flex-col gap-3 grow-0">
+        <div class="flex flex-col gap-3">
           <div class="flex justify-end gap-3">
             <button @click="addMonster" :disabled="!newMonster.color || !newMonster.letter || !newMonster.tier"
-              class="disabled:opacity-50 disabled:cursor-not-allowed rpg-button rpg-button-primary">
-              <img src="/images/monster_icon.png" class="w-6 h-6 icon-filter" alt="Add monster" />
+              class="disabled:opacity-50 text-xs disabled:cursor-not-allowed rpg-button rpg-button-primary grow">
+              <img src="/images/monster_icon.png" class="h-5 icon-filter" alt="Add monster" />
               Add Monster
             </button>
-            <button @click="addBlankMonster" class="text-sm rpg-button rpg-button-secondary"
+            <button @click="addBlankMonster" class="text-xs rpg-button rpg-button-secondary"
               title="Add blank monster (editable in Details)">
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                <path fill-rule="evenodd"
-                  d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
-                  clip-rule="evenodd" />
-              </svg>
-              Quick Add
+              <Plus class="h-5 icon-filter" />
+              Add Blank
             </button>
           </div>
         </div>
@@ -241,7 +241,8 @@ import { useSettingsStore } from '@/stores/settings'
 import { TIER_CONFIGS, type Monster } from '@/types'
 import { formatMonsterIdentifier } from '@/utils/combat'
 import { generateMonsterAbilities, generateMonsterUpgrades, rollMonsterState, rollMonsterMotivation } from '@/utils/monsterGenerator'
-import { ChevronDown, ChevronUp } from 'lucide-vue-next'
+import { generateMonsterName as getRandomMonsterName } from '@/utils/monsterNameGenerator'
+import { ChevronDown, ChevronUp, Plus } from 'lucide-vue-next'
 
 interface Props {
   isAboveBattlefield?: boolean
@@ -346,14 +347,46 @@ const effectiveHearts = computed(() => {
   if (settingsStore.tierMode) {
     return newMonster.heartsMax || getTierHearts(newMonster.tier)
   }
-  return newMonster.manualHearts || newMonster.heartsMax || getTierHearts(newMonster.tier)
+  return newMonster.manualHearts || getTierHearts(newMonster.tier)
+})
+
+// Check if manual values are actually overridden (different from tier defaults)
+const hasManualOverrides = computed(() => {
+  if (settingsStore.tierMode || !newMonster.tier) return false
+
+  const tierDefaults = TIER_CONFIGS[newMonster.tier]
+  if (!tierDefaults) return false
+
+  return (
+    newMonster.manualStatsBonus !== tierDefaults.bonus ||
+    newMonster.manualEffortBonus !== (tierDefaults.effortBonus || 0) ||
+    newMonster.manualActions !== tierDefaults.actions ||
+    newMonster.manualHearts !== tierDefaults.hearts
+  )
 })
 
 const updateTierDefaults = () => {
   if (newMonster.tier) {
     const config = TIER_CONFIGS[newMonster.tier]
-    if (config && newMonster.heartsMax === 0) {
-      newMonster.heartsMax = config.hearts
+    if (config) {
+      // Tier mode: populate hearts override if empty
+      if (newMonster.heartsMax === 0) {
+        newMonster.heartsMax = config.hearts
+      }
+
+      // Manual mode: populate all overrides if empty
+      if (newMonster.manualStatsBonus === 0) {
+        newMonster.manualStatsBonus = config.bonus
+      }
+      if (newMonster.manualEffortBonus === 0) {
+        newMonster.manualEffortBonus = config.effortBonus || 0
+      }
+      if (newMonster.manualActions === 0) {
+        newMonster.manualActions = config.actions
+      }
+      if (newMonster.manualHearts === 0) {
+        newMonster.manualHearts = config.hearts
+      }
     }
   }
 }
@@ -439,6 +472,10 @@ const generateAbilities = () => {
 
 const generateUpgrades = () => {
   generatedUpgrades.value = generateMonsterUpgrades()
+}
+
+const generateMonsterName = () => {
+  newMonster.name = getRandomMonsterName()
 }
 
 // Apply functions - replace existing content with generated content

@@ -40,7 +40,8 @@
               <ChevronRight class="w-4 h-4" />
               Next Turn
             </button>
-            <button @click="nextRound" class="rpg-button rpg-button-secondary rpg-button-sm">
+            <button @click="nextRound"
+              :class="allMonstersDone ? 'rpg-button rpg-icon-button-success rpg-button-sm' : 'rpg-button rpg-button-secondary rpg-button-sm'">
               <ChevronsRight class="w-4 h-4" />
               Next Round
             </button>
@@ -115,7 +116,7 @@
                 <h4 class="mb-3 rpg-label">Monster Creation Mode</h4>
                 <div class="flex justify-between items-center bg-neutral-50 p-3 border border-neutral-200 rounded-lg">
                   <div>
-                    <div class="font-medium text-sm rpg-heading">
+                    <div class="font-bold text-sm rpg-body">
                       {{ settingsStore.tierMode ? 'Tier Mode' : 'Manual Mode' }}
                     </div>
                     <div class="text-neutral-600 text-xs rpg-body">
@@ -142,7 +143,7 @@
                 <h4 class="mb-3 rpg-label">Title Card</h4>
                 <div class="bg-neutral-50 p-3 border border-neutral-200 rounded-lg">
                   <div class="flex justify-between items-center">
-                    <span class="text-sm rpg-body">Show title card at top</span>
+                    <span class="font-bold text-sm rpg-body">Show title card at top</span>
                     <button @click="settingsStore.toggleTitleCard"
                       class="inline-flex relative items-center rounded-full w-10 h-10 transition-colors cursor-pointer">
                       <span
@@ -163,7 +164,7 @@
                 <h4 class="mb-3 rpg-label">Compact View</h4>
                 <div class="space-y-3 bg-neutral-50 p-3 border border-neutral-200 rounded-lg">
                   <div>
-                    <label class="text-xs rpg-label">Monsters before compact view activates</label>
+                    <label class="font-bold text-sm rpg-body">Monsters before compact view activates</label>
                     <input :value="settingsStore.compactThreshold"
                       @input="(e) => settingsStore.updateCompactThreshold(parseInt((e.target as HTMLInputElement).value))"
                       @keyup.enter="showSettingsModal = false" type="number" :min="1" :max="10" class="rpg-input"
@@ -175,7 +176,7 @@
                   </div>
 
                   <div class="flex justify-between items-center">
-                    <span class="text-sm rpg-body">Show condition pills in compact view</span>
+                    <span class="font-bold text-sm rpg-body">Show condition pills in compact view</span>
                     <button @click="settingsStore.toggleCompactConditions"
                       class="inline-flex relative items-center rounded-full w-10 h-10 transition-colors cursor-pointer">
                       <span
@@ -187,6 +188,80 @@
                   </div>
                   <div class="text-neutral-600 text-xs rpg-body">
                     Show small condition pills (bleeding, paralyzed, etc.) next to hearts in compact view
+                  </div>
+                </div>
+              </div>
+
+              <!-- Turn Management Settings -->
+              <div class="mb-6">
+                <h4 class="mb-3 rpg-label">Turn Management</h4>
+                <div class="bg-neutral-50 p-3 border border-neutral-200 rounded-lg">
+                  <div class="flex justify-between items-center">
+                    <span class="font-bold text-sm rpg-body">Auto-increment turn when all monsters are done</span>
+                    <button @click="settingsStore.toggleAutoTurnIncrement"
+                      class="inline-flex relative items-center rounded-full w-10 h-10 transition-colors cursor-pointer">
+                      <span
+                        class="flex justify-center items-center bg-white shadow-sm mt-1 rounded-full w-6 h-6 transition-transform transform">
+                        <Eye v-if="settingsStore.autoTurnIncrement" class="w-5 h-5 text-accent" />
+                        <EyeOff v-else class="w-5 h-5 text-neutral-400" />
+                      </span>
+                    </button>
+                  </div>
+                  <div class="mt-2 text-neutral-600 text-xs rpg-body">
+                    When enabled, the turn counter automatically increments by 1 when all alive monsters have completed
+                    their
+                    turns. In ICRPG, the GM controls all monsters, so only one turn should pass when all are done.
+                  </div>
+                </div>
+              </div>
+
+              <!-- Notifications Settings -->
+              <div class="mb-6">
+                <h4 class="mb-3 rpg-label">Notifications</h4>
+                <div class="space-y-3 bg-neutral-50 p-3 border border-neutral-200 rounded-lg">
+                  <!-- Timer Done Notifications -->
+                  <div class="flex justify-between items-center">
+                    <span class="font-bold text-sm rpg-body">Timer completed notifications</span>
+                    <button @click="settingsStore.toggleTimerDoneNotification"
+                      class="inline-flex relative items-center rounded-full w-10 h-10 transition-colors cursor-pointer">
+                      <span
+                        class="inline-block flex justify-center items-center bg-white shadow-sm mt-1 rounded-full w-6 h-6 transition-transform transform">
+                        <Eye v-if="settingsStore.notifications.timerDone" class="w-5 h-5 text-accent" />
+                        <EyeOff v-else class="w-5 h-5 text-neutral-400" />
+                      </span>
+                    </button>
+                  </div>
+
+                  <!-- Turn Auto-incremented Notifications -->
+                  <div class="flex justify-between items-center">
+                    <span class="font-bold text-sm rpg-body">Turn auto-incremented notifications</span>
+                    <button @click="settingsStore.toggleTurnAutoIncrementedNotification"
+                      class="inline-flex relative items-center rounded-full w-10 h-10 transition-colors cursor-pointer">
+                      <span
+                        class="inline-block flex justify-center items-center bg-white shadow-sm mt-1 rounded-full w-6 h-6 transition-transform transform">
+                        <Eye v-if="settingsStore.notifications.turnAutoIncremented" class="w-5 h-5 text-accent" />
+                        <EyeOff v-else class="w-5 h-5 text-neutral-400" />
+                      </span>
+                    </button>
+                  </div>
+
+                  <!-- Round Ended Notifications -->
+                  <div class="flex justify-between items-center">
+                    <span class="font-bold text-sm rpg-body">Round end notifications</span>
+                    <button @click="settingsStore.toggleRoundEndedNotification"
+                      class="inline-flex relative items-center rounded-full w-10 h-10 transition-colors cursor-pointer">
+                      <span
+                        class="inline-block flex justify-center items-center bg-white shadow-sm mt-1 rounded-full w-6 h-6 transition-transform transform">
+                        <Eye v-if="settingsStore.notifications.roundEnded" class="w-5 h-5 text-accent" />
+                        <EyeOff v-else class="w-5 h-5 text-neutral-400" />
+                      </span>
+                    </button>
+                  </div>
+
+                  <div class="text-neutral-600 text-xs rpg-body">
+                    Control which notifications are shown. Disabled notifications will not appear even
+                    when
+                    triggered.
                   </div>
                 </div>
               </div>
@@ -322,6 +397,7 @@ watch(appCardsRef, (newCards) => {
 const currentTurn = computed(() => combatStore.currentTurn)
 const currentRound = computed(() => combatStore.currentRound)
 const activeMonsters = computed(() => combatStore.activeMonsters)
+const allMonstersDone = computed(() => combatStore.allMonstersDone)
 const shouldUseCompactView = computed(() => activeMonsters.value.length > settingsStore.compactThreshold)
 
 const isMonsterCreatorAboveBattlefield = computed(() => {

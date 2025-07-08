@@ -8,6 +8,12 @@ export interface AppCard {
   enabled: boolean;
 }
 
+export interface NotificationSettings {
+  timerDone: boolean;
+  turnAutoIncremented: boolean;
+  roundEnded: boolean;
+}
+
 // Legacy interface for backward compatibility with old localStorage data
 interface LegacyAppCard extends AppCard {
   order?: number;
@@ -42,11 +48,20 @@ export const useSettingsStore = defineStore("settings", () => {
     },
   ];
 
+  // Default notification settings
+  const defaultNotifications: NotificationSettings = {
+    timerDone: true,
+    turnAutoIncremented: true,
+    roundEnded: false,
+  };
+
   const appCards = ref<AppCard[]>([]);
   const tierMode = ref(true); // true = tier mode, false = manual mode
   const compactThreshold = ref(2); // Number of monsters before switching to compact view
   const showTitleCard = ref(true); // Whether to show the title card at the top
   const showCompactConditions = ref(false); // Whether to show condition pills in compact view
+  const autoTurnIncrement = ref(true); // Whether to auto-increment turn when all monsters are done
+  const notifications = ref<NotificationSettings>({ ...defaultNotifications });
 
   // Load settings from localStorage
   const loadSettings = () => {
@@ -72,12 +87,36 @@ export const useSettingsStore = defineStore("settings", () => {
       showTitleCard.value = settings.showTitleCard !== undefined ? settings.showTitleCard : true;
       showCompactConditions.value =
         settings.showCompactConditions !== undefined ? settings.showCompactConditions : false;
+      autoTurnIncrement.value =
+        settings.autoTurnIncrement !== undefined ? settings.autoTurnIncrement : true;
+
+      // Handle notifications settings
+      if (settings.notifications) {
+        notifications.value = {
+          timerDone:
+            settings.notifications.timerDone !== undefined
+              ? settings.notifications.timerDone
+              : defaultNotifications.timerDone,
+          turnAutoIncremented:
+            settings.notifications.turnAutoIncremented !== undefined
+              ? settings.notifications.turnAutoIncremented
+              : defaultNotifications.turnAutoIncremented,
+          roundEnded:
+            settings.notifications.roundEnded !== undefined
+              ? settings.notifications.roundEnded
+              : defaultNotifications.roundEnded,
+        };
+      } else {
+        notifications.value = { ...defaultNotifications };
+      }
     } else {
       appCards.value = [...defaultAppCards];
       tierMode.value = true;
       compactThreshold.value = 2;
       showTitleCard.value = true;
       showCompactConditions.value = false;
+      autoTurnIncrement.value = true;
+      notifications.value = { ...defaultNotifications };
     }
 
     console.log(
@@ -94,6 +133,8 @@ export const useSettingsStore = defineStore("settings", () => {
       compactThreshold: compactThreshold.value,
       showTitleCard: showTitleCard.value,
       showCompactConditions: showCompactConditions.value,
+      autoTurnIncrement: autoTurnIncrement.value,
+      notifications: notifications.value,
     };
     console.log(
       "Saving appCards:",
@@ -178,6 +219,28 @@ export const useSettingsStore = defineStore("settings", () => {
     saveSettings();
   };
 
+  // Toggle auto turn increment
+  const toggleAutoTurnIncrement = () => {
+    autoTurnIncrement.value = !autoTurnIncrement.value;
+    saveSettings();
+  };
+
+  // Toggle notification settings
+  const toggleTimerDoneNotification = () => {
+    notifications.value.timerDone = !notifications.value.timerDone;
+    saveSettings();
+  };
+
+  const toggleTurnAutoIncrementedNotification = () => {
+    notifications.value.turnAutoIncremented = !notifications.value.turnAutoIncremented;
+    saveSettings();
+  };
+
+  const toggleRoundEndedNotification = () => {
+    notifications.value.roundEnded = !notifications.value.roundEnded;
+    saveSettings();
+  };
+
   // Reset to defaults
   const resetToDefaults = () => {
     appCards.value = [...defaultAppCards];
@@ -185,6 +248,8 @@ export const useSettingsStore = defineStore("settings", () => {
     compactThreshold.value = 2;
     showTitleCard.value = true;
     showCompactConditions.value = false;
+    autoTurnIncrement.value = true;
+    notifications.value = { ...defaultNotifications };
     saveSettings();
   };
 
@@ -194,11 +259,17 @@ export const useSettingsStore = defineStore("settings", () => {
     compactThreshold,
     showTitleCard,
     showCompactConditions,
+    autoTurnIncrement,
+    notifications,
     toggleCard,
     toggleTierMode,
     updateCompactThreshold,
     toggleTitleCard,
     toggleCompactConditions,
+    toggleAutoTurnIncrement,
+    toggleTimerDoneNotification,
+    toggleTurnAutoIncrementedNotification,
+    toggleRoundEndedNotification,
     reorderCards,
     getVisibleCards,
     resetToDefaults,

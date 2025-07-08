@@ -1,17 +1,15 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
-import NotificationBar from './components/NotificationBar.vue'
 import InfoMonitor from './components/InfoMonitor.vue'
-import { useInfoMonitorStore } from './stores/infoMonitor'
-
-const infoMonitorStore = useInfoMonitorStore()
+import NotificationBar from './components/NotificationBar.vue'
 </script>
 
 <template>
-  <RouterView />
-  <NotificationBar />
-  <InfoMonitor :is-visible="infoMonitorStore.isVisible" :message="infoMonitorStore.message"
-    :duration="infoMonitorStore.duration" @hide="infoMonitorStore.hideMonitor" />
+  <main>
+    <router-view />
+    <InfoMonitor />
+    <NotificationBar />
+  </main>
 </template>
 
 <style>

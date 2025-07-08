@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import type { Monster, Timer, CombatState } from "@/types";
 import { useInfoMonitorStore } from "./infoMonitor";
+import { useSettingsStore } from "./settings";
 
 export const useCombatStore = defineStore("combat", () => {
   // State
@@ -75,6 +76,12 @@ export const useCombatStore = defineStore("combat", () => {
   });
 
   const activeTimers = computed(() => timers.value.filter((t) => t.remaining > 0));
+
+  const allMonstersDone = computed(() => {
+    const aliveMonsters = monsters.value.filter((m) => m.heartsCurrent > 0);
+    if (aliveMonsters.length === 0) return false; // No alive monsters means not ready for next round
+    return aliveMonsters.every((m) => m.doneTurn === true);
+  });
 
   // Actions
   const addMonster = (monster: Omit<Monster, "id">) => {
@@ -155,7 +162,7 @@ export const useCombatStore = defineStore("combat", () => {
         const infoMonitorStore = useInfoMonitorStore();
         infoMonitorStore.showMonitor({
           message: timer.name,
-          duration: 5000,
+          type: "timer",
         });
       }
     }
@@ -212,12 +219,25 @@ export const useCombatStore = defineStore("combat", () => {
         decrementTimer(timer.id);
       }
     });
+
     // Apply auto-damage from conditions
-    monsters.value.forEach((monster) => {
-      if (monster.conditions.includes("Burning") || monster.conditions.includes("Bleeding")) {
-        applyDamage(monster.id, 10); // 1 heart = 10 HP
-      }
+    const burnedOrBleedingMonsters = monsters.value.filter(
+      (monster) => monster.conditions.includes("Burning") || monster.conditions.includes("Bleeding")
+    );
+
+    burnedOrBleedingMonsters.forEach((monster) => {
+      applyDamage(monster.id, 10); // 1 heart = 10 HP
     });
+
+    // Show notification for condition damage if any monsters were affected
+    if (burnedOrBleedingMonsters.length > 0) {
+      const infoMonitorStore = useInfoMonitorStore();
+      infoMonitorStore.showMonitor({
+        message: `${burnedOrBleedingMonsters.length} monster(s) took condition damage`,
+        type: "warning",
+      });
+    }
+
     saveState();
   };
 
@@ -247,7 +267,6 @@ export const useCombatStore = defineStore("combat", () => {
           .reduce((max, m) => Math.max(max, m.completionOrder || 0), 0);
 
         updates.completionOrder = maxCompletionOrder + 1;
-        nextTurn();
       }
       // If unmarking (true -> false), clear completion order
       else if (wasDone && !newDoneTurnState) {
@@ -256,6 +275,21 @@ export const useCombatStore = defineStore("combat", () => {
 
       // Update monster state
       updateMonster(monsterId, updates);
+
+      // Check if we should auto-increment turn (only if marking as done)
+      if (!wasDone && newDoneTurnState) {
+        const settingsStore = useSettingsStore();
+
+        if (settingsStore.autoTurnIncrement && allMonstersDone.value) {
+          nextTurn();
+          // Show notification to let user know turn was auto-incremented
+          const infoMonitorStore = useInfoMonitorStore();
+          infoMonitorStore.showMonitor({
+            message: `Turn auto-incremented to ${currentTurn.value}`,
+            type: "turn",
+          });
+        }
+      }
     }
   };
 
@@ -299,6 +333,7 @@ export const useCombatStore = defineStore("combat", () => {
     // Computed
     activeMonsters,
     activeTimers,
+    allMonstersDone,
 
     // Actions
     addMonster,

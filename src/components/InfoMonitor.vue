@@ -1,16 +1,33 @@
 <template>
   <Teleport to="body">
     <Transition name="monitor-slide" appear>
-      <div v-if="isVisible" class="info-monitor" @click="hide">
-        <div class="rpg-card monitor-card"
-          :style="{ borderBottomColor: '#dc2626', borderBottomWidth: progressWidth + '%' }">
+      <div v-if="isVisible && currentNotification" class="info-monitor" @click="hide">
+        <div class="rpg-card monitor-card" :style="{
+               borderBottomColor: currentNotification.borderColor || '#dc2626',
+               borderBottomWidth: progressWidth + '%'
+             }">
           <div class="monitor-content">
-            <div class="monitor-icon">
-              <img src="/images/clock_icon.png" class="w-6 h-6 icon-filter" alt="Timer complete" />
+            <div class="monitor-icon" :style="{ color: currentNotification.color || '#dc2626' }">
+              <!-- Image icon -->
+              <img v-if="currentNotification.icon && currentNotification.iconType === 'image'"
+                :src="currentNotification.icon" class="w-6 h-6 icon-filter" :alt="currentNotification.title" />
+
+              <!-- Lucide icon -->
+              <component v-else-if="currentNotification.icon && currentNotification.iconType === 'lucide'"
+                :is="getLucideIcon(currentNotification.icon)" class="w-6 h-6 icon-filter" />
+
+              <!-- Default icon if no icon specified -->
+              <svg v-else class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                  clip-rule="evenodd" />
+              </svg>
             </div>
             <div class="monitor-text">
-              <div class="monitor-title">Timer Complete!</div>
-              <div class="monitor-message">{{ message }}</div>
+              <div class="monitor-title" :style="{ color: currentNotification.color || '#dc2626' }">
+                {{ currentNotification.title }}
+              </div>
+              <div class="monitor-message">{{ currentNotification.message }}</div>
             </div>
             <div class="monitor-close">
               <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -27,28 +44,35 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch } from 'vue'
+import { useInfoMonitorStore } from '@/stores/infoMonitor'
+import { ChevronRight, Plus, Info, AlertTriangle, AlertCircle, RotateCcw } from 'lucide-vue-next'
 
-interface Props {
-  message: string
-  duration?: number
-  isVisible: boolean
-}
+const infoMonitorStore = useInfoMonitorStore()
 
-const props = withDefaults(defineProps<Props>(), {
-  duration: 4000
-})
-
-const emit = defineEmits<{
-  hide: []
-}>()
+const isVisible = computed(() => infoMonitorStore.isVisible)
+const currentNotification = computed(() => infoMonitorStore.currentNotification)
 
 const progressWidth = ref(100)
 let progressInterval: number | null = null
 let hideTimeout: number | null = null
 
+// Map of lucide icon names to components
+const lucideIcons = {
+  ChevronRight,
+  Plus,
+  Info,
+  AlertTriangle,
+  AlertCircle,
+  RotateCcw
+}
+
+const getLucideIcon = (iconName: string) => {
+  return lucideIcons[iconName as keyof typeof lucideIcons] || Info
+}
+
 const hide = () => {
-  emit('hide')
+  infoMonitorStore.hideMonitor()
   cleanup()
 }
 
@@ -64,11 +88,14 @@ const cleanup = () => {
 }
 
 const startProgress = () => {
+  if (!currentNotification.value) return
+
   progressWidth.value = 100
+  const duration = currentNotification.value.duration || 4000
   const stepTime = 50 // Update every 50ms
-  const steps = props.duration / stepTime
+  const steps = duration / stepTime
   const decrement = 100 / steps
-  
+
   progressInterval = window.setInterval(() => {
     progressWidth.value -= decrement
     if (progressWidth.value <= 0) {
@@ -76,30 +103,27 @@ const startProgress = () => {
       cleanup()
     }
   }, stepTime)
-  
+
   // Auto-hide after duration
   hideTimeout = window.setTimeout(() => {
     hide()
-  }, props.duration)
+  }, duration)
 }
 
-onMounted(() => {
-  if (props.isVisible) {
-    startProgress()
-  }
-})
-
-onUnmounted(() => {
-  cleanup()
-})
-
 // Watch for visibility changes
-import { watch } from 'vue'
-watch(() => props.isVisible, (newVal) => {
-  if (newVal) {
+watch(isVisible, (newVal) => {
+  if (newVal && currentNotification.value) {
     startProgress()
   } else {
     cleanup()
+  }
+})
+
+// Watch for notification changes (for queue processing)
+watch(currentNotification, (newNotification) => {
+  if (newNotification && isVisible.value) {
+    cleanup()
+    startProgress()
   }
 })
 </script>

@@ -25,7 +25,7 @@
               placeholder="Tell me what you think! You can use markdown formatting..." :maxlength="1500"
               @input="updateCharacterCount"></textarea>
             <div class="flex justify-between mt-1 text-neutral-500 text-xs">
-              <span>Full markdown supported (headers, bold, italic, links, code, lists, etc.)</span>
+              <span>Full markdown supported (headers, bold, italic, links, code, lists, etc.) - HTML not allowed</span>
               <span :class="characterCount > 1400 ? 'text-warning' : ''">
                 {{ characterCount }}/1500
               </span>
@@ -76,6 +76,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { marked } from 'marked'
+import DOMPurify from 'dompurify'
 
 interface Props {
   show: boolean
@@ -91,18 +92,32 @@ const feedback = ref('')
 const isSubmitting = ref(false)
 const characterCount = ref(0)
 
-// Markdown renderer using marked library
+// Markdown renderer using marked library with HTML sanitization
 const renderedMarkdown = computed(() => {
   if (!feedback.value) return ''
 
-  try {
-    return marked(feedback.value, {
+    try {
+    // First convert markdown to HTML (synchronously)
+    const rawHtml = marked.parse(feedback.value, {
       breaks: true, // Convert \n to <br>
       gfm: true, // GitHub Flavored Markdown
+    }) as string
+
+    // Then sanitize the HTML to prevent XSS attacks
+    return DOMPurify.sanitize(rawHtml, {
+      ALLOWED_TAGS: [
+        'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+        'p', 'br', 'strong', 'em', 'u', 'del', 's',
+        'ul', 'ol', 'li',
+        'blockquote', 'code', 'pre',
+        'a', 'table', 'thead', 'tbody', 'tr', 'th', 'td'
+      ],
+      ALLOWED_ATTR: ['href', 'title', 'alt'],
+      ALLOW_DATA_ATTR: false
     })
   } catch (error) {
     console.error('Markdown parsing error:', error)
-    return feedback.value.replace(/\n/g, '<br>')
+    return DOMPurify.sanitize(feedback.value.replace(/\n/g, '<br>'))
   }
 })
 

@@ -10,6 +10,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     AppFooter: typeof import('./src/components/AppFooter.vue')['default']
     CombatMechanics: typeof import('./src/components/CombatMechanics.vue')['default']
+    FeedbackModal: typeof import('./src/components/FeedbackModal.vue')['default']
     GitHubVersion: typeof import('./src/components/GitHubVersion.vue')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
     IconCommunity: typeof import('./src/components/icons/IconCommunity.vue')['default']

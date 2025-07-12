@@ -115,7 +115,8 @@
             </div>
             <div>
               <div class="mb-1 text-neutral-700 text-sm rpg-body">Result:</div>
-              <div class="font-bold text-xl" :class="lastAttackResult.success ? 'text-success' : 'text-danger'">
+              <div class="font-bold text-md sm:text-xl"
+                :class="lastAttackResult.success ? 'text-success' : 'text-danger'">
                 {{ lastAttackResult.success ? 'SUCCESS' : 'FAIL' }}
               </div>
             </div>

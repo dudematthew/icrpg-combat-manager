@@ -308,15 +308,26 @@
 
 
 
-            <div class="flex sm:flex-row flex-col justify-between gap-3">
-              <button @click="settingsStore.resetToDefaults"
-                class="px-3 sm:px-4 py-2 text-sm sm:text-base rpg-button rpg-button-secondary">
-                Reset to Defaults
-              </button>
-              <button @click="showSettingsModal = false"
-                class="px-3 sm:px-4 py-2 text-sm sm:text-base rpg-button rpg-button-primary">
-                Close
-              </button>
+            <div class="space-y-3">
+              <!-- Feedback Button -->
+              <div class="flex justify-center">
+                <button @click="showFeedbackModal = true"
+                  class="px-3 sm:px-4 py-2 w-full text-sm sm:text-base rpg-button rpg-icon-button-violet">
+                  Give Feedback
+                </button>
+              </div>
+
+              <!-- Reset and Close Buttons -->
+              <div class="flex sm:flex-row flex-col justify-between gap-3">
+                <button @click="settingsStore.resetToDefaults"
+                  class="px-3 sm:px-4 py-2 text-sm sm:text-base rpg-button rpg-button-secondary">
+                  Reset to Defaults
+                </button>
+                <button @click="showSettingsModal = false"
+                  class="px-3 sm:px-4 py-2 text-sm sm:text-base rpg-button rpg-button-primary">
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -343,6 +354,9 @@
           </div>
         </div>
       </div>
+
+      <!-- Feedback Modal -->
+      <FeedbackModal :show="showFeedbackModal" @close="showFeedbackModal = false" />
     </div>
 
     <!-- Footer -->
@@ -364,17 +378,19 @@ import CombatMechanics from '@/components/CombatMechanics.vue'
 import TimerManager from '@/components/TimerManager.vue'
 import GitHubVersion from '@/components/GitHubVersion.vue'
 import AppFooter from '@/components/AppFooter.vue'
+import FeedbackModal from '@/components/FeedbackModal.vue'
 
 const combatStore = useCombatStore()
 const settingsStore = useSettingsStore()
 
 const showClearDialog = ref(false)
 const showSettingsModal = ref(false)
+const showFeedbackModal = ref(false)
 const combatMechanicsRef = ref()
 const monsterCardRefs = ref<Array<{ forceReset: () => void } | null>>([])
 
 // Computed for combined modal state for scroll lock
-const isModalOpen = computed(() => showSettingsModal.value || showClearDialog.value)
+const isModalOpen = computed(() => showSettingsModal.value || showClearDialog.value || showFeedbackModal.value)
 
 // Apply scroll lock when any modal is open
 useScrollLock(isModalOpen)

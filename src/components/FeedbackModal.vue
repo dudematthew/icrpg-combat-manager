@@ -120,7 +120,10 @@ const submitFeedback = async () => {
   isSubmitting.value = true
 
   try {
-    const response = await fetch('http://feedback.dudematthew.smallhost.pl/index.php', {
+    // Use HTTPS now that SSL is properly configured
+    const apiUrl = 'https://feedback.dudematthew.smallhost.pl/index.php'
+
+    const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -146,7 +149,13 @@ const submitFeedback = async () => {
     }
   } catch (error) {
     console.error('Feedback submission error:', error)
-    alert('Failed to send feedback. Please try again later.')
+
+    // Check if it's a mixed content error
+    if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+      alert('Unable to send feedback due to security restrictions. Please contact support directly or try from a non-HTTPS environment.')
+    } else {
+      alert('Failed to send feedback. Please try again later.')
+    }
   } finally {
     isSubmitting.value = false
   }

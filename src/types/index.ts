@@ -28,6 +28,29 @@ export interface Timer {
   duration: number;
   remaining: number;
   type: "rounds" | "turns" | "manual";
+  color?: string;
+}
+
+export type MonsterTemplate = Omit<
+  Monster,
+  "id" | "letter" | "doneTurn" | "turnOrder" | "completionOrder" | "heartsCurrent"
+> & {
+  label?: string;
+  savedAt?: string;
+};
+
+export interface MonsterFormData {
+  color: string;
+  letter: string;
+  tier: Monster["tier"] | "";
+  name: string;
+  notes: string;
+  heartsMax: number;
+  specialAbilities: string;
+  manualStatsBonus: number;
+  manualEffortBonus: number;
+  manualActions: number;
+  manualHearts: number;
 }
 
 export interface CombatState {

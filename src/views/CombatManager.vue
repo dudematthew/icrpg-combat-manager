@@ -20,7 +20,7 @@
         <div v-if="card.id === 'battlefield'" class="rpg-card battlefield-section">
           <!-- Battlefield Title at Top -->
           <div class="flex items-baseline gap-3 mb-4">
-            <img src="/images/sword_icon.png" class="flex-shrink-0 w-6 h-6 text-accent icon-filter" alt="Battlefield" />
+            <img :src="assetUrl('images/sword_icon.png')" class="flex-shrink-0 w-6 h-6 text-accent icon-filter" alt="Battlefield" />
             <h2 class="flex-shrink-0 rpg-heading">Battlefield</h2>
             <span class="flex-shrink-0 font-body font-semibold text-accent text-sm">({{ activeMonsters.length }}
               active)</span>
@@ -58,7 +58,7 @@
 
           <!-- No Monsters Message -->
           <div v-else class="flex justify-center items-center mb-6 py-12 text-center" style="flex-direction: column;">
-            <img src="/images/battlefield_empty_state.png" class="mx-auto mb-4 h-24 text-neutral-400 icon-filter"
+            <img :src="assetUrl('images/battlefield_empty_state.png')" class="mx-auto mb-4 h-24 text-neutral-400 icon-filter"
               alt="No monsters" />
             <div class="mb-2 text-neutral-600 rpg-body">No monsters on the battlefield</div>
             <div class="mb-4 text-neutral-500 text-sm">Add monsters using the form <span
@@ -80,7 +80,7 @@
             </button>
             <button @click="confirmClear"
               class="flex flex-row items-center gap-1 bg-danger hover:bg-red-700 px-3 py-2 border-2 border-danger rounded-md font-heading text-white text-xs uppercase tracking-wide transition-colors cursor-pointer">
-              <img src="/images/sword_icon.png" class="h-5 icon-filter" alt="Clear battlefield" />
+              <img :src="assetUrl('images/sword_icon.png')" class="h-5 icon-filter" alt="Clear battlefield" />
               Clear Battlefield
             </button>
           </div>
@@ -364,6 +364,7 @@ import CombatMechanics from '@/components/CombatMechanics.vue'
 import TimerManager from '@/components/TimerManager.vue'
 import GitHubVersion from '@/components/GitHubVersion.vue'
 import AppFooter from '@/components/AppFooter.vue'
+import { assetUrl } from '@/utils/assetUrl'
 
 const combatStore = useCombatStore()
 const settingsStore = useSettingsStore()

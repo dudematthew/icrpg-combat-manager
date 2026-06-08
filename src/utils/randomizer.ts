@@ -1,6 +1,6 @@
-interface EventHandler {
-  (data?: any): void;
-}
+type RandomizerEventData = number | number[] | { status: number; statusText: string } | string;
+
+type EventHandler = (data?: RandomizerEventData) => void;
 
 export class Randomizer {
   private randomNumbersKeepAmount: number;
@@ -191,7 +191,14 @@ export class Randomizer {
         .map((num) => parseFloat(num));
       this.fetchEnd(randomNumbers);
     } catch (error) {
-      this.connectionError(error);
+      const eventData: RandomizerEventData =
+        error &&
+        typeof error === "object" &&
+        "status" in error &&
+        "statusText" in error
+          ? (error as { status: number; statusText: string })
+          : String(error);
+      this.connectionError(eventData);
       randomNumbers = null;
     }
 
@@ -204,7 +211,7 @@ export class Randomizer {
    * Default connection error handler
    * @param error error object or message
    */
-  private defaultConnectionError(error: any = ""): void {
+  private defaultConnectionError(error: RandomizerEventData = ""): void {
     console.error("There has been an error connecting to www.random.org: " + error);
   }
 
@@ -212,7 +219,7 @@ export class Randomizer {
    * Default fetch start handler
    * @param amount amount of numbers being fetched
    */
-  private defaultFetchStart(amount?: number): void {
+  private defaultFetchStart(amount?: RandomizerEventData): void {
     console.log(`Starting fetching ${amount} numbers`);
   }
 
@@ -220,7 +227,7 @@ export class Randomizer {
    * Default fetch end handler
    * @param randomNumbers the fetched random numbers
    */
-  private defaultFetchEnd(randomNumbers?: number[]): void {
+  private defaultFetchEnd(randomNumbers?: RandomizerEventData): void {
     console.log("Finished fetching: ", randomNumbers);
   }
 }

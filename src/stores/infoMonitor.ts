@@ -1,6 +1,8 @@
 import { defineStore } from "pinia";
 import { ref, watch } from "vue";
 import { useSettingsStore } from "./settings";
+import { generateId } from "@/utils/generateId";
+import { assetUrl } from "@/utils/assetUrl";
 
 export interface InfoMonitorNotification {
   id: string;
@@ -30,16 +32,12 @@ export const useInfoMonitorStore = defineStore("infoMonitor", () => {
   const currentNotification = ref<InfoMonitorNotification | null>(null);
   const isVisible = ref(false);
 
-  const generateId = () => {
-    return Date.now().toString() + Math.random().toString(36).substr(2, 9);
-  };
-
   const getNotificationDefaults = (type?: string): Partial<InfoMonitorNotification> => {
     switch (type) {
       case "timer":
         return {
           title: "Timer Complete!",
-          icon: `${import.meta.env.BASE_URL}images/clock_icon.png`,
+          icon: assetUrl("images/clock_icon.png"),
           iconType: "image",
           color: "#dc2626",
           borderColor: "#dc2626",

@@ -23,7 +23,7 @@
         </div>
         <div class="flex-1">
           <div class="flex flex-row items-center gap-2 mb-2 text-base rpg-heading">
-            <img v-if="monster.heartsCurrent <= 0" src="/images/skull_icon.png" class="inline icon-filter" alt="Dead"
+            <img v-if="monster.heartsCurrent <= 0" :src="assetUrl('images/skull_icon.png')" class="inline icon-filter" alt="Dead"
               style="height: 1.1rem;" />
             <span :class="{ 'line-through': monster.doneTurn && monster.heartsCurrent > 0 }" class="cursor-pointer"
               @click="showEditModal = true">
@@ -71,14 +71,14 @@
       <div class="flex xs:flex-row flex-col gap-1">
         <button v-if="monster.heartsCurrent <= 0" @click="reviveMonster"
           class="flex items-center gap-1 rpg-icon-button rpg-icon-button-neutral" title="Revive Monster to Full Health">
-          <img src="/images/revive_icon.png" class="h-4 icon-filter" alt="Revive Monster" />
+          <img :src="assetUrl('images/revive_icon.png')" class="h-4 icon-filter" alt="Revive Monster" />
         </button>
         <!-- For alive monsters: show done turn button -->
         <button v-if="monster.heartsCurrent > 0" @click="toggleDoneTurn" class="p-1 rpg-icon-button"
           :class="monster.doneTurn ? 'rpg-icon-button-warning' : 'rpg-icon-button-success'"
           :title="monster.doneTurn ? 'Reset turn (mark as not done)' : 'Mark turn as done'">
           <Undo2 v-if="monster.doneTurn" class="w-4 h-4 icon-filter" alt="Reset turn" />
-          <img v-else src="/images/checkmark_icon.png" class="w-4 h-4 icon-filter" alt="Mark done" />
+          <img v-else :src="assetUrl('images/checkmark_icon.png')" class="w-4 h-4 icon-filter" alt="Mark done" />
         </button>
         <!-- For dead monsters: show remove button -->
         <button v-if="monster.heartsCurrent <= 0" @click="$emit('remove')"
@@ -166,7 +166,7 @@
       <button v-if="isTargetSectionEnabled" @click="$emit('rollDamage', monster)"
         title="Roll for Check or Attempt with Monsters modifier"
         class="flex justify-center items-center gap-2 px-4 py-2 border-2 rounded-md font-heading text-xs uppercase tracking-wide transition-colors cursor-pointer grow rpg-icon-button rpg-icon-button-violet">
-        <img src="/images/d20_dice_icon.png" class="w-4 h-4 icon-filter" alt="Roll" />
+        <img :src="assetUrl('images/d20_dice_icon.png')" class="w-4 h-4 icon-filter" alt="Roll" />
         Check or Attempt
       </button>
       <button @click="$emit('remove')"
@@ -273,13 +273,13 @@
                 <div class="flex flex-wrap gap-1 mb-2 grow">
                   <button @click="generateState" class="flex items-center gap-1 text-xs rpg-button rpg-button-secondary"
                     title="Generate monster state" style="padding-inline: 16px;">
-                    <img src="/images/d6_dice_icon.png" class="w-4 h-4 icon-filter" alt="Generate state" />
+                    <img :src="assetUrl('images/d6_dice_icon.png')" class="w-4 h-4 icon-filter" alt="Generate state" />
                     State
                   </button>
                   <button @click="generateMotivation"
                     class="flex items-center gap-1 text-xs rpg-button rpg-button-secondary"
                     title="Generate monster motivation" style="padding-inline: 16px;">
-                    <img src="/images/d6_dice_icon.png" class="w-4 h-4 icon-filter" alt="Generate motivation" />
+                    <img :src="assetUrl('images/d6_dice_icon.png')" class="w-4 h-4 icon-filter" alt="Generate motivation" />
                     Motivation
                   </button>
                 </div>
@@ -303,13 +303,13 @@
                   <button @click="generateAbilities"
                     class="flex items-center gap-1 text-xs rpg-button rpg-button-secondary" title="Generate abilities"
                     style="padding-inline: 16px;">
-                    <img src="/images/d6_dice_icon.png" class="w-4 h-4 icon-filter" alt="Generate abilities" />
+                    <img :src="assetUrl('images/d6_dice_icon.png')" class="w-4 h-4 icon-filter" alt="Generate abilities" />
                     Ability
                   </button>
                   <button @click="generateUpgrades"
                     class="flex items-center gap-1 text-xs rpg-button rpg-button-secondary" title="Generate upgrades"
                     style="padding-inline: 16px;">
-                    <img src="/images/d6_dice_icon.png" class="w-4 h-4 icon-filter" alt="Generate upgrades" />
+                    <img :src="assetUrl('images/d6_dice_icon.png')" class="w-4 h-4 icon-filter" alt="Generate upgrades" />
                     Upgrade
                   </button>
                 </div>
@@ -379,6 +379,7 @@ import { ref, computed } from 'vue'
 import type { Monster } from '@/types'
 import { CONDITIONS, TIER_CONFIGS } from '@/types'
 import { formatMonsterIdentifier, getTierColor, getMonsterColor, getTextColorForBackground } from '@/utils/combat'
+import { assetUrl } from '@/utils/assetUrl'
 import { generateMonsterAbilities, generateMonsterUpgrades, rollMonsterState, rollMonsterMotivation } from '@/utils/monsterGenerator'
 import { Trash2, ChevronDown, Undo2 } from 'lucide-vue-next'
 import InlineEditableText from './InlineEditableText.vue'

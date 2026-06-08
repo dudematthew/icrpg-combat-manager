@@ -3,6 +3,7 @@ import { ref, computed } from "vue";
 import type { Monster, Timer, CombatState } from "@/types";
 import { useInfoMonitorStore } from "./infoMonitor";
 import { useSettingsStore } from "./settings";
+import { generateId } from "@/utils/generateId";
 
 export const useCombatStore = defineStore("combat", () => {
   // State
@@ -91,7 +92,7 @@ export const useCombatStore = defineStore("combat", () => {
 
     const newMonster: Monster = {
       ...monster,
-      id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+      id: generateId(),
       doneTurn: false,
       turnOrder: maxTurnOrder + 1,
       completionOrder: undefined,
@@ -132,7 +133,7 @@ export const useCombatStore = defineStore("combat", () => {
   const addTimer = (timer: Omit<Timer, "id">) => {
     const newTimer: Timer = {
       ...timer,
-      id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+      id: generateId(),
     };
     timers.value.push(newTimer);
     saveState();

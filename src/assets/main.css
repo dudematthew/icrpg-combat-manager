@@ -53,7 +53,7 @@
 /* Base styles */
 body {
   background: linear-gradient(rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.15)),
-    url("/images/paper_background.png"), #f5f5f5;
+    var(--paper-bg), #f5f5f5;
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center center;
@@ -118,7 +118,7 @@ body {
 
   body {
     background: linear-gradient(rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.15)),
-      url("/images/paper_background.png"), #e5e5e5;
+      var(--paper-bg), #e5e5e5;
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center center;
@@ -499,6 +499,10 @@ body {
 }
 
 /* Utility Classes */
+.text-primary {
+  color: #171717;
+}
+
 .text-accent {
   color: #dc2626;
 }

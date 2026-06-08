@@ -2,7 +2,7 @@
   <div class="timer-manager">
     <div class="mb-3 rpg-card">
       <div class="flex items-center gap-2 mb-6">
-        <img src="/images/clock_icon.png" class="flex-shrink-0 mb-3 w-5 h-5 text-accent icon-filter" alt="Timers" />
+        <img :src="assetUrl('images/clock_icon.png')" class="flex-shrink-0 mb-3 w-5 h-5 text-accent icon-filter" alt="Timers" />
         <h2 class="rpg-heading">Timers</h2>
       </div>
 
@@ -14,7 +14,7 @@
               class="flex-1 rpg-input" />
             <button @click="generateTimerName" class="p-0 rpg-button rpg-button-secondary"
               title="Generate random clock name">
-              <img src="/images/d6_dice_icon.png" class="h-5 icon-filter" alt="Generate name" />
+              <img :src="assetUrl('images/d6_dice_icon.png')" class="h-5 icon-filter" alt="Generate name" />
             </button>
           </div>
         </div>
@@ -59,20 +59,20 @@
               @keyup.enter="addTimer" class="flex-1 rpg-input" />
             <button @click="generateDuration" class="p-0 rpg-button rpg-button-secondary"
               title="Roll d4 for random duration">
-              <img src="/images/d4_dice_icon.png" class="h-5 icon-filter" alt="Roll d4" />
+              <img :src="assetUrl('images/d4_dice_icon.png')" class="h-5 icon-filter" alt="Roll d4" />
             </button>
           </div>
         </div>
         <div class="flex justify-between gap-2 w-full">
           <button @click="addTimer" :disabled="!newTimer.name || !newTimer.duration"
             class="disabled:opacity-50 text-xs disabled:cursor-not-allowed rpg-button rpg-button-primary grow">
-            <img src="/images/clock_icon.png" class="h-5 icon-filter" alt="Add timer" />
+            <img :src="assetUrl('images/clock_icon.png')" class="h-5 icon-filter" alt="Add timer" />
             Add Timer
           </button>
 
           <button v-if="doneTimers.length > 0" @click="clearDoneTimers"
             class="text-xs rpg-button rpg-button-secondary grow">
-            <img src="/images/checkmark_icon.png" class="h-5 icon-filter" alt="Clear done" />
+            <img :src="assetUrl('images/checkmark_icon.png')" class="h-5 icon-filter" alt="Clear done" />
             Clear Done ({{ doneTimers.length }})
           </button>
         </div>
@@ -126,7 +126,7 @@
       </div>
 
       <div v-else class="py-8 text-center">
-        <img src="/images/hourglass.png" class="mx-auto mb-3 h-12 text-neutral-400 icon-filter" alt="No timers" />
+        <img :src="assetUrl('images/hourglass.png')" class="mx-auto mb-3 h-12 text-neutral-400 icon-filter" alt="No timers" />
         <div class="text-neutral-500 rpg-body">No active timers</div>
       </div>
     </div>
@@ -137,6 +137,7 @@
 import { ref, computed } from 'vue'
 import { useCombatStore } from '@/stores/combat'
 import { generateClockName } from '@/utils/clockNameGenerator'
+import { assetUrl } from '@/utils/assetUrl'
 
 const combatStore = useCombatStore()
 

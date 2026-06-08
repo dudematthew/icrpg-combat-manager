@@ -1,14 +1,12 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
 import InfoMonitor from './components/InfoMonitor.vue'
-import NotificationBar from './components/NotificationBar.vue'
 </script>
 
 <template>
   <main>
     <router-view />
     <InfoMonitor />
-    <NotificationBar />
   </main>
 </template>
 
@@ -26,14 +24,15 @@ import NotificationBar from './components/NotificationBar.vue'
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-neutral-200;
+  background-color: #e5e5e5;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-neutral-400 rounded;
+  background-color: #a3a3a3;
+  border-radius: 0.25rem;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-neutral-500;
+  background-color: #737373;
 }
 </style>

@@ -35,11 +35,14 @@ AddType text/css .css
 # SPA routing - redirect all requests to index.html
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteBase /
+    RewriteBase /icrpgcm/
+    RewriteCond %{HTTP:X-Forwarded-Proto} !https
+    RewriteCond %{HTTPS} off
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
     RewriteRule ^index\.html$ - [L]
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule . /index.html [L]
+    RewriteRule . /icrpgcm/index.html [L]
 </IfModule>
 
 # Security headers
@@ -47,4 +50,4 @@ AddType text/css .css
     Header set X-Content-Type-Options nosniff
     Header set X-Frame-Options DENY
     Header set X-XSS-Protection "1; mode=block"
-</IfModule> 
+</IfModule>

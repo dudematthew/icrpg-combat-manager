@@ -46,7 +46,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useInfoMonitorStore } from '@/stores/infoMonitor'
-import { ChevronRight, Plus, Info, AlertTriangle, AlertCircle, RotateCcw } from 'lucide-vue-next'
+import { ChevronRight, Plus, Info, AlertTriangle, AlertCircle, RotateCcw, CircleCheckBig } from 'lucide-vue-next'
 
 const infoMonitorStore = useInfoMonitorStore()
 
@@ -64,7 +64,8 @@ const lucideIcons = {
   Info,
   AlertTriangle,
   AlertCircle,
-  RotateCcw
+  RotateCcw,
+  CircleCheckBig,
 }
 
 const getLucideIcon = (iconName: string) => {

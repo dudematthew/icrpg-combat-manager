@@ -21,7 +21,6 @@ declare module 'vue' {
     InlineEditableText: typeof import('./src/components/InlineEditableText.vue')['default']
     MonsterCard: typeof import('./src/components/MonsterCard.vue')['default']
     MonsterCreator: typeof import('./src/components/MonsterCreator.vue')['default']
-    NotificationBar: typeof import('./src/components/NotificationBar.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     TheWelcome: typeof import('./src/components/TheWelcome.vue')['default']

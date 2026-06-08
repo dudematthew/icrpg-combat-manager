@@ -2,7 +2,7 @@
   <div class="monster-creator">
     <div class="mb-3 rpg-card">
       <div class="flex items-center gap-2 mb-6">
-        <img src="/images/monster_icon.png" class="mb-3 w-5 h-5 text-accent icon-filter" alt="Add monster" />
+        <img :src="assetUrl('images/monster_icon.png')" class="mb-3 w-5 h-5 text-accent icon-filter" alt="Add monster" />
         <h2 class="rpg-heading">Monster Creator</h2>
       </div>
 
@@ -77,7 +77,7 @@
                     class="flex-1 rpg-input" />
                   <button @click="generateMonsterName" class="p-0 rpg-button rpg-button-secondary"
                     title="Generate random monster name">
-                    <img src="/images/d6_dice_icon.png" class="h-5 icon-filter" alt="Generate name" />
+                    <img :src="assetUrl('images/d6_dice_icon.png')" class="h-5 icon-filter" alt="Generate name" />
                   </button>
                 </div>
               </div>
@@ -125,13 +125,13 @@
                     <button @click="generateState"
                       class="flex items-center gap-1 text-xs rpg-button rpg-button-secondary"
                       title="Generate monster state" style="padding-inline: 16px;">
-                      <img src="/images/d6_dice_icon.png" class="w-4 h-4 icon-filter" alt="Generate state" />
+                      <img :src="assetUrl('images/d6_dice_icon.png')" class="w-4 h-4 icon-filter" alt="Generate state" />
                       State
                     </button>
                     <button @click="generateMotivation"
                       class="flex items-center gap-1 text-xs rpg-button rpg-button-secondary"
                       title="Generate monster motivation" style="padding-inline: 16px;">
-                      <img src="/images/d6_dice_icon.png" class="w-4 h-4 icon-filter" alt="Generate motivation" />
+                      <img :src="assetUrl('images/d6_dice_icon.png')" class="w-4 h-4 icon-filter" alt="Generate motivation" />
                       Motivation
                     </button>
                   </div>
@@ -156,13 +156,13 @@
                     <button @click="generateAbilities"
                       class="flex items-center gap-1 text-xs rpg-button rpg-button-secondary" title="Generate abilities"
                       style="padding-inline: 16px;">
-                      <img src="/images/d6_dice_icon.png" class="w-4 h-4 icon-filter" alt="Generate abilities" />
+                      <img :src="assetUrl('images/d6_dice_icon.png')" class="w-4 h-4 icon-filter" alt="Generate abilities" />
                       Abilities
                     </button>
                     <button @click="generateUpgrades"
                       class="flex items-center gap-1 text-xs rpg-button rpg-button-secondary" title="Generate upgrades"
                       style="padding-inline: 16px;">
-                      <img src="/images/d6_dice_icon.png" class="w-4 h-4 icon-filter" alt="Generate upgrades" />
+                      <img :src="assetUrl('images/d6_dice_icon.png')" class="w-4 h-4 icon-filter" alt="Generate upgrades" />
                       Upgrades
                     </button>
                   </div>
@@ -211,7 +211,7 @@
           <div class="flex justify-end gap-3">
             <button @click="addMonster" :disabled="!newMonster.color || !newMonster.letter || !newMonster.tier"
               class="disabled:opacity-50 text-xs disabled:cursor-not-allowed rpg-button rpg-button-primary grow">
-              <img src="/images/monster_icon.png" class="h-5 icon-filter" alt="Add monster" />
+              <img :src="assetUrl('images/monster_icon.png')" class="h-5 icon-filter" alt="Add monster" />
               Add Monster
             </button>
             <button @click="addBlankMonster" class="text-xs rpg-button rpg-button-secondary"
@@ -240,6 +240,7 @@ import { useCombatStore } from '@/stores/combat'
 import { useSettingsStore } from '@/stores/settings'
 import { TIER_CONFIGS, type Monster } from '@/types'
 import { formatMonsterIdentifier } from '@/utils/combat'
+import { assetUrl } from '@/utils/assetUrl'
 import { generateMonsterAbilities, generateMonsterUpgrades, rollMonsterState, rollMonsterMotivation } from '@/utils/monsterGenerator'
 import { generateMonsterName as getRandomMonsterName } from '@/utils/monsterNameGenerator'
 import { ChevronDown, ChevronUp, Plus } from 'lucide-vue-next'

@@ -2,7 +2,7 @@
   <div class="rpg-card combat-mechanics">
     <!-- Header -->
     <div class="flex items-center gap-3 mb-6">
-      <img src="/images/target_icon.png" class="mb-3 w-6 h-6 text-accent icon-filter" alt="Target" />
+      <img :src="assetUrl('images/target_icon.png')" class="mb-3 w-6 h-6 text-accent icon-filter" alt="Target" />
       <h2 class="rpg-heading">Target</h2>
     </div>
 
@@ -90,7 +90,7 @@
       <div v-if="isTargetSectionEnabled" class="mb-2">
         <button @click="rollAttack" :disabled="isRolling"
           class="disabled:opacity-50 p-2 w-full disabled:cursor-not-allowed rpg-button rpg-button-primary">
-          <img v-if="!isRolling" src="/images/d20_dice_icon.png" class="h-5 icon-filter" alt="Roll" />
+          <img v-if="!isRolling" :src="assetUrl('images/d20_dice_icon.png')" class="h-5 icon-filter" alt="Roll" />
           <div v-else class="border-2 border-white border-t-transparent rounded-full w-5 h-5 animate-spin"></div>
           {{ isRolling ? 'Rolling...' : 'Roll' }}
         </button>
@@ -153,6 +153,7 @@ import { useCombatStore } from '@/stores/combat'
 import { useSettingsStore } from '@/stores/settings'
 import { EFFORT_TYPES } from '@/types'
 import { makeAttack, makeAttackAsync, getEffortDie } from '@/utils/combat'
+import { assetUrl } from '@/utils/assetUrl'
 import type { AttackResult } from '@/utils/combat'
 
 const combatStore = useCombatStore()

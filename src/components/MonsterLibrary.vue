@@ -65,7 +65,7 @@
       </div>
     </div>
 
-    <div class="flex justify-center mt-4">
+    <div v-if="libraryStore.templates.length > 0" class="flex justify-center mt-4">
       <button
         type="button"
         class="flex justify-center items-center gap-1 bg-neutral-100 hover:bg-neutral-200 px-3 py-1 text-xs transition-colors cursor-pointer"

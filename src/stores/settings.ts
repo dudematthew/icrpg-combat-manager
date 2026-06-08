@@ -14,13 +14,15 @@ export interface NotificationSettings {
   roundEnded: boolean;
 }
 
-// Legacy interface for backward compatibility with old localStorage data
 interface LegacyAppCard extends AppCard {
   order?: number;
 }
 
+const CARD_IDS = ["timers", "battlefield", "target", "library", "monster-creator", "inspirations"] as const;
+
+export type TimerNamingMode = "both" | "named" | "color";
+
 export const useSettingsStore = defineStore("settings", () => {
-  // Default app cards configuration (order is based on array index)
   const defaultAppCards: AppCard[] = [
     {
       id: "timers",
@@ -41,14 +43,25 @@ export const useSettingsStore = defineStore("settings", () => {
       enabled: true,
     },
     {
+      id: "library",
+      name: "Library",
+      description: "Saved monster templates for quick deploy",
+      enabled: true,
+    },
+    {
       id: "monster-creator",
       name: "Monster Creator",
       description: "Quick monster creation and management",
       enabled: true,
     },
+    {
+      id: "inspirations",
+      name: "Inspirations",
+      description: "NPC and session inspiration rolls",
+      enabled: true,
+    },
   ];
 
-  // Default notification settings
   const defaultNotifications: NotificationSettings = {
     timerDone: true,
     turnAutoIncremented: true,
@@ -56,31 +69,44 @@ export const useSettingsStore = defineStore("settings", () => {
   };
 
   const appCards = ref<AppCard[]>([]);
-  const tierMode = ref(true); // true = tier mode, false = manual mode
-  const compactThreshold = ref(2); // Number of monsters before switching to compact view
-  const showTitleCard = ref(true); // Whether to show the title card at the top
-  const showCompactConditions = ref(false); // Whether to show condition pills in compact view
-  const autoTurnIncrement = ref(true); // Whether to auto-increment turn when all monsters are done
+  const tierMode = ref(true);
+  const compactThreshold = ref(2);
+  const showTitleCard = ref(true);
+  const showCompactConditions = ref(false);
+  const autoTurnIncrement = ref(true);
+  const showSectionNav = ref(true);
+  const timerColorModeDefault = ref(true);
+  const timerNamingMode = ref<TimerNamingMode>("both");
+  const fastMode = ref(false);
+  const keepCreatorFieldsOnLibrarySave = ref(true);
   const notifications = ref<NotificationSettings>({ ...defaultNotifications });
 
-  // Load settings from localStorage
+  const migrateAppCards = (saved: LegacyAppCard[] | undefined): AppCard[] => {
+    const cleaned = (saved && Array.isArray(saved) ? saved : []).map((card) => ({
+      id: card.id,
+      name: card.name,
+      description: card.description,
+      enabled: card.enabled,
+    }));
+
+    const knownIds = new Set(cleaned.map((c) => c.id));
+    const defaultsById = Object.fromEntries(defaultAppCards.map((c) => [c.id, c]));
+
+    for (const id of CARD_IDS) {
+      if (!knownIds.has(id)) {
+        cleaned.push({ ...defaultsById[id] });
+      }
+    }
+
+    const orderIndex = Object.fromEntries(CARD_IDS.map((id, i) => [id, i]));
+    return cleaned.sort((a, b) => (orderIndex[a.id] ?? 99) - (orderIndex[b.id] ?? 99));
+  };
+
   const loadSettings = () => {
     const saved = localStorage.getItem("icrpg-settings");
     if (saved) {
       const settings = JSON.parse(saved);
-
-      // Handle appCards - clean up any old order properties and ensure proper array
-      if (settings.appCards && Array.isArray(settings.appCards)) {
-        appCards.value = settings.appCards.map((card: LegacyAppCard) => ({
-          id: card.id,
-          name: card.name,
-          description: card.description,
-          enabled: card.enabled,
-        }));
-      } else {
-        appCards.value = [...defaultAppCards];
-      }
-
+      appCards.value = migrateAppCards(settings.appCards);
       tierMode.value = settings.tierMode !== undefined ? settings.tierMode : true;
       compactThreshold.value =
         settings.compactThreshold !== undefined ? settings.compactThreshold : 2;
@@ -89,8 +115,22 @@ export const useSettingsStore = defineStore("settings", () => {
         settings.showCompactConditions !== undefined ? settings.showCompactConditions : false;
       autoTurnIncrement.value =
         settings.autoTurnIncrement !== undefined ? settings.autoTurnIncrement : true;
+      showSectionNav.value =
+        settings.showSectionNav !== undefined ? settings.showSectionNav : true;
+      timerColorModeDefault.value =
+        settings.timerColorModeDefault !== undefined ? settings.timerColorModeDefault : true;
+      timerNamingMode.value =
+        settings.timerNamingMode === "named" ||
+        settings.timerNamingMode === "color" ||
+        settings.timerNamingMode === "both"
+          ? settings.timerNamingMode
+          : "both";
+      fastMode.value = settings.fastMode !== undefined ? settings.fastMode : false;
+      keepCreatorFieldsOnLibrarySave.value =
+        settings.keepCreatorFieldsOnLibrarySave !== undefined
+          ? settings.keepCreatorFieldsOnLibrarySave
+          : true;
 
-      // Handle notifications settings
       if (settings.notifications) {
         notifications.value = {
           timerDone:
@@ -111,21 +151,10 @@ export const useSettingsStore = defineStore("settings", () => {
       }
     } else {
       appCards.value = [...defaultAppCards];
-      tierMode.value = true;
-      compactThreshold.value = 2;
-      showTitleCard.value = true;
-      showCompactConditions.value = false;
-      autoTurnIncrement.value = true;
       notifications.value = { ...defaultNotifications };
     }
-
-    console.log(
-      "Loaded appCards:",
-      appCards.value.map((c, i) => `${i}: ${c.name}`)
-    );
   };
 
-  // Save settings to localStorage
   const saveSettings = () => {
     const settings = {
       appCards: appCards.value,
@@ -134,98 +163,88 @@ export const useSettingsStore = defineStore("settings", () => {
       showTitleCard: showTitleCard.value,
       showCompactConditions: showCompactConditions.value,
       autoTurnIncrement: autoTurnIncrement.value,
+      showSectionNav: showSectionNav.value,
+      timerColorModeDefault: timerColorModeDefault.value,
+      timerNamingMode: timerNamingMode.value,
+      fastMode: fastMode.value,
+      keepCreatorFieldsOnLibrarySave: keepCreatorFieldsOnLibrarySave.value,
       notifications: notifications.value,
     };
-    console.log(
-      "Saving appCards:",
-      appCards.value.map((c, i) => `${i}: ${c.name}`)
-    );
     localStorage.setItem("icrpg-settings", JSON.stringify(settings));
   };
 
-  // Initialize
   loadSettings();
 
-  // Toggle card visibility
   const toggleCard = (cardId: string) => {
     const card = appCards.value.find((c) => c.id === cardId);
     if (card) {
       card.enabled = !card.enabled;
 
-      // If battlefield is disabled, also disable monster creator
       if (cardId === "battlefield" && !card.enabled) {
         const monsterCreator = appCards.value.find((c) => c.id === "monster-creator");
-        if (monsterCreator) {
-          monsterCreator.enabled = false;
-        }
+        if (monsterCreator) monsterCreator.enabled = false;
       }
-
-      // If monster creator is disabled, also disable battlefield
       if (cardId === "monster-creator" && !card.enabled) {
         const battlefield = appCards.value.find((c) => c.id === "battlefield");
-        if (battlefield) {
-          battlefield.enabled = false;
-        }
+        if (battlefield) battlefield.enabled = false;
       }
 
       saveSettings();
     }
   };
 
-  // Reorder cards (just update the array order)
   const reorderCards = (newOrder: AppCard[]) => {
-    console.log(
-      "Reordering from:",
-      appCards.value.map((c, i) => `${i}: ${c.name}`)
-    );
-    console.log(
-      "Reordering to:",
-      newOrder.map((c, i) => `${i}: ${c.name}`)
-    );
     appCards.value = [...newOrder];
-    console.log(
-      "After reorder:",
-      appCards.value.map((c, i) => `${i}: ${c.name}`)
-    );
     saveSettings();
   };
 
-  // Get visible cards in order (based on array index)
-  const getVisibleCards = () => {
-    return appCards.value.filter((card) => card.enabled);
-  };
+  const getVisibleCards = () => appCards.value.filter((card) => card.enabled);
 
-  // Toggle tier mode
   const toggleTierMode = () => {
     tierMode.value = !tierMode.value;
     saveSettings();
   };
 
-  // Update compact threshold
   const updateCompactThreshold = (threshold: number) => {
-    compactThreshold.value = Math.max(1, threshold); // Minimum of 1
+    compactThreshold.value = Math.max(1, threshold);
     saveSettings();
   };
 
-  // Toggle title card visibility
   const toggleTitleCard = () => {
     showTitleCard.value = !showTitleCard.value;
     saveSettings();
   };
 
-  // Toggle compact conditions visibility
   const toggleCompactConditions = () => {
     showCompactConditions.value = !showCompactConditions.value;
     saveSettings();
   };
 
-  // Toggle auto turn increment
   const toggleAutoTurnIncrement = () => {
     autoTurnIncrement.value = !autoTurnIncrement.value;
     saveSettings();
   };
 
-  // Toggle notification settings
+  const toggleSectionNav = () => {
+    showSectionNav.value = !showSectionNav.value;
+    saveSettings();
+  };
+
+  const setTimerNamingMode = (mode: TimerNamingMode) => {
+    timerNamingMode.value = mode;
+    saveSettings();
+  };
+
+  const toggleTimerColorModeDefault = () => {
+    timerColorModeDefault.value = !timerColorModeDefault.value;
+    saveSettings();
+  };
+
+  const toggleFastMode = () => {
+    fastMode.value = !fastMode.value;
+    saveSettings();
+  };
+
   const toggleTimerDoneNotification = () => {
     notifications.value.timerDone = !notifications.value.timerDone;
     saveSettings();
@@ -241,7 +260,6 @@ export const useSettingsStore = defineStore("settings", () => {
     saveSettings();
   };
 
-  // Reset to defaults
   const resetToDefaults = () => {
     appCards.value = [...defaultAppCards];
     tierMode.value = true;
@@ -249,6 +267,11 @@ export const useSettingsStore = defineStore("settings", () => {
     showTitleCard.value = true;
     showCompactConditions.value = false;
     autoTurnIncrement.value = true;
+    showSectionNav.value = true;
+    timerColorModeDefault.value = true;
+    timerNamingMode.value = "both";
+    fastMode.value = false;
+    keepCreatorFieldsOnLibrarySave.value = true;
     notifications.value = { ...defaultNotifications };
     saveSettings();
   };
@@ -260,6 +283,11 @@ export const useSettingsStore = defineStore("settings", () => {
     showTitleCard,
     showCompactConditions,
     autoTurnIncrement,
+    showSectionNav,
+    timerColorModeDefault,
+    timerNamingMode,
+    fastMode,
+    keepCreatorFieldsOnLibrarySave,
     notifications,
     toggleCard,
     toggleTierMode,
@@ -267,6 +295,10 @@ export const useSettingsStore = defineStore("settings", () => {
     toggleTitleCard,
     toggleCompactConditions,
     toggleAutoTurnIncrement,
+    toggleSectionNav,
+    toggleTimerColorModeDefault,
+    setTimerNamingMode,
+    toggleFastMode,
     toggleTimerDoneNotification,
     toggleTurnAutoIncrementedNotification,
     toggleRoundEndedNotification,

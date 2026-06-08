@@ -12,6 +12,8 @@ export const useCombatStore = defineStore("combat", () => {
   const timers = ref<Timer[]>([]);
   const currentTurn = ref(1);
   const currentRound = ref(1);
+  const lastAddedMonsterPayload = ref<Omit<Monster, "id"> | null>(null);
+  const lastTimerTemplate = ref<Omit<Timer, "id" | "remaining"> | null>(null);
 
   // Load from localStorage on init
   const loadState = () => {
@@ -98,7 +100,16 @@ export const useCombatStore = defineStore("combat", () => {
       completionOrder: undefined,
     };
     monsters.value.push(newMonster);
+    lastAddedMonsterPayload.value = { ...monster };
     saveState();
+  };
+
+  const duplicateLastMonster = () => {
+    if (!lastAddedMonsterPayload.value) return;
+    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const usedLetters = new Set(monsters.value.map((m) => m.letter));
+    const nextLetter = letters.split("").find((l) => !usedLetters.has(l)) || "?";
+    addMonster({ ...lastAddedMonsterPayload.value, letter: nextLetter });
   };
 
   const updateMonster = (id: string, updates: Partial<Monster>) => {
@@ -136,7 +147,21 @@ export const useCombatStore = defineStore("combat", () => {
       id: generateId(),
     };
     timers.value.push(newTimer);
+    lastTimerTemplate.value = {
+      name: timer.name,
+      duration: timer.duration,
+      type: timer.type,
+      color: timer.color,
+    };
     saveState();
+  };
+
+  const repeatLastTimer = () => {
+    if (!lastTimerTemplate.value) return;
+    addTimer({
+      ...lastTimerTemplate.value,
+      remaining: lastTimerTemplate.value.duration,
+    });
   };
 
   const updateTimer = (id: string, updates: Partial<Timer>) => {
@@ -366,6 +391,10 @@ export const useCombatStore = defineStore("combat", () => {
     toggleDoneTurn,
     clearAll,
     resetRoundsAndTurns,
+    duplicateLastMonster,
+    repeatLastTimer,
+    lastAddedMonsterPayload,
+    lastTimerTemplate,
     saveState,
   };
 });

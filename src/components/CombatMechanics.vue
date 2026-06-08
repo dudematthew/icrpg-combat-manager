@@ -1,5 +1,5 @@
 <template>
-  <div class="rpg-card combat-mechanics">
+  <div id="target" class="rpg-card combat-mechanics">
     <!-- Header -->
     <div class="flex items-center gap-3 mb-6">
       <img :src="assetUrl('images/target_icon.png')" class="mb-3 w-6 h-6 text-accent icon-filter" alt="Target" />

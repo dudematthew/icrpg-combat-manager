@@ -1,5 +1,5 @@
 <template>
-  <div class="rpg-container">
+  <div class="rpg-container" :class="{ 'has-section-nav': settingsStore.showSectionNav }">
     <!-- Header -->
     <div v-if="settingsStore.showTitleCard" class="mb-6 rpg-card">
       <h1 class="rpg-title">ICRPG Combat Manager</h1>
@@ -17,7 +17,7 @@
         <TimerManager v-if="card.id === 'timers'" />
 
         <!-- Battlefield -->
-        <div v-if="card.id === 'battlefield'" class="rpg-card battlefield-section">
+        <div v-if="card.id === 'battlefield'" id="battlefield" class="rpg-card battlefield-section">
           <!-- Battlefield Title at Top -->
           <div class="flex items-baseline gap-3 mb-4">
             <img :src="assetUrl('images/sword_icon.png')" class="flex-shrink-0 w-6 h-6 text-accent icon-filter" alt="Battlefield" />
@@ -57,19 +57,15 @@
           </div>
 
           <!-- No Monsters Message -->
-          <div v-else class="flex justify-center items-center mb-6 py-12 text-center" style="flex-direction: column;">
-            <img :src="assetUrl('images/battlefield_empty_state.png')" class="mx-auto mb-4 h-24 text-neutral-400 icon-filter"
-              alt="No monsters" />
-            <div class="mb-2 text-neutral-600 rpg-body">No monsters on the battlefield</div>
-            <div class="mb-4 text-neutral-500 text-sm">Add monsters using the form <span
-                v-if="isMonsterCreatorAboveBattlefield">above</span><span v-else>below</span></div>
-            <button @click="scrollToCreator"
-              class="flex justify-center items-center gap-1 bg-neutral-100 hover:bg-neutral-200 px-3 py-1 rounded text-neutral-600 text-xs transition-colors cursor-pointer">
-              <ChevronUp v-if="isMonsterCreatorAboveBattlefield" class="w-3 h-3" />
-              <ChevronDown v-else class="w-3 h-3" />
-              Jump
-            </button>
-          </div>
+          <EmptySectionState
+            v-else
+            image="images/battlefield_empty_state.png"
+            alt="No monsters"
+            message="No monsters on the battlefield"
+            hint="Add monsters using the form"
+            :creator-above="isMonsterCreatorAboveBattlefield"
+            @jump="scrollToCreator"
+          />
 
           <!-- Clear Battlefield Button at Bottom -->
           <div class="flex justify-center items-center gap-3 pt-4 border-neutral-200 border-t">
@@ -89,10 +85,13 @@
         <!-- Target -->
         <CombatMechanics v-if="card.id === 'target'" ref="combatMechanicsRef" data-target-section />
 
-        <!-- Monster Creation -->
+        <MonsterLibrary v-if="card.id === 'library'" :is-creator-above="isMonsterCreatorAboveLibrary" />
+
         <div v-if="card.id === 'monster-creator'" id="monster-creator">
           <MonsterCreator :isAboveBattlefield="isMonsterCreatorAboveBattlefield" />
         </div>
+
+        <InspirationPanel v-if="card.id === 'inspirations'" />
       </template>
 
       <!-- Settings -->
@@ -110,7 +109,12 @@
         <div class="bg-white shadow-xl rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto" @click.stop>
           <div class="p-6">
             <div class="mb-6">
-              <h3 class="mb-4 text-lg rpg-title">Settings</h3>
+              <h3 class="mb-2 text-lg rpg-title">Settings</h3>
+              <p class="mb-4 text-neutral-600 text-xs rpg-body">
+                <Eye class="inline w-3.5 h-3.5 align-text-bottom" /> show/hide ·
+                <ToggleRight class="inline w-3.5 h-3.5 align-text-bottom" /> on/off ·
+                <CircleDot class="inline w-3.5 h-3.5 align-text-bottom" /> pick one
+              </p>
 
               <!-- Tier Mode Setting -->
               <div class="mb-6">
@@ -126,16 +130,98 @@
                       : 'Manually set stats, actions, and hearts' }}
                     </div>
                   </div>
-                  <button ref="tierModeButton"
-                    class="inline-flex relative items-center rounded-full w-10 h-10 transition-colors cursor-pointer"
-                    style="pointer-events: auto; position: relative; z-index: 10; touch-action: manipulation; user-select: none;"
-                    @click="handleTierModeToggle">
-                    <span
-                      class="inline-block flex justify-center items-center bg-white shadow-sm mt-1 rounded-full w-6 h-6 transition-transform transform">
-                      <EyeOff v-if="settingsStore.tierMode" class="w-5 h-5 text-neutral-400" />
-                      <Eye v-else class="w-5 h-5 text-accent" />
-                    </span>
-                  </button>
+                  <SettingsControl
+                    ref="tierModeButton"
+                    variant="enabled"
+                    :active="settingsStore.tierMode"
+                    @click="handleTierModeToggle"
+                  />
+                </div>
+              </div>
+
+              <!-- Fast Mode -->
+              <div class="mb-6">
+                <h4 class="mb-3 rpg-label">Fast Mode</h4>
+                <div class="bg-neutral-50 p-3 border border-neutral-200 rounded-lg">
+                  <div class="flex justify-between items-center">
+                    <span class="font-bold text-sm rpg-body">Fast mode at the table</span>
+                    <SettingsControl variant="enabled" :active="settingsStore.fastMode" @click="settingsStore.toggleFastMode" />
+                  </div>
+                  <div class="mt-2 text-neutral-600 text-xs rpg-body">
+                    Hides Advanced Options in the monster creator for quicker stat blocks mid-fight
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section Navigation -->
+              <div class="mb-6">
+                <h4 class="mb-3 rpg-label">Section Navigation</h4>
+                <div class="bg-neutral-50 p-3 border border-neutral-200 rounded-lg">
+                  <div class="flex justify-between items-center">
+                    <span class="font-bold text-sm rpg-body">Sticky jump bar at bottom</span>
+                    <SettingsControl variant="visibility" :active="settingsStore.showSectionNav" @click="settingsStore.toggleSectionNav" />
+                  </div>
+                  <div class="mt-2 text-neutral-600 text-xs rpg-body">
+                    Jump between Timers, Battlefield, Library, and other cards without scrolling
+                  </div>
+                </div>
+              </div>
+
+              <!-- Timers -->
+              <div class="mb-6">
+                <h4 class="mb-3 rpg-label">Timers</h4>
+                <div class="space-y-3 bg-neutral-50 p-3 border border-neutral-200 rounded-lg">
+                  <div class="flex justify-between items-center">
+                    <div>
+                      <div class="font-bold text-sm rpg-body">Named timers only</div>
+                      <div class="text-neutral-600 text-xs rpg-body">Type a custom name for each timer</div>
+                    </div>
+                    <SettingsControl
+                      variant="choice"
+                      :active="settingsStore.timerNamingMode === 'named'"
+                      @click="settingsStore.setTimerNamingMode('named')"
+                    />
+                  </div>
+
+                  <div class="flex justify-between items-center">
+                    <div>
+                      <div class="font-bold text-sm rpg-body">Color timers only</div>
+                      <div class="text-neutral-600 text-xs rpg-body">Pick a swatch — no typing required</div>
+                    </div>
+                    <SettingsControl
+                      variant="choice"
+                      :active="settingsStore.timerNamingMode === 'color'"
+                      @click="settingsStore.setTimerNamingMode('color')"
+                    />
+                  </div>
+
+                  <div class="flex justify-between items-center">
+                    <div>
+                      <div class="font-bold text-sm rpg-body">Named and Color tabs</div>
+                      <div class="text-neutral-600 text-xs rpg-body">Switch between both styles in the Timers card</div>
+                    </div>
+                    <SettingsControl
+                      variant="choice"
+                      :active="settingsStore.timerNamingMode === 'both'"
+                      @click="settingsStore.setTimerNamingMode('both')"
+                    />
+                  </div>
+
+                  <div v-if="settingsStore.timerNamingMode === 'both'" class="flex justify-between items-center pt-2 border-neutral-200 border-t">
+                    <div>
+                      <div class="font-bold text-sm rpg-body">Open on Color tab</div>
+                      <div class="text-neutral-600 text-xs rpg-body">Which tab is selected when you open Timers</div>
+                    </div>
+                    <SettingsControl
+                      variant="enabled"
+                      :active="settingsStore.timerColorModeDefault"
+                      @click="settingsStore.toggleTimerColorModeDefault"
+                    />
+                  </div>
+
+                  <div class="text-neutral-600 text-xs rpg-body">
+                    Pick one timer style. The filled circle marks your choice.
+                  </div>
                 </div>
               </div>
 
@@ -145,14 +231,7 @@
                 <div class="bg-neutral-50 p-3 border border-neutral-200 rounded-lg">
                   <div class="flex justify-between items-center">
                     <span class="font-bold text-sm rpg-body">Show title card at top</span>
-                    <button @click="settingsStore.toggleTitleCard"
-                      class="inline-flex relative items-center rounded-full w-10 h-10 transition-colors cursor-pointer">
-                      <span
-                        class="inline-block flex justify-center items-center bg-white shadow-sm mt-1 rounded-full w-6 h-6 transition-transform transform">
-                        <Eye v-if="settingsStore.showTitleCard" class="w-5 h-5 text-accent" />
-                        <EyeOff v-else class="w-5 h-5 text-neutral-400" />
-                      </span>
-                    </button>
+                    <SettingsControl variant="visibility" :active="settingsStore.showTitleCard" @click="settingsStore.toggleTitleCard" />
                   </div>
                   <div class="mt-2 text-neutral-600 text-xs rpg-body">
                     Hide the title card to save space on mobile devices
@@ -178,14 +257,7 @@
 
                   <div class="flex justify-between items-center">
                     <span class="font-bold text-sm rpg-body">Show condition pills in compact view</span>
-                    <button @click="settingsStore.toggleCompactConditions"
-                      class="inline-flex relative items-center rounded-full w-10 h-10 transition-colors cursor-pointer">
-                      <span
-                        class="inline-block flex justify-center items-center bg-white shadow-sm mt-1 rounded-full w-6 h-6 transition-transform transform">
-                        <Eye v-if="settingsStore.showCompactConditions" class="w-5 h-5 text-accent" />
-                        <EyeOff v-else class="w-5 h-5 text-neutral-400" />
-                      </span>
-                    </button>
+                    <SettingsControl variant="visibility" :active="settingsStore.showCompactConditions" @click="settingsStore.toggleCompactConditions" />
                   </div>
                   <div class="text-neutral-600 text-xs rpg-body">
                     Show small condition pills (bleeding, paralyzed, etc.) next to hearts in compact view
@@ -199,14 +271,7 @@
                 <div class="bg-neutral-50 p-3 border border-neutral-200 rounded-lg">
                   <div class="flex justify-between items-center">
                     <span class="font-bold text-sm rpg-body">Auto-increment turn when all monsters are done</span>
-                    <button @click="settingsStore.toggleAutoTurnIncrement"
-                      class="inline-flex relative items-center rounded-full w-10 h-10 transition-colors cursor-pointer">
-                      <span
-                        class="flex justify-center items-center bg-white shadow-sm mt-1 rounded-full w-6 h-6 transition-transform transform">
-                        <Eye v-if="settingsStore.autoTurnIncrement" class="w-5 h-5 text-accent" />
-                        <EyeOff v-else class="w-5 h-5 text-neutral-400" />
-                      </span>
-                    </button>
+                    <SettingsControl variant="enabled" :active="settingsStore.autoTurnIncrement" @click="settingsStore.toggleAutoTurnIncrement" />
                   </div>
                   <div class="mt-2 text-neutral-600 text-xs rpg-body">
                     When enabled, the turn counter automatically increments by 1 when all alive monsters have completed
@@ -220,49 +285,23 @@
               <div class="mb-6">
                 <h4 class="mb-3 rpg-label">Notifications</h4>
                 <div class="space-y-3 bg-neutral-50 p-3 border border-neutral-200 rounded-lg">
-                  <!-- Timer Done Notifications -->
                   <div class="flex justify-between items-center">
                     <span class="font-bold text-sm rpg-body">Timer completed notifications</span>
-                    <button @click="settingsStore.toggleTimerDoneNotification"
-                      class="inline-flex relative items-center rounded-full w-10 h-10 transition-colors cursor-pointer">
-                      <span
-                        class="inline-block flex justify-center items-center bg-white shadow-sm mt-1 rounded-full w-6 h-6 transition-transform transform">
-                        <Eye v-if="settingsStore.notifications.timerDone" class="w-5 h-5 text-accent" />
-                        <EyeOff v-else class="w-5 h-5 text-neutral-400" />
-                      </span>
-                    </button>
+                    <SettingsControl variant="enabled" :active="settingsStore.notifications.timerDone" @click="settingsStore.toggleTimerDoneNotification" />
                   </div>
 
-                  <!-- Turn Auto-incremented Notifications -->
                   <div class="flex justify-between items-center">
                     <span class="font-bold text-sm rpg-body">Turn auto-incremented notifications</span>
-                    <button @click="settingsStore.toggleTurnAutoIncrementedNotification"
-                      class="inline-flex relative items-center rounded-full w-10 h-10 transition-colors cursor-pointer">
-                      <span
-                        class="inline-block flex justify-center items-center bg-white shadow-sm mt-1 rounded-full w-6 h-6 transition-transform transform">
-                        <Eye v-if="settingsStore.notifications.turnAutoIncremented" class="w-5 h-5 text-accent" />
-                        <EyeOff v-else class="w-5 h-5 text-neutral-400" />
-                      </span>
-                    </button>
+                    <SettingsControl variant="enabled" :active="settingsStore.notifications.turnAutoIncremented" @click="settingsStore.toggleTurnAutoIncrementedNotification" />
                   </div>
 
-                  <!-- Round Ended Notifications -->
                   <div class="flex justify-between items-center">
                     <span class="font-bold text-sm rpg-body">Round end notifications</span>
-                    <button @click="settingsStore.toggleRoundEndedNotification"
-                      class="inline-flex relative items-center rounded-full w-10 h-10 transition-colors cursor-pointer">
-                      <span
-                        class="inline-block flex justify-center items-center bg-white shadow-sm mt-1 rounded-full w-6 h-6 transition-transform transform">
-                        <Eye v-if="settingsStore.notifications.roundEnded" class="w-5 h-5 text-accent" />
-                        <EyeOff v-else class="w-5 h-5 text-neutral-400" />
-                      </span>
-                    </button>
+                    <SettingsControl variant="enabled" :active="settingsStore.notifications.roundEnded" @click="settingsStore.toggleRoundEndedNotification" />
                   </div>
 
                   <div class="text-neutral-600 text-xs rpg-body">
-                    Control which notifications are shown. Disabled notifications will not appear even
-                    when
-                    triggered.
+                    Turn notifications on or off. Disabled ones will not appear when triggered.
                   </div>
                 </div>
               </div>
@@ -290,16 +329,11 @@
 
                     <!-- Toggle Switch -->
                     <div class="flex-shrink-0" style="pointer-events: auto;">
-                      <button
-                        class="inline-flex relative items-center rounded-full w-10 h-10 transition-colors cursor-pointer"
-                        style="pointer-events: auto; position: relative; z-index: 10; touch-action: manipulation; user-select: none;"
-                        @click="() => handleCardToggle(card.id)">
-                        <span
-                          class="inline-block flex justify-center items-center bg-white shadow-sm mt-1 rounded-full w-6 h-6 transition-transform transform">
-                          <Eye v-if="card.enabled" class="w-5 h-5 text-accent" />
-                          <EyeOff v-else class="w-5 h-5 text-neutral-400" />
-                        </span>
-                      </button>
+                      <SettingsControl
+                        variant="visibility"
+                        :active="card.enabled"
+                        @click="() => handleCardToggle(card.id)"
+                      />
                     </div>
                   </div>
                 </div>
@@ -347,6 +381,7 @@
 
     <!-- Footer -->
     <AppFooter />
+    <SectionNav />
   </div>
 </template>
 
@@ -357,8 +392,13 @@ import { useSettingsStore } from '@/stores/settings'
 import type { Monster } from '@/types'
 import { useDragAndDrop } from 'vue-fluid-dnd'
 import { useScrollLock } from '@/composables/useScrollLock'
-import { Settings, ChevronRight, RotateCcw, GripVertical, ChevronDown, ChevronUp, Eye, EyeOff, ChevronsRight } from 'lucide-vue-next'
+import { Settings, ChevronRight, RotateCcw, GripVertical, ChevronsRight, Eye, ToggleRight, CircleDot } from 'lucide-vue-next'
+import SettingsControl from '@/components/SettingsControl.vue'
 import MonsterCreator from '@/components/MonsterCreator.vue'
+import MonsterLibrary from '@/components/MonsterLibrary.vue'
+import InspirationPanel from '@/components/InspirationPanel.vue'
+import SectionNav from '@/components/SectionNav.vue'
+import EmptySectionState from '@/components/EmptySectionState.vue'
 import MonsterCard from '@/components/MonsterCard.vue'
 import CombatMechanics from '@/components/CombatMechanics.vue'
 import TimerManager from '@/components/TimerManager.vue'
@@ -419,6 +459,14 @@ const isMonsterCreatorAboveBattlefield = computed(() => {
   return monsterCreatorIndex < battlefieldIndex
 })
 
+const isMonsterCreatorAboveLibrary = computed(() => {
+  const monsterCreatorIndex = settingsStore.appCards.findIndex(card => card.id === 'monster-creator')
+  const libraryIndex = settingsStore.appCards.findIndex(card => card.id === 'library')
+
+  if (monsterCreatorIndex === -1 || libraryIndex === -1) return false
+  return monsterCreatorIndex < libraryIndex
+})
+
 const nextTurn = () => {
   combatStore.nextTurn()
 }
@@ -450,10 +498,7 @@ const clearAll = () => {
 }
 
 const scrollToCreator = () => {
-  const element = document.getElementById('monster-creator')
-  if (element) {
-    element.scrollIntoView({ behavior: 'smooth' })
-  }
+  document.getElementById('monster-creator')?.scrollIntoView({ behavior: 'smooth' })
 }
 
 const resetRoundsAndTurns = () => {

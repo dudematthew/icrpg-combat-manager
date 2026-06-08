@@ -9,7 +9,9 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AppFooter: typeof import('./src/components/AppFooter.vue')['default']
+    ColorSwatchPicker: typeof import('./src/components/ColorSwatchPicker.vue')['default']
     CombatMechanics: typeof import('./src/components/CombatMechanics.vue')['default']
+    EmptySectionState: typeof import('./src/components/EmptySectionState.vue')['default']
     GitHubVersion: typeof import('./src/components/GitHubVersion.vue')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
     IconCommunity: typeof import('./src/components/icons/IconCommunity.vue')['default']
@@ -19,12 +21,18 @@ declare module 'vue' {
     IconTooling: typeof import('./src/components/icons/IconTooling.vue')['default']
     InfoMonitor: typeof import('./src/components/InfoMonitor.vue')['default']
     InlineEditableText: typeof import('./src/components/InlineEditableText.vue')['default']
+    InspirationPanel: typeof import('./src/components/InspirationPanel.vue')['default']
     MonsterCard: typeof import('./src/components/MonsterCard.vue')['default']
     MonsterCreator: typeof import('./src/components/MonsterCreator.vue')['default']
+    MonsterLibrary: typeof import('./src/components/MonsterLibrary.vue')['default']
+    QuickPickModal: typeof import('./src/components/QuickPickModal.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SectionNav: typeof import('./src/components/SectionNav.vue')['default']
+    SettingsControl: typeof import('./src/components/SettingsControl.vue')['default']
     TheWelcome: typeof import('./src/components/TheWelcome.vue')['default']
     TimerManager: typeof import('./src/components/TimerManager.vue')['default']
+    TraitPickButtons: typeof import('./src/components/TraitPickButtons.vue')['default']
     WelcomeItem: typeof import('./src/components/WelcomeItem.vue')['default']
   }
 }

@@ -85,7 +85,11 @@
         <!-- Target -->
         <CombatMechanics v-if="card.id === 'target'" ref="combatMechanicsRef" data-target-section />
 
-        <MonsterLibrary v-if="card.id === 'library'" :is-creator-above="isMonsterCreatorAboveLibrary" />
+        <MonsterLibrary
+          v-if="card.id === 'library'"
+          :is-creator-above="isMonsterCreatorAboveLibrary"
+          :is-battlefield-above="isBattlefieldAboveLibrary"
+        />
 
         <div v-if="card.id === 'monster-creator'" id="monster-creator">
           <MonsterCreator :isAboveBattlefield="isMonsterCreatorAboveBattlefield" />
@@ -465,6 +469,14 @@ const isMonsterCreatorAboveLibrary = computed(() => {
 
   if (monsterCreatorIndex === -1 || libraryIndex === -1) return false
   return monsterCreatorIndex < libraryIndex
+})
+
+const isBattlefieldAboveLibrary = computed(() => {
+  const battlefieldIndex = settingsStore.appCards.findIndex(card => card.id === 'battlefield')
+  const libraryIndex = settingsStore.appCards.findIndex(card => card.id === 'library')
+
+  if (battlefieldIndex === -1 || libraryIndex === -1) return true
+  return battlefieldIndex < libraryIndex
 })
 
 const nextTurn = () => {

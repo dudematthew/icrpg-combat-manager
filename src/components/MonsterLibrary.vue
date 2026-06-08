@@ -64,18 +64,31 @@
         </div>
       </div>
     </div>
+
+    <div class="flex justify-center mt-4">
+      <button
+        type="button"
+        class="flex justify-center items-center gap-1 bg-neutral-100 hover:bg-neutral-200 px-3 py-1 text-xs transition-colors cursor-pointer"
+        @click="scrollToBattlefield"
+      >
+        <ChevronUp v-if="isBattlefieldAbove" class="w-3 h-3" />
+        <ChevronDown v-else class="w-3 h-3" />
+        Jump to Battlefield
+      </button>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { BookMarked } from "lucide-vue-next";
+import { BookMarked, ChevronDown, ChevronUp } from "lucide-vue-next";
 import EmptySectionState from "@/components/EmptySectionState.vue";
 import { useMonsterLibraryStore } from "@/stores/monsterLibrary";
 import { getMonsterColor } from "@/utils/combat";
 
 defineProps<{
   isCreatorAbove: boolean;
+  isBattlefieldAbove: boolean;
 }>();
 
 const libraryStore = useMonsterLibraryStore();
@@ -83,6 +96,10 @@ const openMenuIndex = ref<number | null>(null);
 
 const scrollToCreator = () => {
   document.getElementById("monster-creator")?.scrollIntoView({ behavior: "smooth" });
+};
+
+const scrollToBattlefield = () => {
+  document.getElementById("battlefield")?.scrollIntoView({ behavior: "smooth" });
 };
 
 const toggleMenu = (index: number) => {

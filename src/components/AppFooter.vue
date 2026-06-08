@@ -16,6 +16,8 @@
                     class="text-primary hover:text-red-600 underline transition-colors">
                     True Random by Random.org
                 </a>
+                <span>•</span>
+                <span class="text-neutral-600">Fantasy Inspiration Tables by Nightworm</span>
             </div>
             <div class="text-neutral-500 text-xs">
                 <a href="https://github.com/dudematthew/icrpg-combat-manager" target="_blank"

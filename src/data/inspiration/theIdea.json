@@ -1,0 +1,122 @@
+[
+  {
+    "adjective": "Shy",
+    "background": "Guard",
+    "type": "Warrior",
+    "motivatedBy": "Wealth"
+  },
+  {
+    "adjective": "Energetic",
+    "background": "Noble",
+    "type": "Commander",
+    "motivatedBy": "Debt"
+  },
+  {
+    "adjective": "Helpful",
+    "background": "Scribe",
+    "type": "Paladin",
+    "motivatedBy": "Fame"
+  },
+  {
+    "adjective": "Angry",
+    "background": "Brewer",
+    "type": "Barbarian",
+    "motivatedBy": "Religion"
+  },
+  {
+    "adjective": "Disciplined",
+    "background": "Potter",
+    "type": "Thief",
+    "motivatedBy": "Family"
+  },
+  {
+    "adjective": "Careless",
+    "background": "Farmer",
+    "type": "Assassin",
+    "motivatedBy": "Escape"
+  },
+  {
+    "adjective": "Strange",
+    "background": "Woodcutter",
+    "type": "Monk",
+    "motivatedBy": "Servitude"
+  },
+  {
+    "adjective": "Stubborn",
+    "background": "Outlaw",
+    "type": "Bard",
+    "motivatedBy": "Justice"
+  },
+  {
+    "adjective": "Passionate",
+    "background": "Merchant",
+    "type": "Hunter",
+    "motivatedBy": "Ghosts"
+  },
+  {
+    "adjective": "Cool",
+    "background": "Acolyte",
+    "type": "Trapper",
+    "motivatedBy": "Sworn Oath"
+  },
+  {
+    "adjective": "Hopeful",
+    "background": "Animal",
+    "type": "Trainer",
+    "motivatedBy": "Mage Love"
+  },
+  {
+    "adjective": "Snarky",
+    "background": "Fisherman",
+    "type": "Alchemist",
+    "motivatedBy": "Secrets"
+  },
+  {
+    "adjective": "Assertive",
+    "background": "Grave",
+    "type": "Digger",
+    "motivatedBy": "Necromancer Guilt"
+  },
+  {
+    "adjective": "Humble",
+    "background": "Tailor",
+    "type": "Elementalist",
+    "motivatedBy": "Revenge"
+  },
+  {
+    "adjective": "Naive",
+    "background": "Baker",
+    "type": "Druid",
+    "motivatedBy": "Charity"
+  },
+  {
+    "adjective": "Skeptical",
+    "background": "Scholar",
+    "type": "Beast",
+    "motivatedBy": "Master Redemption"
+  },
+  {
+    "adjective": "Thrill-Seeking",
+    "background": "Clairvoyant",
+    "type": "Healer",
+    "motivatedBy": "Loneliness"
+  },
+  {
+    "adjective": "Eccentric",
+    "background": "Sailor",
+    "type": "Mystic",
+    "motivatedBy": "Discovery"
+  },
+  {
+    "adjective": "Creative",
+    "background": "Jester",
+    "type": "Drifter",
+    "motivatedBy": "Prophecy"
+  },
+  {
+    "adjective": "Sensible",
+    "background": "Painter",
+    "type": "Wildling",
+    "motivatedBy": "Academia"
+  }
+]

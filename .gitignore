@@ -75,3 +75,5 @@ Desktop.ini
 
 # Yarn Integrity file
 .yarn-integrity
+
+sources/*

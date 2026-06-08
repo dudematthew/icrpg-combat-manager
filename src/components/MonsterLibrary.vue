@@ -8,7 +8,7 @@
 
     <EmptySectionState
       v-if="libraryStore.templates.length === 0"
-      image="images/monster_shelf_empty_space.png"
+      image="images/shelf_of_monsters.png"
       alt="Empty monster shelf"
       message="No saved monsters yet"
       hint="Save templates from the creator"

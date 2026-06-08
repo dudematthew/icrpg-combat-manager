@@ -265,74 +265,21 @@
 
               <!-- Generator Section -->
               <div class="space-y-3 bg-neutral-50 p-3 border border-neutral-200 rounded-lg">
-                <div class="flex justify-between items-center">
-                  <h4 class="rpg-label">Generate Traits</h4>
-                </div>
-
-                <!-- State & Motivation -->
-                <div class="flex flex-wrap gap-1 mb-2 grow">
-                  <button @click="generateState" class="flex items-center gap-1 text-xs rpg-button rpg-button-secondary"
-                    title="Generate monster state" style="padding-inline: 16px;">
-                    <img :src="assetUrl('images/d6_dice_icon.png')" class="w-4 h-4 icon-filter" alt="Generate state" />
-                    State
-                  </button>
-                  <button @click="generateMotivation"
-                    class="flex items-center gap-1 text-xs rpg-button rpg-button-secondary"
-                    title="Generate monster motivation" style="padding-inline: 16px;">
-                    <img :src="assetUrl('images/d6_dice_icon.png')" class="w-4 h-4 icon-filter" alt="Generate motivation" />
-                    Motivation
-                  </button>
-                </div>
-                <div v-if="hasStateOrMotivation" class="flex flex-wrap gap-1 mb-3">
-                  <button @click="applyStateAndMotivation" class="text-xs rpg-button rpg-button-primary">Apply</button>
-                  <button @click="clearStateAndMotivation"
-                    class="text-xs rpg-button rpg-button-secondary">Clear</button>
-                </div>
-                <div class="space-y-2 bg-neutral-50 py-2 rounded">
-                  <div v-if="generatedState" class="mb-2 text-md text-neutral-700">
-                    <strong class="font-semibold">State:</strong> {{ generatedState }}
-                  </div>
-                  <div v-if="generatedMotivation" class="mb-2 text-md text-neutral-700">
-                    <strong class="font-semibold">Motivation:</strong> {{ generatedMotivation }}
-                  </div>
-                  <div v-if="!generatedState && !generatedMotivation" class="text-neutral-400 text-sm">...</div>
-                </div>
-
-                <!-- Abilities & Upgrades -->
-                <div class="flex flex-wrap gap-1 mb-2 grow">
-                  <button @click="generateAbilities"
-                    class="flex items-center gap-1 text-xs rpg-button rpg-button-secondary" title="Generate abilities"
-                    style="padding-inline: 16px;">
-                    <img :src="assetUrl('images/d6_dice_icon.png')" class="w-4 h-4 icon-filter" alt="Generate abilities" />
-                    Ability
-                  </button>
-                  <button @click="generateUpgrades"
-                    class="flex items-center gap-1 text-xs rpg-button rpg-button-secondary" title="Generate upgrades"
-                    style="padding-inline: 16px;">
-                    <img :src="assetUrl('images/d6_dice_icon.png')" class="w-4 h-4 icon-filter" alt="Generate upgrades" />
-                    Upgrade
-                  </button>
-                </div>
-                <div v-if="hasAbilitiesOrUpgrades" class="flex flex-wrap gap-1 mb-3">
-                  <button @click="applyAbilitiesAndUpgrades"
-                    class="text-xs rpg-button rpg-button-primary">Apply</button>
-                  <button @click="clearAbilitiesAndUpgrades"
-                    class="text-xs rpg-button rpg-button-secondary">Clear</button>
-                </div>
-                <div class="space-y-2 bg-neutral-50 py-2 rounded">
-                  <div v-if="generatedAbilities" class="mb-2 text-md text-neutral-700">
-                    <strong class="font-semibold">Ability:</strong> {{ generatedAbilities }}
-                  </div>
-                  <div v-if="generatedUpgrades" class="mb-2 text-md text-neutral-700">
-                    <strong class="font-semibold">Upgrade:</strong> {{ generatedUpgrades }}
-                  </div>
-                  <div v-if="!generatedAbilities && !generatedUpgrades" class="text-neutral-400 text-sm">...</div>
-                </div>
+                <h4 class="rpg-label">Generate Traits</h4>
+                <TraitPickButtons
+                  :notes="localNotes"
+                  :special-abilities="localAbilities"
+                  @update:notes="localNotes = $event"
+                  @update:special-abilities="localAbilities = $event"
+                />
               </div>
             </div>
           </details>
 
-          <div class="flex justify-end gap-3">
+          <div class="flex flex-wrap justify-end gap-3">
+            <button type="button" @click="saveToLibrary" class="rpg-button rpg-button-secondary">
+              Save to Library
+            </button>
             <button @click="saveChanges" class="rpg-button rpg-button-primary">
               Save
             </button>
@@ -380,7 +327,8 @@ import type { Monster } from '@/types'
 import { CONDITIONS, TIER_CONFIGS } from '@/types'
 import { formatMonsterIdentifier, getTierColor, getMonsterColor, getTextColorForBackground } from '@/utils/combat'
 import { assetUrl } from '@/utils/assetUrl'
-import { generateMonsterAbilities, generateMonsterUpgrades, rollMonsterState, rollMonsterMotivation } from '@/utils/monsterGenerator'
+import TraitPickButtons from '@/components/TraitPickButtons.vue'
+import { useMonsterLibraryStore } from '@/stores/monsterLibrary'
 import { Trash2, ChevronDown, Undo2 } from 'lucide-vue-next'
 import InlineEditableText from './InlineEditableText.vue'
 import { useHoverDelay } from '@/composables/useHoverDelay'
@@ -400,6 +348,7 @@ const emit = defineEmits<{
 }>()
 
 const settingsStore = useSettingsStore()
+const libraryStore = useMonsterLibraryStore()
 
 const isTargetSectionEnabled = computed(() => {
   const targetCard = settingsStore.appCards.find(card => card.id === 'target')
@@ -431,21 +380,6 @@ const { isHoverDelayed, handleMouseEnter, handleMouseLeave, forceReset } = useHo
   delay: 100, // 100ms delay before showing content
   hoverEndDelay: 300 // 300ms delay before hiding content
 })
-
-// Generator preview state
-const generatedState = ref('')
-const generatedMotivation = ref('')
-const generatedAbilities = ref('')
-const generatedUpgrades = ref('')
-
-// Computed properties for conditional buttons
-const hasStateOrMotivation = computed(() =>
-  generatedState.value !== '' || generatedMotivation.value !== ''
-)
-
-const hasAbilitiesOrUpgrades = computed(() =>
-  generatedAbilities.value !== '' || generatedUpgrades.value !== ''
-)
 
 const colors = [
   { label: 'Red', value: 'Red' },
@@ -549,6 +483,10 @@ const saveChanges = () => {
   showEditModal.value = false
 }
 
+const saveToLibrary = () => {
+  libraryStore.saveMonsterAsTemplate(props.monster)
+}
+
 const cancelEdit = () => {
   // Reset local values to original
   localName.value = props.monster.name || ''
@@ -559,7 +497,6 @@ const cancelEdit = () => {
   localEffortBonus.value = props.monster.manualEffortBonus || props.monster.effortBonus
   localActions.value = props.monster.manualActions || props.monster.actions
   localHearts.value = props.monster.manualHearts || props.monster.heartsMax
-  clearPreviews()
   showEditModal.value = false
 }
 
@@ -577,71 +514,6 @@ const toggleDoneTurn = () => {
   if (props.compact) {
     forceReset()
   }
-}
-
-const clearPreviews = () => {
-  generatedState.value = ''
-  generatedMotivation.value = ''
-  generatedAbilities.value = ''
-  generatedUpgrades.value = ''
-}
-
-// Monster generator functions - populate preview instead of directly updating fields
-const generateState = () => {
-  generatedState.value = rollMonsterState()
-}
-
-const generateMotivation = () => {
-  generatedMotivation.value = rollMonsterMotivation()
-}
-
-const generateAbilities = () => {
-  generatedAbilities.value = generateMonsterAbilities()
-}
-
-const generateUpgrades = () => {
-  generatedUpgrades.value = generateMonsterUpgrades()
-}
-
-const applyStateAndMotivation = () => {
-  const parts = []
-  if (generatedState.value) {
-    parts.push(generatedState.value)
-    generatedState.value = ''
-  }
-  if (generatedMotivation.value) {
-    parts.push(generatedMotivation.value)
-    generatedMotivation.value = ''
-  }
-  if (parts.length > 0) {
-    localNotes.value = parts.join('\n\n')
-  }
-}
-
-const applyAbilitiesAndUpgrades = () => {
-  const parts = []
-  if (generatedAbilities.value) {
-    parts.push(generatedAbilities.value)
-    generatedAbilities.value = ''
-  }
-  if (generatedUpgrades.value) {
-    parts.push(generatedUpgrades.value)
-    generatedUpgrades.value = ''
-  }
-  if (parts.length > 0) {
-    localAbilities.value = parts.join('\n\n')
-  }
-}
-
-// Clear functions - clear generated content without applying
-const clearStateAndMotivation = () => {
-  generatedState.value = ''
-  generatedMotivation.value = ''
-}
-
-const clearAbilitiesAndUpgrades = () => {
-  generatedAbilities.value = ''
-  generatedUpgrades.value = ''
 }
 
 // Expose forceReset for parent component

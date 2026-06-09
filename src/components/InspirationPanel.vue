@@ -1,29 +1,24 @@
 <template>
-  <div id="inspirations" class="inspiration-panel mb-3 rpg-card">
+  <div id="inspirations" class="mb-3 inspiration-panel rpg-card">
     <div class="rpg-card-header">
       <Sparkles class="flex-shrink-0 w-5 h-5 text-accent" />
       <h2 class="rpg-heading">Inspirations</h2>
     </div>
 
-    <button type="button" class="mb-4 w-full rpg-button rpg-button-primary" @click="rollFull">
+    <button type="button" class="mb-4 w-full rpg-button rpg-button-primary rpg-button-sm" @click="rollFull">
       Roll Full NPC
     </button>
 
     <div class="inspiration-chips">
-      <button
-        v-for="chip in chips"
-        :key="chip.key"
-        type="button"
-        class="w-full text-xs rpg-button rpg-button-secondary"
-        v-bind="chipHandlers(chip.key)"
-      >
+      <button v-for="chip in chips" :key="chip.key" type="button" class="w-full text-xs rpg-button rpg-button-secondary"
+        v-bind="chipHandlers(chip.key)">
         {{ chip.label }}
       </button>
     </div>
 
     <div v-if="result" class="bg-neutral-50 p-3 border border-neutral-200 rounded-lg">
       <div class="flex justify-between items-baseline gap-3 mb-2">
-        <span class="font-bold text-base rpg-heading normal-case tracking-normal">{{ resultLabel }}</span>
+        <span class="font-bold text-base normal-case tracking-normal rpg-heading">{{ resultLabel }}</span>
         <div class="flex flex-shrink-0 gap-3">
           <button type="button" class="text-neutral-500 hover:text-accent text-xs underline" @click="copyResult">
             Copy
@@ -33,16 +28,10 @@
           </button>
         </div>
       </div>
-      <pre class="m-0 whitespace-pre-wrap text-sm rpg-body">{{ result }}</pre>
+      <pre class="m-0 text-sm whitespace-pre-wrap rpg-body">{{ result }}</pre>
     </div>
 
-    <QuickPickModal
-      v-model="pickOpen"
-      :title="pickTitle"
-      :options="pickOptions"
-      searchable
-      @pick="onPick"
-    />
+    <QuickPickModal v-model="pickOpen" :title="pickTitle" :options="pickOptions" searchable @pick="onPick" />
   </div>
 </template>
 

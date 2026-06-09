@@ -2,15 +2,13 @@
   <Teleport to="body">
     <div
       v-if="isOpen"
-      class="z-50 fixed inset-0 flex justify-center items-end sm:items-center bg-black/50 p-4"
-      @click.self="close"
+      class="quick-pick-overlay"
+      @click="close"
     >
-      <div class="bg-white shadow-xl rounded-lg w-full max-w-md max-h-[70vh] flex flex-col">
-        <div class="flex justify-between items-center p-4 border-neutral-200 border-b">
-          <h3 class="text-base rpg-heading">{{ title }}</h3>
-          <button type="button" class="text-neutral-500 hover:text-neutral-800" @click="close">✕</button>
-        </div>
-        <div v-if="searchable" class="px-4 pt-3">
+      <div class="quick-pick-panel" @click.stop>
+        <h3 class="quick-pick-title">{{ title }}</h3>
+
+        <div v-if="searchable" class="quick-pick-search">
           <input
             v-model="searchQuery"
             type="search"
@@ -18,29 +16,39 @@
             class="rpg-input w-full text-sm"
           />
         </div>
-        <div class="overflow-y-auto p-4 flex-1">
-          <div v-if="!searchable || filteredOptions.length <= 24" class="gap-2 grid grid-cols-1">
+
+        <div class="quick-pick-list">
+          <div
+            v-if="!searchable && filteredOptions.length <= 20"
+            class="quick-pick-grid quick-pick-grid--two"
+          >
             <button
               v-for="(option, index) in filteredOptions"
               :key="index"
               type="button"
-              class="text-left text-sm rpg-button rpg-button-secondary !justify-start !py-2"
+              class="text-left text-xs rpg-button rpg-button-secondary quick-pick-option"
               @click="select(option)"
             >
               {{ option }}
             </button>
           </div>
-          <div v-else class="gap-2 grid grid-cols-1">
+          <div v-else class="quick-pick-grid">
             <button
               v-for="(option, index) in filteredOptions"
               :key="index"
               type="button"
-              class="text-left text-xs rpg-button rpg-button-secondary !justify-start !py-1.5"
+              class="text-left text-xs rpg-button rpg-button-secondary quick-pick-option"
               @click="select(option)"
             >
               {{ option }}
             </button>
           </div>
+        </div>
+
+        <div class="quick-pick-footer">
+          <button type="button" class="rpg-button rpg-button-secondary" @click="close">
+            Cancel
+          </button>
         </div>
       </div>
     </div>
@@ -49,6 +57,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
+import { useScrollLock } from "@/composables/useScrollLock";
 
 const props = withDefaults(
   defineProps<{
@@ -67,6 +76,8 @@ const emit = defineEmits<{
 const isOpen = defineModel<boolean>({ default: false });
 const searchQuery = ref("");
 
+useScrollLock(isOpen);
+
 const filteredOptions = computed(() => {
   const q = searchQuery.value.trim().toLowerCase();
   if (!q) return props.options;
@@ -84,3 +95,75 @@ const close = () => {
   emit("close");
 };
 </script>
+
+<style scoped>
+.quick-pick-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 0;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.quick-pick-panel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 28rem;
+  max-height: 90vh;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  background: white;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.quick-pick-title {
+  margin: 0 0 1rem;
+  font-family: "nusaliver", "Arial Black", sans-serif;
+  font-size: 1.125rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #171717;
+}
+
+.quick-pick-search {
+  margin-bottom: 1rem;
+}
+
+.quick-pick-list {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 1rem;
+  padding-right: 0.125rem;
+}
+
+.quick-pick-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+}
+
+.quick-pick-grid--two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.quick-pick-option {
+  justify-content: flex-start !important;
+  padding-top: 0.5rem !important;
+  padding-bottom: 0.5rem !important;
+  white-space: normal;
+}
+
+.quick-pick-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e5e5;
+}
+</style>

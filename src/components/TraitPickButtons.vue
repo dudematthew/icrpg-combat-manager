@@ -56,10 +56,15 @@ import { assetUrl } from "@/utils/assetUrl";
 import {
   MONSTER_STATES,
   MONSTER_MOTIVATIONS,
+  MONSTER_ABILITIES,
+  MONSTER_UPGRADES,
   rollMonsterState,
   rollMonsterMotivation,
   generateMonsterAbilities,
   generateMonsterUpgrades,
+  resolveAbilityPick,
+  resolveUpgradePick,
+  rollUntilDifferent,
 } from "@/utils/monsterGenerator";
 
 const props = defineProps<{
@@ -96,6 +101,18 @@ const abilityButtons = [
 const showStatePreview = computed(() => !props.instantApply && (previewState.value || previewMotivation.value));
 const showAbilityPreview = computed(() => !props.instantApply && (previewAbilities.value || previewUpgrades.value));
 
+const getCurrentValue = (key: TraitKey): string => {
+  if (props.instantApply) {
+    return key === "state" || key === "motivation" ? props.notes : props.specialAbilities;
+  }
+  switch (key) {
+    case "state": return previewState.value;
+    case "motivation": return previewMotivation.value;
+    case "abilities": return previewAbilities.value;
+    case "upgrades": return previewUpgrades.value;
+  }
+};
+
 const rollForKey = (key: TraitKey): string => {
   switch (key) {
     case "state": return rollMonsterState();
@@ -103,6 +120,15 @@ const rollForKey = (key: TraitKey): string => {
     case "abilities": return generateMonsterAbilities();
     case "upgrades": return generateMonsterUpgrades();
   }
+};
+
+const rollDistinctForKey = (key: TraitKey): string =>
+  rollUntilDifferent(() => rollForKey(key), getCurrentValue(key));
+
+const resolvePick = (key: TraitKey, raw: string): string => {
+  if (key === "abilities") return resolveAbilityPick(raw);
+  if (key === "upgrades") return resolveUpgradePick(raw);
+  return raw;
 };
 
 const applyValue = (key: TraitKey, value: string) => {
@@ -118,21 +144,35 @@ const applyValue = (key: TraitKey, value: string) => {
 };
 
 const openPick = (key: TraitKey) => {
-  if (key === "abilities" || key === "upgrades") {
-    applyValue(key, rollForKey(key));
-    return;
-  }
   activePickKey.value = key;
-  pickModalTitle.value = key === "state" ? "Pick State" : "Pick Motivation";
-  pickModalOptions.value = key === "state" ? MONSTER_STATES : MONSTER_MOTIVATIONS;
+  switch (key) {
+    case "state":
+      pickModalTitle.value = "Pick State";
+      pickModalOptions.value = MONSTER_STATES;
+      break;
+    case "motivation":
+      pickModalTitle.value = "Pick Motivation";
+      pickModalOptions.value = MONSTER_MOTIVATIONS;
+      break;
+    case "abilities":
+      pickModalTitle.value = "Pick Abilities";
+      pickModalOptions.value = MONSTER_ABILITIES;
+      break;
+    case "upgrades":
+      pickModalTitle.value = "Pick Upgrades";
+      pickModalOptions.value = MONSTER_UPGRADES;
+      break;
+  }
   pickModalOpen.value = true;
 };
 
 const onPick = (value: string) => {
-  if (activePickKey.value) applyValue(activePickKey.value, value);
+  if (!activePickKey.value) return;
+  const key = activePickKey.value;
+  applyValue(key, resolvePick(key, value));
 };
 
-const tap = (key: TraitKey) => applyValue(key, rollForKey(key));
+const tap = (key: TraitKey) => applyValue(key, rollDistinctForKey(key));
 
 const handlerMap = new Map<TraitKey, ReturnType<typeof useHoldToPick>>();
 (["state", "motivation", "abilities", "upgrades"] as TraitKey[]).forEach((key) => {

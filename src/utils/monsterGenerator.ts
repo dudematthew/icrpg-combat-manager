@@ -103,6 +103,67 @@ export const MONSTER_UPGRADES = [
   "Nightmare: A demigod of death. Roll Three times on this table, ignoring a 19 or 20",
 ];
 
+const WEAKNESS_OPTIONS = ["Silver", "Magic", "Fire", "Ice", "Missiles", "Melee"] as const;
+const ONE_WEAKNESS_PLACEHOLDER =
+  "Roll 1D6: 1: Silver, 2: Magic, 3: Fire, 4: Ice, 5: Missiles, 6: Melee";
+
+const resolveOneWeakness = (ability: string): string => {
+  const weaknessRoll = rollDie(6);
+  return ability.replace(ONE_WEAKNESS_PLACEHOLDER, `Weakness: ${WEAKNESS_OPTIONS[weaknessRoll - 1]}`);
+};
+
+const resolveTwoAbilities = (ability: string): string => {
+  return `${ability} | ${rollMonsterAbility()}`;
+};
+
+const resolveUpgradeByRoll = (roll: number, upgrade: string): string => {
+  if (roll === 1) {
+    const heartsRoll = rollDie(4);
+    return upgrade.replace("Add 1D4 HEARTS", `Add ${heartsRoll} HEARTS`);
+  }
+  if (roll === 8) {
+    const legionRoll = rollDie(6);
+    const count = legionRoll === 1 ? rollDie(6) : legionRoll;
+    return upgrade.replace("There are 1D6 of them, throw out a 1", `There are ${count} of them`);
+  }
+  if (roll === 17) {
+    const novaRoll = rollDie(4);
+    return upgrade.replace("Every 1D4 ROUNDS", `Every ${novaRoll} ROUNDS`);
+  }
+  if (roll === 19) {
+    return `Ancient: ${rollMonsterUpgrade()} | ${rollMonsterUpgrade()}`;
+  }
+  if (roll === 20) {
+    return `Nightmare: ${rollMonsterUpgrade()} | ${rollMonsterUpgrade()} | ${rollMonsterUpgrade()}`;
+  }
+  return upgrade;
+};
+
+/** Resolve table text chosen from the pick modal (rolls nested entries). */
+export const resolveAbilityPick = (raw: string): string => {
+  if (raw === MONSTER_ABILITIES[9]) return resolveOneWeakness(raw);
+  if (raw === MONSTER_ABILITIES[19]) return resolveTwoAbilities(raw);
+  return raw;
+};
+
+/** Resolve upgrade table text chosen from the pick modal. */
+export const resolveUpgradePick = (raw: string): string => {
+  const index = MONSTER_UPGRADES.indexOf(raw);
+  if (index === -1) return raw;
+  return resolveUpgradeByRoll(index + 1, raw);
+};
+
+/** Re-roll until the value differs from `current` (avoids no-op taps). */
+export const rollUntilDifferent = <T>(roll: () => T, current: T, maxAttempts = 25): T => {
+  let value = roll();
+  let attempts = 0;
+  while (value === current && attempts < maxAttempts) {
+    value = roll();
+    attempts++;
+  }
+  return value;
+};
+
 // Utility functions to roll on tables
 export const rollMonsterState = (): string => {
   const roll = rollD20();
@@ -118,56 +179,15 @@ export const rollMonsterAbility = (): string => {
   const roll = rollD20();
   let ability = MONSTER_ABILITIES[roll - 1];
 
-  // Handle special cases
-  if (roll === 10) {
-    // One Weakness
-    const weaknessRoll = rollDie(6);
-    const weaknesses = ["Silver", "Magic", "Fire", "Ice", "Missiles", "Melee"];
-    ability = ability.replace(
-      "Roll 1D6: 1: Silver, 2: Magic, 3: Fire, 4: Ice, 5: Missiles, 6: Melee",
-      `Weakness: ${weaknesses[weaknessRoll - 1]}`
-    );
-  } else if (roll === 20) {
-    // Two Abilities
-    const secondAbility = rollMonsterAbility();
-    ability = ability + " | " + secondAbility;
-  }
+  if (roll === 10) ability = resolveOneWeakness(ability);
+  else if (roll === 20) ability = resolveTwoAbilities(ability);
 
   return ability;
 };
 
 export const rollMonsterUpgrade = (): string => {
   const roll = rollD20();
-  let upgrade = MONSTER_UPGRADES[roll - 1];
-
-  // Handle special cases
-  if (roll === 1) {
-    // Hearts
-    const heartsRoll = rollDie(4);
-    upgrade = upgrade.replace("Add 1D4 HEARTS", `Add ${heartsRoll} HEARTS`);
-  } else if (roll === 8) {
-    // Legion
-    const legionRoll = rollDie(6);
-    const count = legionRoll === 1 ? rollDie(6) : legionRoll; // throw out a 1
-    upgrade = upgrade.replace("There are 1D6 of them, throw out a 1", `There are ${count} of them`);
-  } else if (roll === 17) {
-    // Nova
-    const novaRoll = rollDie(4);
-    upgrade = upgrade.replace("Every 1D4 ROUNDS", `Every ${novaRoll} ROUNDS`);
-  } else if (roll === 19) {
-    // Ancient
-    const firstRoll = rollMonsterUpgrade();
-    const secondRoll = rollMonsterUpgrade();
-    upgrade = `Ancient: ${firstRoll} | ${secondRoll}`;
-  } else if (roll === 20) {
-    // Nightmare
-    const firstRoll = rollMonsterUpgrade();
-    const secondRoll = rollMonsterUpgrade();
-    const thirdRoll = rollMonsterUpgrade();
-    upgrade = `Nightmare: ${firstRoll} | ${secondRoll} | ${thirdRoll}`;
-  }
-
-  return upgrade;
+  return resolveUpgradeByRoll(roll, MONSTER_UPGRADES[roll - 1]);
 };
 
 // Generate a complete monster profile

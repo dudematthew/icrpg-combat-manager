@@ -29,6 +29,8 @@
           class="index-card__body board-markdown"
           :class="{ 'index-card__body--collapsed': showCollapsed }"
           v-html="notesHtml"
+          @click="onNotesClick"
+          @change="onTaskCheckboxChange"
         />
 
         <button
@@ -61,6 +63,7 @@ import { useSettingsStore } from "@/stores/settings";
 import { renderMarkdown } from "../utils/markdown";
 import { getAdapter, canDeploy as isDeployable } from "../adapters";
 import { formatCardFacePayloadPreview } from "../utils/payloadPreview";
+import { toggleTaskListLine } from "../utils/taskList";
 import { useDragClickGuard } from "@/composables/useDragClickGuard";
 import type { IndexCard } from "../types";
 
@@ -74,6 +77,7 @@ const emit = defineEmits<{
   deploy: [id: string];
   edit: [id: string];
   "toggle-expand": [id: string];
+  "update-body": [body: string];
 }>();
 
 const settingsStore = useSettingsStore();
@@ -102,6 +106,44 @@ const showCollapsed = computed(
 );
 
 const canDeployCard = computed(() => isDeployable(props.card.kind));
+
+const isTaskCheckboxTarget = (target: EventTarget | null): target is HTMLInputElement =>
+  target instanceof HTMLInputElement &&
+  target.type === "checkbox" &&
+  target.classList.contains("task-list-item-checkbox");
+
+const onNotesClick = (event: MouseEvent) => {
+  if (isTaskCheckboxTarget(event.target)) {
+    event.stopPropagation();
+  }
+};
+
+const onTaskCheckboxChange = (event: Event) => {
+  const input = event.target;
+  if (!isTaskCheckboxTarget(input)) return;
+
+  event.stopPropagation();
+
+  const lineRaw = input.closest("li.task-list-item")?.getAttribute("data-task-line");
+  if (lineRaw === null) {
+    input.checked = !input.checked;
+    return;
+  }
+
+  const lineIndex = Number(lineRaw);
+  if (!Number.isFinite(lineIndex)) {
+    input.checked = !input.checked;
+    return;
+  }
+
+  const nextBody = toggleTaskListLine(props.card.body, lineIndex);
+  if (nextBody === null) {
+    input.checked = !input.checked;
+    return;
+  }
+
+  emit("update-body", nextBody);
+};
 
 const onCardClick = () => {
   if (shouldBlockClick()) return;
@@ -252,6 +294,24 @@ const onCardClick = () => {
 
 .board-markdown strong {
   font-weight: 600;
+}
+
+.board-markdown ul.contains-task-list {
+  list-style: none;
+  padding-left: 0.25rem;
+}
+
+.board-markdown li.task-list-item {
+  display: block;
+  margin: 0.15rem 0;
+}
+
+.board-markdown .task-list-item-checkbox {
+  margin-top: 0.2rem;
+  margin-right: 0.35rem;
+  flex-shrink: 0;
+  cursor: pointer;
+  vertical-align: top;
 }
 
 /* Keep vue-fluid-dnd drag ghost visible (fixed positioning needs no ancestor transform) */

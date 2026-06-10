@@ -24,4 +24,13 @@ describe("renderMarkdown", () => {
     expect(html).toContain("<ul>");
     expect(html).toContain("<li>");
   });
+
+  it("renders task lists with interactive checkboxes and line mapping", () => {
+    const html = renderMarkdown("- [ ] open task\n- [x] done task");
+    expect(html).toContain('type="checkbox"');
+    expect(html).toContain('data-task-line="0"');
+    expect(html).toContain('data-task-line="1"');
+    expect(html).toContain("checked");
+    expect(html).not.toContain("disabled");
+  });
 });

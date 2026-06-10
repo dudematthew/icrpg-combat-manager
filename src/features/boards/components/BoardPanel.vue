@@ -42,6 +42,7 @@
         @deploy="deployCard"
         @edit="openEdit"
         @toggle-expand="boardsStore.toggleCardCollapsed"
+        @update-body="(body) => boardsStore.updateCard(card.id, { body })"
       />
     </div>
 

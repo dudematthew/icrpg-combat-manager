@@ -1,5 +1,16 @@
 import { defineStore } from "pinia";
-import { ref } from "vue";
+import { ref, computed } from "vue";
+import {
+  ALL_CARD_IDS,
+  assignColumn,
+  mergeSettingsSections,
+  pinNotesToBoardsColumn,
+  sanitizeAppCards,
+  boardsColumnVisible,
+  splitAppCardsBySection,
+  splitAppCardsForSettings,
+  BOARDS_CARD_ID,
+} from "@/utils/appCardColumns";
 
 export type AppColumn = "combat" | "boards";
 
@@ -22,7 +33,7 @@ interface LegacyAppCard extends Omit<AppCard, "column"> {
   column?: AppColumn;
 }
 
-const CARD_IDS = ["timers", "battlefield", "target", "monster-creator", "inspirations", "notes"] as const;
+const CARD_IDS = ALL_CARD_IDS;
 
 export type TimerNamingMode = "both" | "named" | "color";
 
@@ -97,13 +108,15 @@ export const useSettingsStore = defineStore("settings", () => {
   const migrateAppCards = (saved: LegacyAppCard[] | undefined): AppCard[] => {
     const cleaned = (saved && Array.isArray(saved) ? saved : [])
       .filter((card) => card.id !== "library")
-      .map((card) => ({
-        id: card.id,
-        name: card.name,
-        description: card.description,
-        enabled: card.enabled,
-        column: (card.column === "boards" ? "boards" : "combat") as AppColumn,
-      }));
+      .map((card) =>
+        pinNotesToBoardsColumn({
+          id: card.id,
+          name: card.name,
+          description: card.description,
+          enabled: card.enabled,
+          column: card.column === "boards" ? "boards" : "combat",
+        }),
+      );
 
     const knownIds = new Set(cleaned.map((c) => c.id));
     const defaultsById = Object.fromEntries(defaultAppCards.map((c) => [c.id, c]));
@@ -114,8 +127,7 @@ export const useSettingsStore = defineStore("settings", () => {
       }
     }
 
-    const orderIndex = Object.fromEntries(CARD_IDS.map((id, i) => [id, i]));
-    return cleaned.sort((a, b) => (orderIndex[a.id] ?? 99) - (orderIndex[b.id] ?? 99));
+    return sanitizeAppCards(cleaned);
   };
 
   const loadSettings = () => {
@@ -221,16 +233,36 @@ export const useSettingsStore = defineStore("settings", () => {
   };
 
   const reorderCards = (newOrder: AppCard[]) => {
-    appCards.value = [...newOrder];
+    appCards.value = sanitizeAppCards(newOrder);
     saveSettings();
+  };
+
+  const reorderCardsFromSections = (
+    combat: AppCard[],
+    boardsMovable: AppCard[],
+    boardsPinned: AppCard | null,
+  ) => {
+    try {
+      appCards.value = mergeSettingsSections(combat, boardsMovable, boardsPinned);
+      saveSettings();
+    } catch {
+      // Invalid layout — caller should revert UI lists
+    }
   };
 
   const setCardColumn = (cardId: string, column: AppColumn) => {
     const card = appCards.value.find((c) => c.id === cardId);
-    if (card) {
-      card.column = column;
-      saveSettings();
-    }
+    if (!card) return;
+    if (cardId === BOARDS_CARD_ID && column === "combat") return;
+
+    const combatCount = appCards.value.filter(
+      (c) => c.column === "combat" && c.id !== cardId,
+    ).length;
+    if (column === "boards" && combatCount === 0) return;
+
+    card.column = assignColumn(card, column).column;
+    appCards.value = sanitizeAppCards(appCards.value);
+    saveSettings();
   };
 
   const getVisibleCards = (column?: AppColumn) => {
@@ -239,7 +271,19 @@ export const useSettingsStore = defineStore("settings", () => {
     return visible.filter((card) => card.column === column);
   };
 
-  const getCardsForColumn = (column: AppColumn) => appCards.value.filter((c) => c.column === column);
+  const getCardsForColumn = (column: AppColumn) =>
+    appCards.value.filter((c) => c.column === column);
+
+  const showBoardsColumn = computed(() => boardsColumnVisible(appCards.value));
+
+  const boardsColumnEnabled = computed(() => {
+    const notes = appCards.value.find((c) => c.id === BOARDS_CARD_ID);
+    return Boolean(notes?.enabled);
+  });
+
+  const toggleBoardsColumn = () => {
+    toggleCard(BOARDS_CARD_ID);
+  };
 
   const toggleTierMode = () => {
     tierMode.value = !tierMode.value;
@@ -368,9 +412,15 @@ export const useSettingsStore = defineStore("settings", () => {
     toggleTurnAutoIncrementedNotification,
     toggleRoundEndedNotification,
     reorderCards,
+    reorderCardsFromSections,
     setCardColumn,
     getVisibleCards,
     getCardsForColumn,
+    showBoardsColumn,
+    boardsColumnEnabled,
+    toggleBoardsColumn,
+    splitAppCardsBySection,
+    splitAppCardsForSettings,
     resetToDefaults,
   };
 });

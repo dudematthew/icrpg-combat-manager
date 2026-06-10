@@ -4,10 +4,11 @@
     :class="{
       'has-section-nav': hasSectionNav,
       'has-header': hasHeader,
+      'has-boards-column': showBoardsColumn,
     }"
   >
     <button
-      v-if="showArrows && activeColumn === 1"
+      v-if="showBoardsColumn && showArrows && activeColumn === 1"
       type="button"
       class="column-arrow column-arrow--left"
       aria-label="Table column"
@@ -27,6 +28,7 @@
           <slot name="combat" />
         </div>
         <div
+          v-if="showBoardsColumn"
           ref="boardsColumnEl"
           class="app-column app-column--boards"
           :class="{ 'app-column--active': activeColumn === 1 }"
@@ -38,7 +40,7 @@
     </div>
 
     <button
-      v-if="showArrows && activeColumn === 0"
+      v-if="showBoardsColumn && showArrows && activeColumn === 0"
       type="button"
       class="column-arrow column-arrow--right"
       aria-label="Boards column"
@@ -55,9 +57,14 @@ import { ChevronLeft, ChevronRight } from "lucide-vue-next";
 import { useActiveColumn } from "@/composables/useActiveColumn";
 import { useColumnScroll } from "@/composables/useColumnScroll";
 
-defineProps<{
+const {
+  showBoardsColumn = true,
+  hasSectionNav = false,
+  hasHeader = false,
+} = defineProps<{
   hasSectionNav?: boolean;
   hasHeader?: boolean;
+  showBoardsColumn?: boolean;
 }>();
 
 const { activeColumn, goCombat, goBoards, setColumn } = useActiveColumn();
@@ -71,6 +78,7 @@ const onTouchStart = (e: Event) => {
 };
 
 const onTouchEnd = (e: Event) => {
+  if (!showBoardsColumn) return;
   const dx = (e as TouchEvent).changedTouches[0].clientX - touchStartX;
   if (Math.abs(dx) < 60) return;
   if (dx < 0 && activeColumn.value === 0) goBoards();
@@ -162,6 +170,15 @@ defineExpose({ activeColumn, setColumn, goCombat, goBoards, combatColumnEl, boar
     width: calc(50% - 0.5rem);
     height: 100%;
     padding: 0;
+  }
+
+  .app-columns-root:not(.has-boards-column) .app-columns-track {
+    justify-content: center;
+  }
+
+  .app-columns-root:not(.has-boards-column) .app-column--combat {
+    width: calc(50% - 0.5rem);
+    max-width: calc(50% - 0.5rem);
   }
 }
 

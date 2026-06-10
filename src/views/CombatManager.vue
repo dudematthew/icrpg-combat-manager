@@ -19,79 +19,28 @@
       class="rpg-app__columns"
       :has-section-nav="settingsStore.showSectionNav"
       :has-header="settingsStore.showTitleCard"
+      :show-boards-column="settingsStore.showBoardsColumn"
     >
       <template #combat>
         <div class="space-y-6">
-          <template v-for="card in combatCards" :key="card.id">
-            <TimerManager v-if="card.id === 'timers'" />
-
-            <div v-if="card.id === 'battlefield'" id="battlefield" class="rpg-card battlefield-section">
-              <div class="flex items-baseline gap-3 mb-4">
-                <img :src="assetUrl('images/sword_icon.png')" class="flex-shrink-0 w-6 h-6 text-accent icon-filter" alt="Battlefield" />
-                <h2 class="flex-shrink-0 rpg-heading">Battlefield</h2>
-                <span class="flex-shrink-0 font-body font-semibold text-accent text-sm">({{ activeMonsters.length }}
-                  active)</span>
-              </div>
-
-              <div class="bg-neutral-50 mb-4 p-3 text-center">
-                <div class="text-neutral-700 text-lg rpg-heading">
-                  Turn <span class="font-bold text-accent">{{ currentTurn }}</span> | Round <span
-                    class="font-bold text-accent">{{ currentRound }}</span>
-                </div>
-              </div>
-
-              <div class="flex justify-center gap-3 mb-6">
-                <button @click="nextTurn" class="rpg-button rpg-button-primary rpg-button-sm">
-                  <ChevronRight class="w-4 h-4" />
-                  Next Turn
-                </button>
-                <button @click="nextRound"
-                  :class="allMonstersDone ? 'rpg-button rpg-icon-button-success rpg-button-sm' : 'rpg-button rpg-button-secondary rpg-button-sm'">
-                  <ChevronsRight class="w-4 h-4" />
-                  Next Round
-                </button>
-              </div>
-
-              <div v-if="activeMonsters.length > 0" class="space-y-4 mb-6">
-                <div v-for="monster in activeMonsters" :key="monster.id">
-                  <MonsterCard ref="monsterCardRefs" :monster="monster" :compact="shouldUseCompactView"
-                    @remove="removeMonster(monster.id)" @update="updateMonster(monster.id, $event)"
-                    @rollDamage="handleRollDamage" />
-                </div>
-              </div>
-
-              <EmptySectionState
-                v-else
-                image="images/battlefield_empty_state.png"
-                alt="No monsters"
-                message="No monsters on the battlefield"
-                hint="Add monsters using the form"
-                :creator-above="isMonsterCreatorAboveBattlefield"
-                @jump="scrollToCreator"
-              />
-
-              <div class="flex justify-center items-center gap-3 pt-4 border-neutral-200 border-t">
-                <button @click="resetRoundsAndTurns"
-                  class="flex flex-row items-center gap-1 bg-warning hover:bg-yellow-600 px-3 py-2 border-2 border-warning rounded-md font-heading text-white text-xs uppercase tracking-wide transition-colors cursor-pointer">
-                  <RotateCcw class="h-5 icon-filter" />
-                  Reset Rounds
-                </button>
-                <button @click="confirmClear"
-                  class="flex flex-row items-center gap-1 bg-danger hover:bg-red-700 px-3 py-2 border-2 border-danger rounded-md font-heading text-white text-xs uppercase tracking-wide transition-colors cursor-pointer">
-                  <img :src="assetUrl('images/sword_icon.png')" class="h-5 icon-filter" alt="Clear battlefield" />
-                  Clear Battlefield
-                </button>
-              </div>
-            </div>
-
-            <CombatMechanics v-if="card.id === 'target'" ref="combatMechanicsRef" data-target-section />
-
-            <div v-if="card.id === 'monster-creator'" id="monster-creator">
-              <MonsterCreator :isAboveBattlefield="isMonsterCreatorAboveBattlefield" />
-            </div>
-
-            <InspirationPanel v-if="card.id === 'inspirations'" />
-          </template>
+          <ColumnAppCards
+            ref="combatColumnCardsRef"
+            :cards="combatColumnCards"
+            :current-turn="currentTurn"
+            :current-round="currentRound"
+            :active-monsters="activeMonsters"
+            :all-monsters-done="allMonstersDone"
+            :should-use-compact-view="shouldUseCompactView"
+            :is-monster-creator-above-battlefield="isMonsterCreatorAboveBattlefield"
+            :on-next-turn="nextTurn"
+            :on-next-round="nextRound"
+            :on-remove-monster="removeMonster"
+            :on-update-monster="updateMonster"
+            :on-roll-damage="handleRollDamage"
+            :on-scroll-to-creator="scrollToCreator"
+            :on-reset-rounds-and-turns="resetRoundsAndTurns"
+            :on-confirm-clear="confirmClear"
+          />
 
           <div class="rpg-card">
             <button @click="showSettingsModal = true" class="w-full rpg-button rpg-button-secondary">
@@ -106,7 +55,24 @@
 
       <template #boards>
         <div class="space-y-6">
-          <BoardPanel v-if="boardsCards.some((c) => c.id === 'notes')" ref="boardPanelRef" />
+          <ColumnAppCards
+            ref="boardsColumnCardsRef"
+            :cards="boardsColumnCards"
+            :current-turn="currentTurn"
+            :current-round="currentRound"
+            :active-monsters="activeMonsters"
+            :all-monsters-done="allMonstersDone"
+            :should-use-compact-view="shouldUseCompactView"
+            :is-monster-creator-above-battlefield="isMonsterCreatorAboveBattlefield"
+            :on-next-turn="nextTurn"
+            :on-next-round="nextRound"
+            :on-remove-monster="removeMonster"
+            :on-update-monster="updateMonster"
+            :on-roll-damage="handleRollDamage"
+            :on-scroll-to-creator="scrollToCreator"
+            :on-reset-rounds-and-turns="resetRoundsAndTurns"
+            :on-confirm-clear="confirmClear"
+          />
         </div>
       </template>
     </AppColumns>
@@ -150,14 +116,14 @@
             </div>
 
             <div class="mb-6">
-              <h4 class="mb-3 rpg-label">Fast Mode</h4>
+              <h4 class="mb-3 rpg-label">Fast Monster Creator</h4>
               <div class="bg-neutral-50 p-3 border border-neutral-200 rounded-lg">
                 <div class="flex justify-between items-center">
-                  <span class="font-bold text-sm rpg-body">Fast mode at the table</span>
+                  <span class="font-bold text-sm rpg-body">Fast monster creator at the table</span>
                   <SettingsControl variant="enabled" :active="settingsStore.fastMode" @click="settingsStore.toggleFastMode" />
                 </div>
                 <div class="mt-2 text-neutral-600 text-xs rpg-body">
-                  Hides Advanced Options in the monster creator for quicker stat blocks mid-fight
+                  Hides advanced options in the Monster Creator for quicker stat blocks mid-fight
                 </div>
               </div>
             </div>
@@ -286,40 +252,7 @@
               </div>
             </div>
 
-            <div class="mb-6">
-              <h4 class="mb-3 rpg-label">Application Cards</h4>
-              <p class="mb-3 text-neutral-600 text-xs rpg-body">Drag to reorder or move cards between sections.</p>
-
-              <p class="mb-2 font-bold text-xs rpg-label uppercase tracking-wide">At the table</p>
-              <div ref="combatListParent" class="space-y-1 mb-4">
-                <div v-for="(card, index) in combatCardsRef" :key="card.id" :index="index"
-                  class="flex items-center gap-2 bg-neutral-50 p-2 border border-neutral-200 rounded-lg">
-                  <div class="flex-shrink-0 text-neutral-400 cursor-move drag-handle">
-                    <GripVertical class="w-4 h-4" />
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <div class="font-medium text-sm rpg-heading">{{ card.name }}</div>
-                    <div class="text-neutral-600 text-xs rpg-body truncate">{{ card.description }}</div>
-                  </div>
-                  <SettingsControl variant="visibility" :active="card.enabled" @click="() => handleCardToggle(card.id)" />
-                </div>
-              </div>
-
-              <p class="mb-2 font-bold text-xs rpg-label uppercase tracking-wide">On the board</p>
-              <div ref="boardsListParent" class="space-y-1">
-                <div v-for="(card, index) in boardsCardsRef" :key="card.id" :index="index"
-                  class="flex items-center gap-2 bg-neutral-50 p-2 border border-neutral-200 rounded-lg">
-                  <div class="flex-shrink-0 text-neutral-400 cursor-move drag-handle">
-                    <GripVertical class="w-4 h-4" />
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <div class="font-medium text-sm rpg-heading">{{ card.name }}</div>
-                    <div class="text-neutral-600 text-xs rpg-body truncate">{{ card.description }}</div>
-                  </div>
-                  <SettingsControl variant="visibility" :active="card.enabled" @click="() => handleCardToggle(card.id)" />
-                </div>
-              </div>
-            </div>
+            <SettingsAppCardsEditor v-if="showSettingsModal" />
 
           </div>
 
@@ -351,37 +284,34 @@
     </div>
 
     <SectionNav v-if="activeColumn === 0" />
-    <BoardBar v-else @go-combat="goCombat" @add-card="handleAddCard" />
+    <BoardBar
+      v-else-if="settingsStore.showBoardsColumn"
+      @go-combat="goCombat"
+      @add-card="handleAddCard"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useCombatStore } from '@/stores/combat'
-import { useSettingsStore, type AppCard } from '@/stores/settings'
+import { useSettingsStore } from '@/stores/settings'
 import type { Monster } from '@/types'
-import { useDragAndDrop } from 'vue-fluid-dnd'
 import { useScrollLock } from '@/composables/useScrollLock'
 import { useActiveColumn } from '@/composables/useActiveColumn'
 import {
-  Settings, ChevronRight, RotateCcw, GripVertical, ChevronsRight,
+  Settings,
   Eye, ToggleRight, CircleDot,
 } from 'lucide-vue-next'
 import SettingsControl from '@/components/SettingsControl.vue'
 import ColorSwatchPicker from '@/components/ColorSwatchPicker.vue'
-import MonsterCreator from '@/components/MonsterCreator.vue'
-import InspirationPanel from '@/components/InspirationPanel.vue'
 import SectionNav from '@/components/SectionNav.vue'
 import BoardBar from '@/components/BoardBar.vue'
 import AppColumns from '@/components/layout/AppColumns.vue'
-import BoardPanel from '@/features/boards/components/BoardPanel.vue'
-import EmptySectionState from '@/components/EmptySectionState.vue'
-import MonsterCard from '@/components/MonsterCard.vue'
-import CombatMechanics from '@/components/CombatMechanics.vue'
-import TimerManager from '@/components/TimerManager.vue'
+import ColumnAppCards from '@/components/layout/ColumnAppCards.vue'
+import SettingsAppCardsEditor from '@/components/settings/SettingsAppCardsEditor.vue'
 import GitHubVersion from '@/components/GitHubVersion.vue'
 import CreditsCard from '@/components/CreditsCard.vue'
-import { assetUrl } from '@/utils/assetUrl'
 
 const combatStore = useCombatStore()
 const settingsStore = useSettingsStore()
@@ -389,62 +319,21 @@ const { activeColumn, goCombat } = useActiveColumn()
 
 const showClearDialog = ref(false)
 const showSettingsModal = ref(false)
-const combatMechanicsRef = ref()
-const monsterCardRefs = ref<Array<{ forceReset: () => void } | null>>([])
-const boardPanelRef = ref<InstanceType<typeof BoardPanel> | null>(null)
+const combatColumnCardsRef = ref<InstanceType<typeof ColumnAppCards> | null>(null)
+const boardsColumnCardsRef = ref<InstanceType<typeof ColumnAppCards> | null>(null)
 
 const isModalOpen = computed(() => showSettingsModal.value || showClearDialog.value)
 useScrollLock(isModalOpen)
 
-const combatCards = computed(() => settingsStore.getVisibleCards('combat'))
-const boardsCards = computed(() => settingsStore.getVisibleCards('boards'))
+watch(
+  () => settingsStore.showBoardsColumn,
+  (visible) => {
+    if (!visible && activeColumn.value === 1) goCombat()
+  },
+)
 
-const combatCardsRef = ref<AppCard[]>([])
-const boardsCardsRef = ref<AppCard[]>([])
-let syncingSettingsLists = false
-
-const settingsDndConfig = {
-  droppableGroup: 'settings-app-cards',
-  handlerSelector: '.drag-handle',
-}
-
-watch(() => settingsStore.appCards, (cards) => {
-  if (syncingSettingsLists) return
-  const combat = cards.filter((c) => c.column === 'combat')
-  const boards = cards.filter((c) => c.column === 'boards')
-  if (combat.map((c) => c.id).join(',') !== combatCardsRef.value.map((c) => c.id).join(',')) {
-    combatCardsRef.value = combat
-  }
-  if (boards.map((c) => c.id).join(',') !== boardsCardsRef.value.map((c) => c.id).join(',')) {
-    boardsCardsRef.value = boards
-  }
-}, { immediate: true })
-
-const { parent: combatListParent } = useDragAndDrop(combatCardsRef, settingsDndConfig)
-const { parent: boardsListParent } = useDragAndDrop(boardsCardsRef, settingsDndConfig)
-
-const syncSettingsCardLists = () => {
-  const merged: AppCard[] = [
-    ...combatCardsRef.value.map((c) => ({ ...c, column: 'combat' as const })),
-    ...boardsCardsRef.value.map((c) => ({ ...c, column: 'boards' as const })),
-  ]
-  const currentIds = settingsStore.appCards.map((c) => c.id).join(',')
-  const newIds = merged.map((c) => c.id).join(',')
-  const columnsChanged = settingsStore.appCards.some((c) => {
-    const next = merged.find((m) => m.id === c.id)
-    return next && next.column !== c.column
-  })
-  if (currentIds !== newIds || columnsChanged) {
-    syncingSettingsLists = true
-    settingsStore.reorderCards(merged)
-    nextTick(() => {
-      syncingSettingsLists = false
-    })
-  }
-}
-
-watch(combatCardsRef, syncSettingsCardLists, { deep: true })
-watch(boardsCardsRef, syncSettingsCardLists, { deep: true })
+const combatColumnCards = computed(() => settingsStore.getVisibleCards('combat'))
+const boardsColumnCards = computed(() => settingsStore.getVisibleCards('boards'))
 
 const currentTurn = computed(() => combatStore.currentTurn)
 const currentRound = computed(() => combatStore.currentRound)
@@ -483,29 +372,32 @@ const scrollToCreator = () => {
 
 const resetRoundsAndTurns = () => combatStore.resetRoundsAndTurns()
 const handleTierModeToggle = () => settingsStore.toggleTierMode()
-const handleCardToggle = (cardId: string) => settingsStore.toggleCard(cardId)
 
 const handleAddCard = () => {
-  const panel = boardPanelRef.value
+  const panel = boardsColumnCardsRef.value?.boardPanelRef ?? combatColumnCardsRef.value?.boardPanelRef
   if (panel && typeof panel.addTextCard === 'function') {
     panel.addTextCard()
   }
 }
 
 const handleRollDamage = (monster: Monster) => {
-  if (monsterCardRefs.value) {
-    monsterCardRefs.value.forEach((cardRef) => {
-      if (cardRef && typeof cardRef.forceReset === 'function') {
-        cardRef.forceReset()
-      }
-    })
-  }
+  const allRefs = [
+    ...(combatColumnCardsRef.value?.monsterCardRefs ?? []),
+    ...(boardsColumnCardsRef.value?.monsterCardRefs ?? []),
+  ]
+  allRefs.forEach((cardRef) => {
+    if (cardRef && typeof cardRef.forceReset === 'function') {
+      cardRef.forceReset()
+    }
+  })
   setTimeout(() => {
     const targetElement = document.getElementById('difficulty-modifiers')
     if (targetElement) {
       targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
-    const combatMechanicsComponent = combatMechanicsRef.value?.[0]
+    const combatMechanicsComponent =
+      combatColumnCardsRef.value?.combatMechanicsRef?.[0]
+      ?? boardsColumnCardsRef.value?.combatMechanicsRef?.[0]
     if (combatMechanicsComponent?.setAttackStat) {
       combatMechanicsComponent.setAttackStat(monster.statsBonus)
     }

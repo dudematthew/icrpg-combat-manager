@@ -25,6 +25,7 @@ import {
   type LucideIcon,
 } from "lucide-vue-next";
 import { useSettingsStore } from "@/stores/settings";
+import { isCombatCard } from "@/utils/appCardColumns";
 
 const settingsStore = useSettingsStore();
 
@@ -45,7 +46,7 @@ const SHORT_NAMES: Record<string, string> = {
 };
 
 const navItems = computed(() =>
-  settingsStore.getVisibleCards("combat").map((card) => ({
+  settingsStore.getVisibleCards("combat").filter((card) => isCombatCard(card.id)).map((card) => ({
     id: card.id,
     name: card.name,
     shortName: SHORT_NAMES[card.id] ?? card.name,

@@ -239,11 +239,17 @@ export const useSettingsStore = defineStore("settings", () => {
 
   const reorderCardsFromSections = (
     combat: AppCard[],
-    boardsMovable: AppCard[],
+    boardsAbovePinned: AppCard[],
+    boardsBelowPinned: AppCard[],
     boardsPinned: AppCard | null,
   ) => {
     try {
-      appCards.value = mergeSettingsSections(combat, boardsMovable, boardsPinned);
+      appCards.value = mergeSettingsSections(
+        combat,
+        boardsAbovePinned,
+        boardsBelowPinned,
+        boardsPinned,
+      );
       saveSettings();
     } catch {
       // Invalid layout — caller should revert UI lists

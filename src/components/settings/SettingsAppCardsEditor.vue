@@ -2,7 +2,7 @@
   <div class="mb-6">
     <h4 class="mb-3 rpg-label">Application Cards</h4>
     <p class="mb-3 text-neutral-600 text-xs rpg-body">
-      Drag cards between sections to choose a column, or reorder within a section. Boards stays on the board column; at least one card stays at the table.
+      Drag cards between sections to choose a column, or reorder within a section. Boards stays fixed; other cards can sit above or below it. At least one card stays at the table.
     </p>
 
     <p class="mb-2 font-bold text-xs rpg-label uppercase tracking-wide">At the table</p>
@@ -38,15 +38,15 @@
       />
     </div>
     <div class="space-y-1">
-      <div ref="boardsListParent" class="settings-boards-dropzone space-y-1">
+      <div ref="boardsAboveListParent" class="settings-boards-dropzone space-y-1">
         <p
-          v-if="boardsMovableDraft.length === 0"
+          v-if="boardsAboveDraft.length === 0"
           class="settings-boards-dropzone__placeholder text-neutral-400 text-xs rpg-body px-2 py-1 pointer-events-none"
         >
-          Drop cards here
+          Drop cards above board
         </p>
         <div
-          v-for="(card, index) in boardsMovableDraft"
+          v-for="(card, index) in boardsAboveDraft"
           :key="card.id"
           :index="index"
           :data-card-id="card.id"
@@ -66,6 +66,7 @@
           <SettingsControl variant="visibility" :active="card.enabled" @click="toggleCard(card.id)" />
         </div>
       </div>
+
       <div
         v-if="boardsPinned"
         class="flex items-center gap-2 bg-neutral-50 p-2 border border-neutral-200 rounded-lg"
@@ -74,6 +75,35 @@
         <div class="flex-1 min-w-0">
           <div class="font-medium text-sm rpg-heading">{{ boardsPinned.name }}</div>
           <div class="text-neutral-600 text-xs rpg-body truncate">{{ boardsPinned.description }}</div>
+        </div>
+      </div>
+
+      <div ref="boardsBelowListParent" class="settings-boards-dropzone space-y-1">
+        <p
+          v-if="boardsBelowDraft.length === 0"
+          class="settings-boards-dropzone__placeholder text-neutral-400 text-xs rpg-body px-2 py-1 pointer-events-none"
+        >
+          Drop cards below board
+        </p>
+        <div
+          v-for="(card, index) in boardsBelowDraft"
+          :key="card.id"
+          :index="index"
+          :data-card-id="card.id"
+          class="flex items-center gap-2 bg-neutral-50 p-2 border border-neutral-200 rounded-lg"
+        >
+          <div
+            v-if="canDragAppCardInSettings(card.id, 'boards', combatDraft.length)"
+            class="flex-shrink-0 text-neutral-400 cursor-move drag-handle"
+          >
+            <GripVertical class="w-4 h-4" />
+          </div>
+          <div v-else class="flex-shrink-0 w-4" aria-hidden="true" />
+          <div class="flex-1 min-w-0">
+            <div class="font-medium text-sm rpg-heading">{{ card.name }}</div>
+            <div class="text-neutral-600 text-xs rpg-body truncate">{{ card.description }}</div>
+          </div>
+          <SettingsControl variant="visibility" :active="card.enabled" @click="toggleCard(card.id)" />
         </div>
       </div>
     </div>
@@ -94,22 +124,25 @@ import {
 const settingsStore = useSettingsStore();
 
 const combatDraft = ref<AppCard[]>([]);
-const boardsMovableDraft = ref<AppCard[]>([]);
+const boardsAboveDraft = ref<AppCard[]>([]);
+const boardsBelowDraft = ref<AppCard[]>([]);
 const boardsPinned = ref<AppCard | null>(null);
 const isDragging = ref(false);
 
 const loadDraftFromStore = () => {
-  const { combat, boardsMovable, boardsPinned: pinned } =
+  const { combat, boardsAbovePinned, boardsBelowPinned, boardsPinned: pinned } =
     settingsStore.splitAppCardsForSettings(settingsStore.appCards);
   combatDraft.value = combat.map((c) => ({ ...c }));
-  boardsMovableDraft.value = boardsMovable.map((c) => ({ ...c }));
+  boardsAboveDraft.value = boardsAbovePinned.map((c) => ({ ...c }));
+  boardsBelowDraft.value = boardsBelowPinned.map((c) => ({ ...c }));
   boardsPinned.value = pinned ? { ...pinned } : null;
 };
 
 const persistDraftToStore = () => {
   settingsStore.reorderCardsFromSections(
     combatDraft.value,
-    boardsMovableDraft.value,
+    boardsAboveDraft.value,
+    boardsBelowDraft.value,
     boardsPinned.value,
   );
   loadDraftFromStore();
@@ -142,10 +175,13 @@ const { parent: combatListParent } = useDragAndDrop(combatDraft, {
   isDraggable: settingsCardIsDraggable("combat"),
 });
 
-const { parent: boardsListParent } = useDragAndDrop(boardsMovableDraft, {
+const boardsDndConfig = {
   ...sharedDndConfig,
   isDraggable: settingsCardIsDraggable("boards"),
-});
+};
+
+const { parent: boardsAboveListParent } = useDragAndDrop(boardsAboveDraft, boardsDndConfig);
+const { parent: boardsBelowListParent } = useDragAndDrop(boardsBelowDraft, boardsDndConfig);
 
 const toggleCard = (cardId: string) => {
   settingsStore.toggleCard(cardId);

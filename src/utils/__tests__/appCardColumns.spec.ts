@@ -54,7 +54,7 @@ describe("appCardColumns", () => {
   it("splits cards by assigned column", () => {
     const { combat, boards } = splitAppCardsBySection(sampleCards());
     expect(combat.map((c) => c.id)).toEqual(["target"]);
-    expect(boards.map((c) => c.id)).toEqual(["timers", "battlefield", BOARDS_CARD_ID]);
+    expect(boards.map((c) => c.id)).toEqual(["timers", BOARDS_CARD_ID, "battlefield"]);
   });
 
   it("shows boards column when notes card is enabled", () => {
@@ -126,18 +126,37 @@ describe("appCardColumns", () => {
     expect(canDragAppCardInSettings("timers", "boards", 1)).toBe(true);
   });
 
-  it("keeps boards out of settings drag lists", () => {
-    const { combat, boardsMovable, boardsPinned } = splitAppCardsForSettings(sampleCards());
+  it("keeps boards out of settings drag lists and splits above/below pinned", () => {
+    const { combat, boardsAbovePinned, boardsBelowPinned, boardsPinned } =
+      splitAppCardsForSettings(sampleCards());
     expect(combat.map((c) => c.id)).toEqual(["target"]);
-    expect(boardsMovable.map((c) => c.id)).toEqual(["timers", "battlefield"]);
+    expect(boardsAbovePinned.map((c) => c.id)).toEqual(["timers"]);
+    expect(boardsBelowPinned.map((c) => c.id)).toEqual(["battlefield"]);
     expect(boardsPinned?.id).toBe(BOARDS_CARD_ID);
   });
 
-  it("merges settings sections with pinned boards and moves cards to boards column", () => {
-    const { combat, boardsMovable, boardsPinned } = splitAppCardsForSettings(sampleCards());
-    const merged = mergeSettingsSections(combat, boardsMovable, boardsPinned);
+  it("merges settings sections with cards above and below pinned boards", () => {
+    const { combat, boardsAbovePinned, boardsBelowPinned, boardsPinned } =
+      splitAppCardsForSettings(sampleCards());
+    const merged = mergeSettingsSections(
+      combat,
+      boardsAbovePinned,
+      boardsBelowPinned,
+      boardsPinned,
+    );
+    expect(merged.map((c) => c.id)).toEqual(["target", "timers", BOARDS_CARD_ID, "battlefield"]);
     expect(merged.find((c) => c.id === BOARDS_CARD_ID)?.column).toBe("boards");
     expect(merged.find((c) => c.id === "timers")?.column).toBe("boards");
     expect(merged.some((c) => c.id === BOARDS_CARD_ID && c.column === "combat")).toBe(false);
+  });
+
+  it("places moved card below boards when in below list", () => {
+    const merged = mergeSettingsSections(
+      [{ id: "target", name: "Target", description: "", enabled: true, column: "combat" }],
+      [],
+      [{ id: "timers", name: "Timers", description: "", enabled: true, column: "boards" }],
+      { id: BOARDS_CARD_ID, name: "Boards", description: "", enabled: true, column: "boards" },
+    );
+    expect(merged.map((c) => c.id)).toEqual(["target", BOARDS_CARD_ID, "timers"]);
   });
 });

@@ -31,7 +31,7 @@ export function pinNotesToBoardsColumn(card: AppCard): AppCard {
 }
 
 export function sanitizeAppCards(cards: AppCard[]): AppCard[] {
-  return orderAppCards(cards.map(pinNotesToBoardsColumn));
+  return cards.map(pinNotesToBoardsColumn);
 }
 
 export function orderAppCards(cards: AppCard[]): AppCard[] {
@@ -52,27 +52,53 @@ export function splitAppCardsBySection(cards: AppCard[]): {
   };
 }
 
-/** Settings UI: boards card is fixed and never in a drag list. */
+/** Settings UI: boards card is fixed between above/below drag lists. */
 export function splitAppCardsForSettings(cards: AppCard[]): {
   combat: AppCard[];
-  boardsMovable: AppCard[];
+  boardsAbovePinned: AppCard[];
+  boardsBelowPinned: AppCard[];
   boardsPinned: AppCard | null;
 } {
   const sanitized = sanitizeAppCards(cards);
   const boardsPinned = sanitized.find((c) => isBoardsCard(c.id)) ?? null;
-  return {
-    combat: sanitized.filter((c) => c.column === "combat" && !isBoardsCard(c.id)),
-    boardsMovable: sanitized.filter((c) => c.column === "boards" && !isBoardsCard(c.id)),
-    boardsPinned,
-  };
+  const combat = sanitized.filter((c) => c.column === "combat" && !isBoardsCard(c.id));
+
+  if (!boardsPinned) {
+    const orphanBoards = sanitized.filter((c) => c.column === "boards" && !isBoardsCard(c.id));
+    return {
+      combat,
+      boardsAbovePinned: orphanBoards,
+      boardsBelowPinned: [],
+      boardsPinned: null,
+    };
+  }
+
+  const boardsAbovePinned: AppCard[] = [];
+  const boardsBelowPinned: AppCard[] = [];
+  let pastPinned = false;
+
+  for (const card of sanitized) {
+    if (isBoardsCard(card.id)) {
+      pastPinned = true;
+      continue;
+    }
+    if (card.column !== "boards") continue;
+    if (pastPinned) boardsBelowPinned.push(card);
+    else boardsAbovePinned.push(card);
+  }
+
+  return { combat, boardsAbovePinned, boardsBelowPinned, boardsPinned };
 }
 
 export function mergeSettingsSections(
   combat: AppCard[],
-  boardsMovable: AppCard[],
+  boardsAbovePinned: AppCard[],
+  boardsBelowPinned: AppCard[],
   boardsPinned: AppCard | null,
 ): AppCard[] {
-  const boards = boardsPinned ? [...boardsMovable, boardsPinned] : boardsMovable;
+  const boards = boardsPinned
+    ? [...boardsAbovePinned, boardsPinned, ...boardsBelowPinned]
+    : [...boardsAbovePinned, ...boardsBelowPinned];
   return mergeAppCardSections(
     combat.filter((c) => !isBoardsCard(c.id)),
     boards,

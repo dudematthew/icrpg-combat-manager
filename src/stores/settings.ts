@@ -1,11 +1,14 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 
+export type AppColumn = "combat" | "boards";
+
 export interface AppCard {
   id: string;
   name: string;
   description: string;
   enabled: boolean;
+  column: AppColumn;
 }
 
 export interface NotificationSettings {
@@ -14,11 +17,12 @@ export interface NotificationSettings {
   roundEnded: boolean;
 }
 
-interface LegacyAppCard extends AppCard {
+interface LegacyAppCard extends Omit<AppCard, "column"> {
   order?: number;
+  column?: AppColumn;
 }
 
-const CARD_IDS = ["timers", "battlefield", "target", "library", "monster-creator", "inspirations"] as const;
+const CARD_IDS = ["timers", "battlefield", "target", "monster-creator", "inspirations", "notes"] as const;
 
 export type TimerNamingMode = "both" | "named" | "color";
 
@@ -29,36 +33,42 @@ export const useSettingsStore = defineStore("settings", () => {
       name: "Timers",
       description: "Manage round and turn-based timers",
       enabled: true,
+      column: "combat",
     },
     {
       id: "battlefield",
       name: "Battlefield",
       description: "Combat management and monster tracking",
       enabled: true,
+      column: "combat",
     },
     {
       id: "target",
       name: "Target",
       description: "Scene target numbers and attack rolls",
       enabled: true,
-    },
-    {
-      id: "library",
-      name: "Library",
-      description: "Saved monster templates for quick deploy",
-      enabled: true,
+      column: "combat",
     },
     {
       id: "monster-creator",
       name: "Monster Creator",
       description: "Quick monster creation and management",
       enabled: true,
+      column: "combat",
     },
     {
       id: "inspirations",
       name: "Inspirations",
       description: "NPC and session inspiration rolls",
       enabled: true,
+      column: "combat",
+    },
+    {
+      id: "notes",
+      name: "Boards",
+      description: "ICRPG index-card boards and session stash",
+      enabled: true,
+      column: "boards",
     },
   ];
 
@@ -72,22 +82,28 @@ export const useSettingsStore = defineStore("settings", () => {
   const tierMode = ref(true);
   const compactThreshold = ref(2);
   const showTitleCard = ref(true);
+  const showCreditsCard = ref(true);
   const showCompactConditions = ref(false);
   const autoTurnIncrement = ref(true);
   const showSectionNav = ref(true);
   const timerColorModeDefault = ref(true);
   const timerNamingMode = ref<TimerNamingMode>("both");
   const fastMode = ref(false);
-  const keepCreatorFieldsOnLibrarySave = ref(true);
+  const keepCreatorFieldsOnBoardSave = ref(true);
+  const boardCardExpandPreview = ref(false);
+  const defaultNewCardColor = ref("Yellow");
   const notifications = ref<NotificationSettings>({ ...defaultNotifications });
 
   const migrateAppCards = (saved: LegacyAppCard[] | undefined): AppCard[] => {
-    const cleaned = (saved && Array.isArray(saved) ? saved : []).map((card) => ({
-      id: card.id,
-      name: card.name,
-      description: card.description,
-      enabled: card.enabled,
-    }));
+    const cleaned = (saved && Array.isArray(saved) ? saved : [])
+      .filter((card) => card.id !== "library")
+      .map((card) => ({
+        id: card.id,
+        name: card.name,
+        description: card.description,
+        enabled: card.enabled,
+        column: (card.column === "boards" ? "boards" : "combat") as AppColumn,
+      }));
 
     const knownIds = new Set(cleaned.map((c) => c.id));
     const defaultsById = Object.fromEntries(defaultAppCards.map((c) => [c.id, c]));
@@ -111,6 +127,8 @@ export const useSettingsStore = defineStore("settings", () => {
       compactThreshold.value =
         settings.compactThreshold !== undefined ? settings.compactThreshold : 2;
       showTitleCard.value = settings.showTitleCard !== undefined ? settings.showTitleCard : true;
+      showCreditsCard.value =
+        settings.showCreditsCard !== undefined ? settings.showCreditsCard : true;
       showCompactConditions.value =
         settings.showCompactConditions !== undefined ? settings.showCompactConditions : false;
       autoTurnIncrement.value =
@@ -126,10 +144,16 @@ export const useSettingsStore = defineStore("settings", () => {
           ? settings.timerNamingMode
           : "both";
       fastMode.value = settings.fastMode !== undefined ? settings.fastMode : false;
-      keepCreatorFieldsOnLibrarySave.value =
-        settings.keepCreatorFieldsOnLibrarySave !== undefined
-          ? settings.keepCreatorFieldsOnLibrarySave
-          : true;
+      keepCreatorFieldsOnBoardSave.value =
+        settings.keepCreatorFieldsOnBoardSave !== undefined
+          ? settings.keepCreatorFieldsOnBoardSave
+          : settings.keepCreatorFieldsOnLibrarySave !== undefined
+            ? settings.keepCreatorFieldsOnLibrarySave
+            : true;
+      boardCardExpandPreview.value =
+        settings.boardCardExpandPreview !== undefined ? settings.boardCardExpandPreview : false;
+      defaultNewCardColor.value =
+        settings.defaultNewCardColor !== undefined ? settings.defaultNewCardColor : "Yellow";
 
       if (settings.notifications) {
         notifications.value = {
@@ -161,13 +185,16 @@ export const useSettingsStore = defineStore("settings", () => {
       tierMode: tierMode.value,
       compactThreshold: compactThreshold.value,
       showTitleCard: showTitleCard.value,
+      showCreditsCard: showCreditsCard.value,
       showCompactConditions: showCompactConditions.value,
       autoTurnIncrement: autoTurnIncrement.value,
       showSectionNav: showSectionNav.value,
       timerColorModeDefault: timerColorModeDefault.value,
       timerNamingMode: timerNamingMode.value,
       fastMode: fastMode.value,
-      keepCreatorFieldsOnLibrarySave: keepCreatorFieldsOnLibrarySave.value,
+      keepCreatorFieldsOnBoardSave: keepCreatorFieldsOnBoardSave.value,
+      boardCardExpandPreview: boardCardExpandPreview.value,
+      defaultNewCardColor: defaultNewCardColor.value,
       notifications: notifications.value,
     };
     localStorage.setItem("icrpg-settings", JSON.stringify(settings));
@@ -198,7 +225,21 @@ export const useSettingsStore = defineStore("settings", () => {
     saveSettings();
   };
 
-  const getVisibleCards = () => appCards.value.filter((card) => card.enabled);
+  const setCardColumn = (cardId: string, column: AppColumn) => {
+    const card = appCards.value.find((c) => c.id === cardId);
+    if (card) {
+      card.column = column;
+      saveSettings();
+    }
+  };
+
+  const getVisibleCards = (column?: AppColumn) => {
+    const visible = appCards.value.filter((card) => card.enabled);
+    if (!column) return visible;
+    return visible.filter((card) => card.column === column);
+  };
+
+  const getCardsForColumn = (column: AppColumn) => appCards.value.filter((c) => c.column === column);
 
   const toggleTierMode = () => {
     tierMode.value = !tierMode.value;
@@ -212,6 +253,11 @@ export const useSettingsStore = defineStore("settings", () => {
 
   const toggleTitleCard = () => {
     showTitleCard.value = !showTitleCard.value;
+    saveSettings();
+  };
+
+  const toggleCreditsCard = () => {
+    showCreditsCard.value = !showCreditsCard.value;
     saveSettings();
   };
 
@@ -245,6 +291,16 @@ export const useSettingsStore = defineStore("settings", () => {
     saveSettings();
   };
 
+  const toggleBoardCardExpandPreview = () => {
+    boardCardExpandPreview.value = !boardCardExpandPreview.value;
+    saveSettings();
+  };
+
+  const setDefaultNewCardColor = (color: string) => {
+    defaultNewCardColor.value = color;
+    saveSettings();
+  };
+
   const toggleTimerDoneNotification = () => {
     notifications.value.timerDone = !notifications.value.timerDone;
     saveSettings();
@@ -265,13 +321,16 @@ export const useSettingsStore = defineStore("settings", () => {
     tierMode.value = true;
     compactThreshold.value = 2;
     showTitleCard.value = true;
+    showCreditsCard.value = true;
     showCompactConditions.value = false;
     autoTurnIncrement.value = true;
     showSectionNav.value = true;
     timerColorModeDefault.value = true;
     timerNamingMode.value = "both";
     fastMode.value = false;
-    keepCreatorFieldsOnLibrarySave.value = true;
+    keepCreatorFieldsOnBoardSave.value = true;
+    boardCardExpandPreview.value = false;
+    defaultNewCardColor.value = "Yellow";
     notifications.value = { ...defaultNotifications };
     saveSettings();
   };
@@ -281,29 +340,37 @@ export const useSettingsStore = defineStore("settings", () => {
     tierMode,
     compactThreshold,
     showTitleCard,
+    showCreditsCard,
     showCompactConditions,
     autoTurnIncrement,
     showSectionNav,
     timerColorModeDefault,
     timerNamingMode,
     fastMode,
-    keepCreatorFieldsOnLibrarySave,
+    keepCreatorFieldsOnBoardSave,
+    boardCardExpandPreview,
+    defaultNewCardColor,
     notifications,
     toggleCard,
     toggleTierMode,
     updateCompactThreshold,
     toggleTitleCard,
+    toggleCreditsCard,
     toggleCompactConditions,
     toggleAutoTurnIncrement,
     toggleSectionNav,
     toggleTimerColorModeDefault,
     setTimerNamingMode,
     toggleFastMode,
+    toggleBoardCardExpandPreview,
+    setDefaultNewCardColor,
     toggleTimerDoneNotification,
     toggleTurnAutoIncrementedNotification,
     toggleRoundEndedNotification,
     reorderCards,
+    setCardColumn,
     getVisibleCards,
+    getCardsForColumn,
     resetToDefaults,
   };
 });

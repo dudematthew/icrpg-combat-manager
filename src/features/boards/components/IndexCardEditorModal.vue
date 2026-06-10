@@ -1,0 +1,208 @@
+<template>
+  <Teleport to="body">
+    <div v-if="open" class="index-editor-overlay" @click="close">
+      <div class="index-editor-panel" @click.stop>
+        <h3 class="index-editor-title">{{ card ? "Edit card" : "New card" }}</h3>
+
+        <div class="index-editor-field">
+          <label class="rpg-label">Title</label>
+          <input v-model="localTitle" class="rpg-input" type="text" />
+        </div>
+
+        <div class="index-editor-field">
+          <label class="rpg-label">Color</label>
+          <ColorSwatchPicker v-model="localColor" />
+        </div>
+
+        <div v-if="card?.payload" class="index-editor-payload">
+          <span class="rpg-label">Payload</span>
+          <div class="text-neutral-600 text-sm whitespace-pre-wrap rpg-body">{{ payloadSummary }}</div>
+        </div>
+
+        <div class="index-editor-field">
+          <label class="rpg-label">
+            Notes (
+            <a
+              href="https://www.markdownguide.org/basic-syntax/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-primary hover:text-red-600 underline normal-case tracking-normal"
+              @click.stop
+            >markdown</a>
+            )
+          </label>
+          <MarkdownToolbar @format="applyFormat" />
+          <textarea
+            ref="textareaRef"
+            v-model="localBody"
+            class="rpg-input index-editor-textarea"
+            rows="12"
+          />
+          <p class="mt-1 text-neutral-500 text-xs rpg-body">Ctrl+Enter save · Esc close · B/I need selected text</p>
+        </div>
+
+        <div class="index-editor-footer">
+          <ConfirmTapButton
+            v-if="card"
+            label="Delete"
+            confirm-label="Confirm"
+            variant="danger"
+            @confirm="onDelete"
+          />
+          <div class="index-editor-footer-actions">
+            <button type="button" class="rpg-button rpg-button-secondary" @click="close">Cancel</button>
+            <button type="button" class="rpg-button rpg-button-primary" @click="save">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </Teleport>
+</template>
+
+<script setup lang="ts">
+import { ref, computed, watch } from "vue";
+import ColorSwatchPicker from "@/components/ColorSwatchPicker.vue";
+import ConfirmTapButton from "@/components/ConfirmTapButton.vue";
+import MarkdownToolbar from "./MarkdownToolbar.vue";
+import { useScrollLock } from "@/composables/useScrollLock";
+import { useModalShortcuts } from "@/composables/useModalShortcuts";
+import { applyLineFormat, type LineFormat } from "../utils/lineFormat";
+import { formatPayloadPreview } from "../utils/payloadPreview";
+import type { IndexCard } from "../types";
+
+const props = defineProps<{
+  card: IndexCard | null;
+}>();
+
+const open = defineModel<boolean>({ default: false });
+
+const emit = defineEmits<{
+  save: [data: { title: string; color: string; body: string }];
+  delete: [];
+}>();
+
+const localTitle = ref("");
+const localColor = ref("Yellow");
+const localBody = ref("");
+const textareaRef = ref<HTMLTextAreaElement | null>(null);
+
+useScrollLock(open);
+
+watch(
+  () => [open.value, props.card] as const,
+  ([isOpen, card]) => {
+    if (!isOpen) return;
+    localTitle.value = card?.title ?? "New note";
+    localColor.value = card?.color ?? "Yellow";
+    localBody.value = card?.body ?? "";
+  },
+);
+
+const payloadSummary = computed(() => {
+  if (!props.card?.payload) return "";
+  return formatPayloadPreview(props.card);
+});
+
+const applyFormat = (format: LineFormat) => {
+  const el = textareaRef.value;
+  if (!el) return;
+  const { text, cursor } = applyLineFormat(
+    localBody.value,
+    el.selectionStart,
+    el.selectionEnd,
+    format,
+  );
+  localBody.value = text;
+  requestAnimationFrame(() => {
+    el.focus();
+    el.setSelectionRange(cursor, cursor);
+  });
+};
+
+function save() {
+  emit("save", {
+    title: localTitle.value.trim() || "Untitled",
+    color: localColor.value,
+    body: localBody.value,
+  });
+  open.value = false;
+}
+
+function close() {
+  open.value = false;
+}
+
+const onDelete = () => {
+  emit("delete");
+  open.value = false;
+};
+
+useModalShortcuts(open, { onSave: save, onClose: close });
+</script>
+
+<style scoped>
+.index-editor-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.index-editor-panel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 28rem;
+  max-height: 90vh;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  background: white;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+}
+
+.index-editor-title {
+  margin: 0 0 1rem;
+  font-family: "nusaliver", "Arial Black", sans-serif;
+  font-size: 1.125rem;
+  text-transform: uppercase;
+}
+
+.index-editor-field {
+  margin-bottom: 1rem;
+}
+
+.index-editor-payload {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: #fafafa;
+  border: 1px solid #e5e5e5;
+  border-radius: 0.5rem;
+}
+
+.index-editor-textarea {
+  min-height: 10rem;
+  font-family: "Source Serif Pro", Georgia, serif;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.index-editor-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e5e5;
+}
+
+.index-editor-footer-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+</style>

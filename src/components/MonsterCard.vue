@@ -69,6 +69,14 @@
       </div>
 
       <div class="flex xs:flex-row flex-col gap-1">
+        <button
+          type="button"
+          class="p-1 rpg-icon-button rpg-icon-button-neutral"
+          title="Save to board"
+          @click="saveToBoard"
+        >
+          <BookMarked class="w-4 h-4" />
+        </button>
         <button v-if="monster.heartsCurrent <= 0" @click="reviveMonster"
           class="flex items-center gap-1 rpg-icon-button rpg-icon-button-neutral" title="Revive Monster to Full Health">
           <img :src="assetUrl('images/revive_icon.png')" class="h-4 icon-filter" alt="Revive Monster" />
@@ -277,8 +285,8 @@
           </details>
 
           <div class="flex flex-wrap justify-end gap-3">
-            <button type="button" @click="saveToLibrary" class="rpg-button rpg-button-secondary">
-              Save to Library
+            <button type="button" @click="saveToBoard" class="rpg-button rpg-button-secondary">
+              To Board
             </button>
             <button @click="saveChanges" class="rpg-button rpg-button-primary">
               Save
@@ -323,13 +331,15 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import type { Monster } from '@/types'
+import type { Monster, MonsterTemplate } from '@/types'
 import { CONDITIONS, TIER_CONFIGS } from '@/types'
 import { formatMonsterIdentifier, getTierColor, getMonsterColor, getTextColorForBackground } from '@/utils/combat'
 import { assetUrl } from '@/utils/assetUrl'
 import TraitPickButtons from '@/components/TraitPickButtons.vue'
-import { useMonsterLibraryStore } from '@/stores/monsterLibrary'
-import { Trash2, ChevronDown, Undo2 } from 'lucide-vue-next'
+import { useBoardsStore } from '@/features/boards/stores/boards'
+import { captureMonsterFromBattlefield } from '@/features/boards/adapters/monsterAdapter'
+import { templateLabel } from '@/utils/monsterForm'
+import { Trash2, ChevronDown, Undo2, BookMarked } from 'lucide-vue-next'
 import InlineEditableText from './InlineEditableText.vue'
 import { useHoverDelay } from '@/composables/useHoverDelay'
 import { useScrollLock } from '@/composables/useScrollLock'
@@ -348,7 +358,7 @@ const emit = defineEmits<{
 }>()
 
 const settingsStore = useSettingsStore()
-const libraryStore = useMonsterLibraryStore()
+const boardsStore = useBoardsStore()
 
 const isTargetSectionEnabled = computed(() => {
   const targetCard = settingsStore.appCards.find(card => card.id === 'target')
@@ -483,8 +493,16 @@ const saveChanges = () => {
   showEditModal.value = false
 }
 
-const saveToLibrary = () => {
-  libraryStore.saveMonsterAsTemplate(props.monster)
+const saveToBoard = () => {
+  const payload = captureMonsterFromBattlefield(props.monster)
+  const title = props.monster.name || templateLabel(payload.data as MonsterTemplate)
+  boardsStore.pushPayloadCard(
+    'monster',
+    title,
+    props.monster.color,
+    payload,
+    props.monster.notes || '',
+  )
 }
 
 const cancelEdit = () => {

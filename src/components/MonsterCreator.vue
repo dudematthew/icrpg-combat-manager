@@ -133,10 +133,10 @@
               <img :src="assetUrl('images/sword_icon.png')" class="icon-filter" alt="" />
               To Battlefield
             </button>
-            <button type="button" @click="saveToLibrary" :disabled="!canSaveToLibrary"
+            <button type="button" @click="saveToBoard" :disabled="!canSaveToBoard"
               class="flex-1 disabled:opacity-50 text-xs disabled:cursor-not-allowed rpg-button rpg-button-sm rpg-button-secondary">
               <BookMarked class="w-4 h-4" />
-              To Library
+              To Board
             </button>
           </div>
           <div class="flex gap-2">
@@ -168,11 +168,12 @@
 import { reactive, computed } from "vue";
 import { useCombatStore } from "@/stores/combat";
 import { useSettingsStore } from "@/stores/settings";
-import { useMonsterLibraryStore } from "@/stores/monsterLibrary";
+import { useBoardsStore } from "@/features/boards/stores/boards";
+import { captureMonsterPayload } from "@/features/boards/adapters/monsterAdapter";
 import { TIER_CONFIGS } from "@/types";
 import { formatMonsterIdentifier } from "@/utils/combat";
 import { assetUrl } from "@/utils/assetUrl";
-import { buildMonsterPayload, buildTemplateFromForm, getEffectiveStats } from "@/utils/monsterForm";
+import { buildMonsterPayload, buildTemplateFromForm, getEffectiveStats, templateLabel } from "@/utils/monsterForm";
 import { generateMonsterName as getRandomMonsterName } from "@/utils/monsterNameGenerator";
 import { MONSTER_COLORS, MONSTER_LETTERS, TIER_OPTIONS } from "@/constants/monsterOptions";
 import TraitPickButtons from "@/components/TraitPickButtons.vue";
@@ -186,10 +187,10 @@ const props = withDefaults(defineProps<Props>(), { isAboveBattlefield: false });
 
 const combatStore = useCombatStore();
 const settingsStore = useSettingsStore();
-const libraryStore = useMonsterLibraryStore();
+const boardsStore = useBoardsStore();
 
 const newMonster = reactive({
-  color: "",
+  color: "Red",
   letter: "",
   tier: "" as "I" | "II" | "III" | "IV" | "",
   name: "",
@@ -208,7 +209,7 @@ const effectiveEffortBonus = computed(() => stats.value.effortBonus);
 const effectiveActions = computed(() => stats.value.actions);
 const effectiveHearts = computed(() => stats.value.heartsMax);
 
-const canSaveToLibrary = computed(() => Boolean(newMonster.color && newMonster.tier));
+const canSaveToBoard = computed(() => Boolean(newMonster.color && newMonster.tier));
 const canAddToBattlefield = computed(() => Boolean(newMonster.color && newMonster.letter && newMonster.tier));
 
 const updateTierDefaults = () => {
@@ -228,7 +229,7 @@ const clearFormAfterAdd = (keepColorTier: boolean) => {
     newMonster.notes = "";
     newMonster.specialAbilities = "";
   } else {
-    newMonster.color = "";
+    newMonster.color = "Red";
     newMonster.letter = "";
     newMonster.tier = "";
     newMonster.name = "";
@@ -253,13 +254,20 @@ const addToBattlefield = () => {
   if (!canAddToBattlefield.value) return;
   combatStore.addMonster(buildMonsterPayload(newMonster, settingsStore.tierMode, newMonster.letter));
   incrementLetter();
-  clearFormAfterAdd(settingsStore.keepCreatorFieldsOnLibrarySave);
+  clearFormAfterAdd(settingsStore.keepCreatorFieldsOnBoardSave);
 };
 
-const saveToLibrary = () => {
-  if (!canSaveToLibrary.value) return;
-  libraryStore.saveTemplate(buildTemplateFromForm(newMonster, settingsStore.tierMode), newMonster.name || undefined);
-  clearFormAfterAdd(settingsStore.keepCreatorFieldsOnLibrarySave);
+const saveToBoard = () => {
+  if (!canSaveToBoard.value) return;
+  const template = buildTemplateFromForm(newMonster, settingsStore.tierMode);
+  boardsStore.pushPayloadCard(
+    "monster",
+    newMonster.name || templateLabel(template),
+    template.color,
+    captureMonsterPayload(template),
+    template.notes || "",
+  );
+  clearFormAfterAdd(settingsStore.keepCreatorFieldsOnBoardSave);
 };
 
 const addBlankMonster = () => {

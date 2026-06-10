@@ -20,15 +20,22 @@
       <div class="flex justify-between items-baseline gap-3 mb-2">
         <span class="font-bold text-base normal-case tracking-normal rpg-heading">{{ resultLabel }}</span>
         <div class="flex flex-shrink-0 gap-3">
-          <button type="button" class="text-neutral-500 hover:text-accent text-xs underline" @click="copyResult">
+          <button type="button" class="inspiration-action" @click="copyResult">
             Copy
           </button>
-          <button type="button" class="text-neutral-500 hover:text-accent text-xs underline" @click="reroll">
+          <button type="button" class="inspiration-action" @click="pushToBoard">
+            To Board
+          </button>
+          <button type="button" class="inspiration-action" @click="reroll">
             Re-roll
           </button>
         </div>
       </div>
-      <pre class="m-0 text-sm whitespace-pre-wrap rpg-body">{{ result }}</pre>
+      <div v-if="fullNpcParts" class="text-sm whitespace-pre-wrap rpg-body">
+        <div class="mb-1 font-bold text-base">{{ fullNpcParts.name }}</div>
+        <div>{{ fullNpcParts.rest }}</div>
+      </div>
+      <pre v-else class="m-0 text-sm whitespace-pre-wrap rpg-body">{{ result }}</pre>
     </div>
 
     <QuickPickModal v-model="pickOpen" :title="pickTitle" :options="pickOptions" searchable @pick="onPick" />
@@ -36,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { Sparkles } from "lucide-vue-next";
 import QuickPickModal from "@/components/QuickPickModal.vue";
 import { useHoldToPick } from "@/composables/useHoldToPick";
@@ -47,7 +54,10 @@ import {
   getCategoryOptions,
   type InspirationCategory,
 } from "@/utils/inspirationRoll";
+import { useBoardsStore } from "@/features/boards/stores/boards";
+import { captureInspirationPayload } from "@/features/boards/adapters/inspirationAdapter";
 
+const boardsStore = useBoardsStore();
 const chips = INSPIRATION_CHIPS;
 
 const result = ref("");
@@ -58,6 +68,16 @@ const pickOpen = ref(false);
 const pickTitle = ref("");
 const pickOptions = ref<string[]>([]);
 const pickCategory = ref<InspirationCategory | null>(null);
+
+const fullNpcParts = computed(() => {
+  if (lastCategory.value !== "full" || !result.value) return null;
+  const newline = result.value.indexOf("\n");
+  if (newline === -1) return { name: result.value, rest: "" };
+  return {
+    name: result.value.slice(0, newline),
+    rest: result.value.slice(newline + 1),
+  };
+});
 
 const setResult = (label: string, text: string) => {
   resultLabel.value = label;
@@ -103,6 +123,17 @@ const copyResult = async () => {
   if (result.value) await navigator.clipboard.writeText(result.value);
 };
 
+const pushToBoard = () => {
+  if (!result.value) return;
+  boardsStore.pushPayloadCard(
+    "inspiration",
+    resultLabel.value,
+    "Purple",
+    captureInspirationPayload(resultLabel.value, result.value),
+    result.value,
+  );
+};
+
 const chipHandlerMap = new Map<InspirationCategory, ReturnType<typeof useHoldToPick>>();
 for (const chip of chips) {
   chipHandlerMap.set(
@@ -131,5 +162,19 @@ const chipHandlers = (key: InspirationCategory) => {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0.5rem;
   margin-bottom: 1rem;
+}
+
+.inspiration-action {
+  color: #737373;
+  font-size: 0.75rem;
+  text-decoration: underline;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.inspiration-action:hover {
+  color: #dc2626;
 }
 </style>

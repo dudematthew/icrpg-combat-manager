@@ -58,6 +58,7 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { useScrollLock } from "@/composables/useScrollLock";
+import { useModalShortcuts } from "@/composables/useModalShortcuts";
 
 const props = withDefaults(
   defineProps<{
@@ -89,11 +90,13 @@ const select = (value: string) => {
   close();
 };
 
-const close = () => {
+function close() {
   isOpen.value = false;
   searchQuery.value = "";
   emit("close");
-};
+}
+
+useModalShortcuts(isOpen, { onClose: close });
 </script>
 
 <style scoped>

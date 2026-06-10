@@ -20,7 +20,6 @@ import {
   Clock,
   Swords,
   Target,
-  BookMarked,
   Skull,
   Sparkles,
   type LucideIcon,
@@ -33,7 +32,6 @@ const SECTION_ICONS: Record<string, LucideIcon> = {
   timers: Clock,
   battlefield: Swords,
   target: Target,
-  library: BookMarked,
   "monster-creator": Skull,
   inspirations: Sparkles,
 };
@@ -42,13 +40,12 @@ const SHORT_NAMES: Record<string, string> = {
   timers: "Timers",
   battlefield: "Fight",
   target: "Target",
-  library: "Library",
   "monster-creator": "Create",
   inspirations: "Inspire",
 };
 
 const navItems = computed(() =>
-  settingsStore.getVisibleCards().map((card) => ({
+  settingsStore.getVisibleCards("combat").map((card) => ({
     id: card.id,
     name: card.name,
     shortName: SHORT_NAMES[card.id] ?? card.name,
@@ -57,10 +54,14 @@ const navItems = computed(() =>
 );
 
 const scrollToSection = (id: string) => {
+  const column = document.querySelector(".app-column--combat");
   const el = document.getElementById(id);
-  if (el) {
-    el.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
+  if (!column || !el) return;
+
+  const columnRect = column.getBoundingClientRect();
+  const elRect = el.getBoundingClientRect();
+  const offset = elRect.top - columnRect.top + column.scrollTop - 8;
+  column.scrollTo({ top: offset, behavior: "smooth" });
 };
 </script>
 
@@ -75,7 +76,7 @@ const scrollToSection = (id: string) => {
   gap: 0.25rem;
   width: 100%;
   max-width: 480px;
-  padding: 0.35rem 0.5rem;
+  padding: 0.35rem 0.5rem calc(0.35rem + env(safe-area-inset-bottom, 0px));
   background: rgba(255, 255, 255, 0.95);
   border-top: 2px solid #e5e5e5;
   box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);

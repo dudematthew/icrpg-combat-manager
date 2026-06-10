@@ -8,9 +8,14 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AppColumns: typeof import('./src/components/layout/AppColumns.vue')['default']
     AppFooter: typeof import('./src/components/AppFooter.vue')['default']
+    BoardBar: typeof import('./src/components/BoardBar.vue')['default']
     ColorSwatchPicker: typeof import('./src/components/ColorSwatchPicker.vue')['default']
     CombatMechanics: typeof import('./src/components/CombatMechanics.vue')['default']
+    ConfirmModal: typeof import('./src/components/ConfirmModal.vue')['default']
+    ConfirmTapButton: typeof import('./src/components/ConfirmTapButton.vue')['default']
+    CreditsCard: typeof import('./src/components/CreditsCard.vue')['default']
     EmptySectionState: typeof import('./src/components/EmptySectionState.vue')['default']
     GitHubVersion: typeof import('./src/components/GitHubVersion.vue')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
@@ -24,7 +29,7 @@ declare module 'vue' {
     InspirationPanel: typeof import('./src/components/InspirationPanel.vue')['default']
     MonsterCard: typeof import('./src/components/MonsterCard.vue')['default']
     MonsterCreator: typeof import('./src/components/MonsterCreator.vue')['default']
-    MonsterLibrary: typeof import('./src/components/MonsterLibrary.vue')['default']
+    PromptModal: typeof import('./src/components/PromptModal.vue')['default']
     QuickPickModal: typeof import('./src/components/QuickPickModal.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

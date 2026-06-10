@@ -4,7 +4,7 @@ import InfoMonitor from './components/InfoMonitor.vue'
 </script>
 
 <template>
-  <main>
+  <main class="app-main">
     <router-view />
     <InfoMonitor />
   </main>
@@ -16,6 +16,27 @@ import InfoMonitor from './components/InfoMonitor.vue'
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+html,
+body,
+#app,
+.app-main {
+  height: 100%;
+  overflow: hidden;
+}
+
+@media (max-width: 767px) {
+  html,
+  body,
+  #app,
+  .app-main {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
 }
 
 /* Custom scrollbar styling */

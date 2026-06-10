@@ -68,6 +68,9 @@
             <img :src="assetUrl('images/clock_icon.png')" class="h-5 icon-filter" alt="Add timer" />
             Add Timer
           </button>
+          <button type="button" @click="saveToBoard" :disabled="!canAddTimer" class="disabled:opacity-50 flex-1 text-xs disabled:cursor-not-allowed rpg-button rpg-button-secondary">
+            To Board
+          </button>
           <button v-if="combatStore.lastTimerTemplate" type="button" @click="combatStore.repeatLastTimer()" class="flex-1 text-xs rpg-button rpg-button-secondary">
             Repeat Last
           </button>
@@ -82,7 +85,7 @@
         <div
           v-for="timer in activeTimers"
           :key="timer.id"
-          class="bg-neutral-50 rpg-card border-l-4"
+          class="bg-neutral-50 rpg-card rpg-card--plain timer-entry border-l-4"
           :class="{ 'bg-red-50': timer.remaining <= 0 }"
           :style="timerStyle(timer)"
         >
@@ -115,17 +118,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 import { useCombatStore } from "@/stores/combat";
 import { useSettingsStore } from "@/stores/settings";
 import { generateClockName } from "@/utils/clockNameGenerator";
 import { assetUrl } from "@/utils/assetUrl";
 import { getMonsterColor } from "@/utils/combat";
 import ColorSwatchPicker from "@/components/ColorSwatchPicker.vue";
+import { useBoardsStore } from "@/features/boards/stores/boards";
+import { captureTimerPayload } from "@/features/boards/adapters/timerAdapter";
 import type { Timer } from "@/types";
 
 const combatStore = useCombatStore();
 const settingsStore = useSettingsStore();
+const boardsStore = useBoardsStore();
 
 const timerTypes = ["rounds", "turns", "manual"] as const;
 
@@ -153,11 +159,17 @@ watch(
   },
 );
 
+const rollDuration = () => Math.floor(Math.random() * 4) + 1;
+
 const newTimer = ref({
   name: "",
   color: "",
-  duration: null as number | null,
+  duration: rollDuration(),
   type: "rounds" as Timer["type"],
+});
+
+onMounted(() => {
+  if (!newTimer.value.duration) newTimer.value.duration = rollDuration();
 });
 
 watch(effectiveNamingMode, (mode) => {
@@ -203,7 +215,7 @@ const addTimer = () => {
   newTimer.value = {
     name: "",
     color: effectiveNamingMode.value === "color" ? prevColor : "",
-    duration: null,
+    duration: rollDuration(),
     type,
   };
 };
@@ -214,4 +226,17 @@ const incrementTimer = (id: string) => combatStore.incrementTimer(id);
 const generateTimerName = () => { newTimer.value.name = generateClockName(); };
 const generateDuration = () => { newTimer.value.duration = Math.floor(Math.random() * 4) + 1; };
 const clearDoneTimers = () => combatStore.clearDoneTimers();
+
+const saveToBoard = () => {
+  if (!canAddTimer.value || !newTimer.value.duration) return;
+  const name = effectiveNamingMode.value === "color" ? colorTimerName.value : newTimer.value.name;
+  const color = effectiveNamingMode.value === "color" ? newTimer.value.color : "Yellow";
+  const data = {
+    name,
+    duration: newTimer.value.duration,
+    type: newTimer.value.type,
+    color: effectiveNamingMode.value === "color" ? newTimer.value.color : undefined,
+  };
+  boardsStore.pushPayloadCard("timer", name, color || "Yellow", captureTimerPayload(data));
+};
 </script>

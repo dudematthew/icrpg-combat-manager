@@ -55,7 +55,6 @@ import {
   type InspirationCategory,
 } from "@/utils/inspirationRoll";
 import { useBoardsStore } from "@/features/boards/stores/boards";
-import { captureInspirationPayload } from "@/features/boards/adapters/inspirationAdapter";
 
 const boardsStore = useBoardsStore();
 const chips = INSPIRATION_CHIPS;
@@ -125,13 +124,12 @@ const copyResult = async () => {
 
 const pushToBoard = () => {
   if (!result.value) return;
-  boardsStore.pushPayloadCard(
-    "inspiration",
-    resultLabel.value,
-    "Purple",
-    captureInspirationPayload(resultLabel.value, result.value),
-    result.value,
-  );
+  boardsStore.addCard({
+    kind: "text",
+    color: "Red",
+    title: resultLabel.value,
+    body: result.value,
+  });
 };
 
 const chipHandlerMap = new Map<InspirationCategory, ReturnType<typeof useHoldToPick>>();

@@ -34,11 +34,6 @@ export function getPayloadPreviewLines(card: IndexCard): string[] {
       const t = payload.data;
       return [`${t.duration} ${t.type}`, t.name];
     }
-    case "inspiration": {
-      const text = payload.data.text.trim();
-      const preview = text.length > 140 ? `${text.slice(0, 140)}…` : text;
-      return [payload.data.category, preview];
-    }
     case "snapshot": {
       const d = payload.data;
       return [
@@ -75,12 +70,6 @@ export function getCardFacePayloadLines(card: IndexCard): string[] {
     case "timer": {
       const t = payload.data;
       return capLines([`${t.duration} ${t.type} · ${t.name}`]);
-    }
-    case "inspiration": {
-      const { category, text } = payload.data;
-      const snippet = text.trim();
-      if (!snippet) return capLines([category]);
-      return capLines([`${category} · ${snippet}`]);
     }
     case "snapshot": {
       const d = payload.data;

@@ -56,6 +56,31 @@ export const useBoardsStore = defineStore("boards", () => {
     persist();
   };
 
+  const migrateInspirationCards = () => {
+    let changed = false;
+    for (const id of Object.keys(cards.value)) {
+      const card = cards.value[id];
+      if ((card.kind as string) !== "inspiration") continue;
+
+      const payload = card.payload as
+        | { v: 1; kind: "inspiration"; data: { category: string; text: string } }
+        | undefined;
+      const title = payload?.kind === "inspiration" ? payload.data.category : card.title;
+      const body = payload?.kind === "inspiration" ? payload.data.text : card.body;
+
+      cards.value[id] = {
+        ...card,
+        kind: "text",
+        title: title || card.title,
+        body: body || card.body,
+        payload: undefined,
+        updatedAt: new Date().toISOString(),
+      };
+      changed = true;
+    }
+    if (changed) persist();
+  };
+
   const ensureDefaultBoard = () => {
     if (boards.value.length === 0) {
       const boardId = generateId();
@@ -86,6 +111,7 @@ export const useBoardsStore = defineStore("boards", () => {
       boards.value = state.boards || [];
       cards.value = state.cards || {};
       activeBoardId.value = state.activeBoardId;
+      migrateInspirationCards();
     }
     migrateFromLibrary();
     ensureDefaultBoard();
@@ -101,6 +127,7 @@ export const useBoardsStore = defineStore("boards", () => {
     boards.value = state.boards || [];
     cards.value = state.cards || {};
     activeBoardId.value = state.activeBoardId;
+    migrateInspirationCards();
     ensureDefaultBoard();
     persist();
   };

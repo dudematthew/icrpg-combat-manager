@@ -3,13 +3,11 @@ import {
   FileText,
   Skull,
   Clock,
-  Sparkles,
   Camera,
 } from "lucide-vue-next";
 import type { IndexCard, IndexCardKind, CardPayload } from "../types";
 import { deployMonsterPayload } from "./monsterAdapter";
 import { deployTimerPayload } from "./timerAdapter";
-import { deployInspirationPayload } from "./inspirationAdapter";
 import { deploySnapshotPayload } from "./snapshotAdapter";
 import { formatPayloadPreview } from "../utils/payloadPreview";
 import { afterDeployScroll, scrollTargetForKind } from "@/composables/useDeployScroll";
@@ -48,15 +46,6 @@ const adapters: Record<IndexCardKind, PayloadAdapter> = {
     deploy: (card, held = false) => {
       if (card.payload?.kind === "timer") deployTimerPayload(card.payload.data);
       afterDeployScroll(scrollTargetForKind("timer"), held);
-    },
-  },
-  inspiration: {
-    kind: "inspiration",
-    icon: Sparkles,
-    label: "Inspiration",
-    deploySummary: (card) => formatPayloadPreview(card) || card.title,
-    deploy: (card) => {
-      if (card.payload?.kind === "inspiration") deployInspirationPayload(card.payload.data);
     },
   },
   snapshot: {

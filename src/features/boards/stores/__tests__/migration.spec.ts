@@ -37,4 +37,42 @@ describe("library migration", () => {
     expect(boardsStore.cardsForActiveBoard[0].payload?.kind).toBe("monster");
     expect(localStorage.getItem("icrpg-monster-library")).toBeNull();
   });
+
+  it("migrates legacy inspiration cards to text notes", () => {
+    const boardId = "board-1";
+    const cardId = "card-1";
+    localStorage.setItem(
+      "icrpg-boards",
+      JSON.stringify({
+        boards: [{ id: boardId, name: "Session", createdAt: "2024-01-01T00:00:00.000Z", cardIds: [cardId] }],
+        cards: {
+          [cardId]: {
+            id: cardId,
+            boardId,
+            kind: "inspiration",
+            color: "Purple",
+            title: "Inspiration",
+            body: "",
+            collapsed: true,
+            createdAt: "2024-01-01T00:00:00.000Z",
+            updatedAt: "2024-01-01T00:00:00.000Z",
+            payload: {
+              v: 1,
+              kind: "inspiration",
+              data: { category: "Job", text: "Blacksmith" },
+            },
+          },
+        },
+        activeBoardId: boardId,
+      }),
+    );
+
+    const boardsStore = useBoardsStore();
+    const card = boardsStore.cardsForActiveBoard[0];
+
+    expect(card.kind).toBe("text");
+    expect(card.title).toBe("Job");
+    expect(card.body).toBe("Blacksmith");
+    expect(card.payload).toBeUndefined();
+  });
 });

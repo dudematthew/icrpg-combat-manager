@@ -2,107 +2,122 @@
   <div class="mb-6">
     <h4 class="mb-3 rpg-label">Backup &amp; Sync</h4>
 
-    <div class="space-y-3 bg-neutral-50 p-3 border border-neutral-200 rounded-lg">
-      <p class="text-neutral-600 text-xs rpg-body">
-        Export or import combat, boards, notes, snapshots, and settings as one JSON file.
-      </p>
+    <div class="flex flex-col gap-4 bg-neutral-50 p-4 border border-neutral-200 rounded-lg">
+      <section class="flex flex-col gap-3">
+        <p class="text-neutral-600 text-xs rpg-body">
+          Export or import combat, boards, notes, snapshots, and settings as one JSON file.
+        </p>
 
-      <div class="flex flex-col sm:flex-row gap-2">
-        <button type="button" class="flex-1 rpg-button rpg-button-secondary text-sm" @click="exportToFile">
-          Export to file
-        </button>
-        <button type="button" class="flex-1 rpg-button rpg-button-secondary text-sm" @click="triggerFileImport">
-          Import from file
-        </button>
-        <input
-          ref="fileInputRef"
-          type="file"
-          accept=".json,application/json"
-          class="hidden"
-          @change="onFileSelected"
-        />
-      </div>
+        <div class="flex flex-col sm:flex-row gap-2.5">
+          <button type="button" class="flex-1 rpg-button rpg-button-secondary text-sm" @click="exportToFile">
+            Export to file
+          </button>
+          <button type="button" class="flex-1 rpg-button rpg-button-secondary text-sm" @click="triggerFileImport">
+            Import from file
+          </button>
+          <input
+            ref="fileInputRef"
+            type="file"
+            accept=".json,application/json"
+            class="hidden"
+            @change="onFileSelected"
+          />
+        </div>
+      </section>
 
-      <p v-if="statusMessage" class="text-xs rpg-body" :class="statusIsError ? 'text-red-600' : 'text-green-700'">
-        {{ statusMessage }}
-      </p>
-
-      <template v-if="cloudAvailable">
-        <div class="pt-3 border-neutral-200 border-t space-y-3">
+      <section v-if="cloudAvailable" class="flex flex-col gap-4 pt-4 border-neutral-200 border-t">
+        <div class="flex flex-col gap-1.5">
           <p class="font-bold text-sm rpg-heading">Cloud backup</p>
           <p class="text-neutral-600 text-xs rpg-body">
             Save on this server and restore on another device with the memorable code.
             Backups auto-delete after {{ retentionDays }} days without an update.
           </p>
+        </div>
 
-          <div class="flex flex-col sm:flex-row gap-2">
-            <button
-              type="button"
-              class="flex-1 rpg-button rpg-button-primary text-sm"
-              :disabled="busy"
-              @click="saveToServer"
-            >
-              Save to server (new)
-            </button>
-            <button
-              v-if="canUpdateServer"
-              type="button"
-              class="flex-1 rpg-button rpg-button-secondary text-sm"
-              :disabled="busy"
-              @click="updateServer"
-            >
-              Update server backup
+        <div class="flex flex-col sm:flex-row gap-2.5">
+          <button
+            type="button"
+            class="flex-1 rpg-button rpg-button-primary text-sm"
+            :disabled="busy"
+            @click="saveToServer"
+          >
+            Save to server (new)
+          </button>
+          <button
+            v-if="canUpdateServer"
+            type="button"
+            class="flex-1 rpg-button rpg-button-secondary text-sm"
+            :disabled="busy"
+            @click="updateServer"
+          >
+            Update server backup
+          </button>
+        </div>
+
+        <div
+          v-if="revealedSlug"
+          class="backup-code-reveal bg-amber-50 p-3 border-2 border-amber-300 rounded-lg"
+          :class="{ 'backup-code-reveal--highlight': codeHighlight }"
+        >
+          <p class="mb-1 font-bold text-amber-900 text-sm rpg-heading">Important — save your backup code</p>
+          <p class="mb-3 text-amber-800 text-xs rpg-body">
+            Copy or write this down now. You need it to restore on another device — the server will not show it again.
+          </p>
+          <div class="flex items-center gap-2 bg-white p-2 border border-amber-200 rounded-md">
+            <code class="flex-1 font-semibold text-sm rpg-mono break-all">{{ revealedSlug }}</code>
+            <button type="button" class="rpg-button rpg-button-sm rpg-button-primary" @click="copyRevealedSlug">
+              Copy
             </button>
           </div>
+          <p class="mt-2 text-amber-700 text-xs rpg-body">
+            This browser remembers the edit key so you can update this backup later.
+          </p>
+        </div>
 
-          <div v-if="lastCloudSlug" class="bg-white p-2 border border-neutral-200 rounded-lg">
-            <p class="mb-1 text-neutral-600 text-xs rpg-body">Your backup code</p>
-            <div class="flex items-center gap-2">
-              <code class="flex-1 text-sm rpg-mono break-all">{{ lastCloudSlug }}</code>
-              <button type="button" class="rpg-button rpg-button-sm rpg-button-secondary" @click="copySlug">
-                Copy
-              </button>
-            </div>
-            <p v-if="lastCloudSlugCreated" class="mt-2 text-neutral-500 text-xs rpg-body">
-              Save this code to import on another device. This browser remembers the edit key for updates.
-            </p>
-          </div>
-
-          <div class="space-y-2">
-            <label class="font-bold text-xs rpg-label">Import from server</label>
-            <div class="flex gap-2">
-              <input
-                v-model="importSlug"
-                type="text"
-                class="flex-1 rpg-input text-sm"
-                placeholder="juggly-apple-terminator-cosmos"
-                autocomplete="off"
-                spellcheck="false"
-              />
-              <button
-                type="button"
-                class="rpg-button rpg-button-secondary text-sm"
-                :disabled="busy || !importSlug.trim()"
-                @click="importFromServer"
-              >
-                Load
-              </button>
-            </div>
+        <div class="flex flex-col gap-2">
+          <label class="font-bold text-xs rpg-label">Import from server</label>
+          <div class="flex gap-2">
+            <input
+              v-model="importSlug"
+              type="text"
+              class="flex-1 rpg-input text-sm"
+              placeholder="juggly-apple-terminator-cosmos"
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <button
+              type="button"
+              class="rpg-button rpg-button-secondary text-sm"
+              :disabled="busy || !importSlug.trim()"
+              @click="importFromServer"
+            >
+              Load
+            </button>
           </div>
         </div>
-      </template>
 
-      <details class="pt-2 text-neutral-600 text-xs rpg-body">
-        <summary class="cursor-pointer font-bold text-neutral-700">How cloud backups are secured</summary>
-        <ul class="mt-2 space-y-1 list-disc pl-4">
-          <li>Backups are stored as JSON on shared PHP hosting and are <strong>not encrypted</strong>.</li>
-          <li>Anyone who knows your backup code can <strong>download</strong> your data (like an unlisted link).</li>
-          <li>Only someone with the <strong>edit key</strong> (returned when you create a backup, or saved in an exported file) can overwrite it.</li>
-          <li>Backup codes are assigned by the server and are hard to guess; you cannot pick your own code or overwrite without the edit key.</li>
-          <li>Inactive backups may be removed after {{ retentionDays }} days. Keep your own file copies.</li>
-          <li>No accounts or passwords — you are responsible for what you upload.</li>
-        </ul>
-      </details>
+        <details class="backup-security-details pt-3 border-neutral-200 border-t text-neutral-600 text-xs rpg-body">
+          <summary class="backup-security-summary cursor-pointer font-bold text-neutral-700">
+            How cloud backups are secured
+          </summary>
+          <ul class="mt-2 space-y-2 pl-5 leading-relaxed list-disc">
+            <li>Backups are stored as JSON on shared PHP hosting and are <strong>not encrypted</strong>.</li>
+            <li>Anyone who knows your backup code can <strong>download</strong> your data (like an unlisted link).</li>
+            <li>Only someone with the <strong>edit key</strong> (returned when you create a backup, or saved in an exported file) can overwrite it.</li>
+            <li>Backup codes are assigned by the server and are hard to guess; you cannot pick your own code or overwrite without the edit key.</li>
+            <li>Inactive backups may be removed after {{ retentionDays }} days. Keep your own file copies.</li>
+            <li>No accounts or passwords — you are responsible for what you upload.</li>
+          </ul>
+        </details>
+      </section>
+
+      <p
+        v-if="statusMessage"
+        class="pt-4 border-neutral-200 border-t text-xs rpg-body"
+        :class="statusIsError ? 'text-red-600' : 'text-green-700'"
+      >
+        {{ statusMessage }}
+      </p>
     </div>
 
     <div
@@ -148,9 +163,10 @@ const busy = ref(false);
 const statusMessage = ref("");
 const statusIsError = ref(false);
 const importSlug = ref("");
-const lastCloudSlug = ref("");
-const lastCloudSlugCreated = ref(false);
+const revealedSlug = ref("");
+const codeHighlight = ref(false);
 const confirmOpen = ref(false);
+let highlightTimer: ReturnType<typeof setTimeout> | undefined;
 const pendingImport = ref<ParsedBackup | null>(null);
 
 const canUpdateServer = computed(() => {
@@ -169,10 +185,17 @@ onMounted(async () => {
   if (result.retentionDays) retentionDays.value = result.retentionDays;
   const creds = getCloudCredentials();
   if (creds?.slug) {
-    lastCloudSlug.value = creds.slug;
     importSlug.value = creds.slug;
   }
 });
+
+const flashCodeReveal = () => {
+  codeHighlight.value = true;
+  if (highlightTimer) clearTimeout(highlightTimer);
+  highlightTimer = setTimeout(() => {
+    codeHighlight.value = false;
+  }, 1400);
+};
 
 const exportToFile = () => {
   const cloud = getCloudCredentials();
@@ -225,10 +248,9 @@ const saveToServer = async () => {
     const envelope = buildBackupEnvelope();
     const { slug, writeToken } = await createCloudBackup(envelope);
     setCloudCredentials({ slug, writeToken });
-    lastCloudSlug.value = slug;
-    lastCloudSlugCreated.value = true;
-    importSlug.value = slug;
-    setStatus(`Saved to server. Code: ${slug}`);
+    revealedSlug.value = slug;
+    flashCodeReveal();
+    setStatus("Backup saved to server. Copy your code above before you close settings.");
   } catch (error) {
     setStatus(error instanceof Error ? error.message : "Server save failed.", true);
   } finally {
@@ -247,8 +269,7 @@ const updateServer = async () => {
   try {
     const envelope = buildBackupEnvelope(creds);
     await updateCloudBackup(creds.slug, creds.writeToken, envelope);
-    lastCloudSlug.value = creds.slug;
-    setStatus(`Updated server backup: ${creds.slug}`);
+    setStatus("Server backup updated.");
   } catch (error) {
     setStatus(error instanceof Error ? error.message : "Server update failed.", true);
   } finally {
@@ -256,11 +277,11 @@ const updateServer = async () => {
   }
 };
 
-const copySlug = async () => {
-  if (!lastCloudSlug.value) return;
+const copyRevealedSlug = async () => {
+  if (!revealedSlug.value) return;
   try {
-    await navigator.clipboard.writeText(lastCloudSlug.value);
-    setStatus("Backup code copied.");
+    await navigator.clipboard.writeText(revealedSlug.value);
+    setStatus("Backup code copied to clipboard.");
   } catch {
     setStatus("Could not copy to clipboard.", true);
   }
@@ -276,7 +297,6 @@ const confirmImport = () => {
   try {
     applyBackupEnvelope(pendingImport.value);
     if (pendingImport.value.cloud) {
-      lastCloudSlug.value = pendingImport.value.cloud.slug;
       importSlug.value = pendingImport.value.cloud.slug;
     }
     setStatus("Backup restored.");
@@ -288,3 +308,40 @@ const confirmImport = () => {
   }
 };
 </script>
+
+<style scoped>
+.backup-security-summary {
+  list-style: none;
+}
+
+.backup-security-summary::-webkit-details-marker {
+  display: none;
+}
+
+.backup-security-summary::before {
+  content: "▸";
+  display: inline-block;
+  margin-right: 0.375rem;
+  transition: transform 0.15s ease;
+}
+
+.backup-security-details[open] .backup-security-summary::before {
+  transform: rotate(90deg);
+}
+
+@keyframes backup-code-border-pulse {
+  0%,
+  100% {
+    border-color: #fcd34d;
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
+  }
+  50% {
+    border-color: #dc2626;
+    box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.2);
+  }
+}
+
+.backup-code-reveal--highlight {
+  animation: backup-code-border-pulse 0.65s ease-in-out 2;
+}
+</style>

@@ -55,8 +55,10 @@ import {
   type InspirationCategory,
 } from "@/utils/inspirationRoll";
 import { useBoardsStore } from "@/features/boards/stores/boards";
+import { useSettingsStore } from "@/stores/settings";
 
 const boardsStore = useBoardsStore();
+const settingsStore = useSettingsStore();
 const chips = INSPIRATION_CHIPS;
 
 const result = ref("");
@@ -126,7 +128,7 @@ const pushToBoard = () => {
   if (!result.value) return;
   boardsStore.addCard({
     kind: "text",
-    color: "Red",
+    color: settingsStore.defaultNewCardColor,
     title: resultLabel.value,
     body: result.value,
   });

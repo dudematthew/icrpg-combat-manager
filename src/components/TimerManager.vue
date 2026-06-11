@@ -7,18 +7,12 @@
       </div>
 
       <div v-if="showNamingToggle" class="flex gap-2 mb-4">
-        <button
-          type="button"
-          @click="namingMode = 'named'"
-          :class="['flex-1 text-xs rpg-button', namingMode === 'named' ? 'rpg-button-primary' : 'rpg-button-secondary']"
-        >
+        <button type="button" @click="namingMode = 'named'"
+          :class="['flex-1 text-xs rpg-button', namingMode === 'named' ? 'rpg-button-primary' : 'rpg-button-secondary']">
           Named
         </button>
-        <button
-          type="button"
-          @click="namingMode = 'color'"
-          :class="['flex-1 text-xs rpg-button', namingMode === 'color' ? 'rpg-button-primary' : 'rpg-button-secondary']"
-        >
+        <button type="button" @click="namingMode = 'color'"
+          :class="['flex-1 text-xs rpg-button', namingMode === 'color' ? 'rpg-button-primary' : 'rpg-button-secondary']">
           Color
         </button>
       </div>
@@ -27,8 +21,10 @@
         <div v-if="effectiveNamingMode === 'named'">
           <label class="rpg-label">Timer Name</label>
           <div class="flex gap-2">
-            <input v-model="newTimer.name" placeholder="e.g., Building collapses" @keyup.enter="addTimer" class="flex-1 rpg-input" />
-            <button type="button" @click="generateTimerName" class="p-0 rpg-button rpg-button-secondary" title="Generate random clock name">
+            <input v-model="newTimer.name" placeholder="e.g., Building collapses" @keyup.enter="addTimer"
+              class="flex-1 rpg-input" />
+            <button type="button" @click="generateTimerName" class="p-0 rpg-button rpg-button-secondary"
+              title="Generate random clock name">
               <img :src="assetUrl('images/d6_dice_icon.png')" class="h-5 icon-filter" alt="Generate name" />
             </button>
           </div>
@@ -42,7 +38,8 @@
         <div>
           <label class="rpg-label">Timer Type</label>
           <div class="flex gap-2">
-            <button v-for="t in timerTypes" :key="t" type="button" @click="newTimer.type = t" :class="['flex-1 text-xs rpg-button', newTimer.type === t ? 'rpg-button-primary' : 'rpg-button-secondary']">
+            <button v-for="t in timerTypes" :key="t" type="button" @click="newTimer.type = t"
+              :class="['flex-1 text-xs rpg-button', newTimer.type === t ? 'rpg-button-primary' : 'rpg-button-secondary']">
               {{ t === 'rounds' ? 'Rounds' : t === 'turns' ? 'Turns' : 'Manual' }}
             </button>
           </div>
@@ -56,15 +53,18 @@
         <div>
           <label class="rpg-label">Duration{{ newTimer.type !== 'manual' ? ` (${newTimer.type})` : '' }}</label>
           <div class="flex gap-2">
-            <input v-model.number="newTimer.duration" type="number" :min="1" :max="20" placeholder="4" @keyup.enter="addTimer" class="flex-1 rpg-input" />
-            <button type="button" @click="generateDuration" class="p-0 rpg-button rpg-button-secondary" title="Roll d4 for random duration">
+            <input v-model.number="newTimer.duration" type="number" :min="1" :max="20" placeholder="4"
+              @keyup.enter="addTimer" class="flex-1 rpg-input" />
+            <button type="button" @click="generateDuration" class="p-0 rpg-button rpg-button-secondary"
+              title="Roll d4 for random duration">
               <img :src="assetUrl('images/d4_dice_icon.png')" class="h-5 icon-filter" alt="Roll d4" />
             </button>
           </div>
         </div>
 
         <div class="flex flex-col gap-2 w-full">
-          <button type="button" @click="addTimer" :disabled="!canAddTimer" class="disabled:opacity-50 w-full text-xs disabled:cursor-not-allowed rpg-button rpg-button-primary">
+          <button type="button" @click="addTimer" :disabled="!canAddTimer"
+            class="disabled:opacity-50 w-full text-xs disabled:cursor-not-allowed rpg-button rpg-button-primary">
             <img :src="assetUrl('images/clock_icon.png')" class="h-5 icon-filter" alt="Add timer" />
             Add Timer
           </button>
@@ -74,10 +74,12 @@
             </button>
           </div>
           <div v-if="combatStore.lastTimerTemplate || doneTimers.length > 0" class="flex flex-wrap gap-2">
-            <button v-if="combatStore.lastTimerTemplate" type="button" @click="combatStore.repeatLastTimer()" class="flex-1 text-xs rpg-button rpg-button-secondary">
+            <button v-if="combatStore.lastTimerTemplate" type="button" @click="combatStore.repeatLastTimer()"
+              class="flex-1 text-xs rpg-button rpg-button-secondary">
               Repeat Last
             </button>
-            <button v-if="doneTimers.length > 0" type="button" @click="clearDoneTimers" class="flex-1 text-xs rpg-button rpg-button-secondary">
+            <button v-if="doneTimers.length > 0" type="button" @click="clearDoneTimers"
+              class="flex-1 text-xs rpg-button rpg-button-secondary">
               Clear Done ({{ doneTimers.length }})
             </button>
           </div>
@@ -86,13 +88,9 @@
 
       <div v-if="activeTimers.length > 0" class="space-y-3">
         <h3 class="text-base rpg-heading">Active Timers</h3>
-        <div
-          v-for="timer in activeTimers"
-          :key="timer.id"
-          class="bg-neutral-50 rpg-card rpg-card--plain timer-entry border-l-4"
-          :class="{ 'bg-red-50': timer.remaining <= 0 }"
-          :style="timerStyle(timer)"
-        >
+        <div v-for="timer in activeTimers" :key="timer.id"
+          class="bg-neutral-50 border-l-4 rpg-card rpg-card--plain timer-entry"
+          :class="{ 'bg-red-50': timer.remaining <= 0 }" :style="timerStyle(timer)">
           <div class="flex justify-between items-center">
             <div class="flex-1">
               <div class="text-sm rpg-heading">{{ timer.name }}</div>
@@ -105,16 +103,20 @@
               </div>
             </div>
             <div class="flex items-center gap-2">
-              <button v-if="timer.type === 'manual'" type="button" @click="incrementTimer(timer.id)" class="rpg-icon-button rpg-icon-button-success">+</button>
-              <button type="button" @click="decrementTimer(timer.id)" class="rpg-icon-button rpg-icon-button-neutral">−</button>
-              <button type="button" @click="removeTimer(timer.id)" class="rpg-icon-button rpg-icon-button-danger">×</button>
+              <button v-if="timer.type === 'manual'" type="button" @click="incrementTimer(timer.id)"
+                class="rpg-icon-button rpg-icon-button-success">+</button>
+              <button type="button" @click="decrementTimer(timer.id)"
+                class="rpg-icon-button rpg-icon-button-neutral">−</button>
+              <button type="button" @click="removeTimer(timer.id)"
+                class="rpg-icon-button rpg-icon-button-danger">×</button>
             </div>
           </div>
         </div>
       </div>
 
       <div v-else class="py-8 text-center">
-        <img :src="assetUrl('images/hourglass.png')" class="mx-auto mb-3 h-12 text-neutral-400 icon-filter" alt="No timers" />
+        <img :src="assetUrl('images/hourglass.png')" class="mx-auto mb-3 h-12 text-neutral-400 icon-filter"
+          alt="No timers" />
         <div class="text-neutral-500 rpg-body">No active timers</div>
       </div>
     </div>

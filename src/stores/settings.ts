@@ -11,6 +11,11 @@ import {
   splitAppCardsForSettings,
   BOARDS_CARD_ID,
 } from "@/utils/appCardColumns";
+import {
+  resolveCreatorSettings,
+  type CreatorLayout,
+  type CreatorStatSource,
+} from "@/utils/creatorSettings";
 
 export type AppColumn = "combat" | "boards";
 
@@ -37,10 +42,12 @@ const CARD_IDS = ALL_CARD_IDS;
 
 export type TimerNamingMode = "both" | "named" | "color";
 export type ScrollOnDeployMode = "always" | "hold";
+export type { CreatorLayout, CreatorStatSource } from "@/utils/creatorSettings";
 
 /** UI preferences — optional in backup files. */
 export interface SettingsBackupOptions {
-  tierMode: boolean;
+  creatorLayout: CreatorLayout;
+  creatorStatSource: CreatorStatSource;
   compactThreshold: number;
   showTitleCard: boolean;
   showCreditsCard: boolean;
@@ -49,12 +56,15 @@ export interface SettingsBackupOptions {
   showSectionNav: boolean;
   timerColorModeDefault: boolean;
   timerNamingMode: TimerNamingMode;
-  fastMode: boolean;
   keepCreatorFieldsOnBoardSave: boolean;
   boardCardExpandPreview: boolean;
   defaultNewCardColor: string;
   scrollOnDeployMode: ScrollOnDeployMode;
   notifications: NotificationSettings;
+  /** @deprecated Read for migration only */
+  tierMode?: boolean;
+  /** @deprecated Read for migration only */
+  fastMode?: boolean;
 }
 
 /** Card layout in backup exports; options are included only when requested. */
@@ -69,7 +79,7 @@ export type SettingsPersistedData = SettingsBackupData & SettingsBackupOptions;
 export function isLegacySettingsBackup(
   data: SettingsBackupData | SettingsPersistedData,
 ): data is SettingsPersistedData {
-  return "tierMode" in data;
+  return "tierMode" in data && !("creatorLayout" in data);
 }
 
 export const useSettingsStore = defineStore("settings", () => {
@@ -125,7 +135,8 @@ export const useSettingsStore = defineStore("settings", () => {
   };
 
   const appCards = ref<AppCard[]>([]);
-  const tierMode = ref(true);
+  const creatorLayout = ref<CreatorLayout>("standard");
+  const creatorStatSource = ref<CreatorStatSource>("tier");
   const compactThreshold = ref(2);
   const showTitleCard = ref(true);
   const showCreditsCard = ref(true);
@@ -134,7 +145,6 @@ export const useSettingsStore = defineStore("settings", () => {
   const showSectionNav = ref(true);
   const timerColorModeDefault = ref(true);
   const timerNamingMode = ref<TimerNamingMode>("both");
-  const fastMode = ref(false);
   const keepCreatorFieldsOnBoardSave = ref(true);
   const boardCardExpandPreview = ref(false);
   const defaultNewCardColor = ref("Yellow");
@@ -166,10 +176,23 @@ export const useSettingsStore = defineStore("settings", () => {
     return sanitizeAppCards(cleaned);
   };
 
+  const applyCreatorSettings = (
+    settings: Partial<SettingsBackupOptions> & { keepCreatorFieldsOnLibrarySave?: boolean },
+  ) => {
+    const resolved = resolveCreatorSettings({
+      creatorLayout: settings.creatorLayout,
+      creatorStatSource: settings.creatorStatSource,
+      fastMode: settings.fastMode,
+      tierMode: settings.tierMode,
+    });
+    creatorLayout.value = resolved.creatorLayout;
+    creatorStatSource.value = resolved.creatorStatSource;
+  };
+
   const applySettingsOptionsPartial = (
     settings: Partial<SettingsBackupOptions> & { keepCreatorFieldsOnLibrarySave?: boolean },
   ) => {
-    if (settings.tierMode !== undefined) tierMode.value = settings.tierMode;
+    applyCreatorSettings(settings);
     if (settings.compactThreshold !== undefined) compactThreshold.value = settings.compactThreshold;
     if (settings.showTitleCard !== undefined) showTitleCard.value = settings.showTitleCard;
     if (settings.showCreditsCard !== undefined) showCreditsCard.value = settings.showCreditsCard;
@@ -188,7 +211,6 @@ export const useSettingsStore = defineStore("settings", () => {
     ) {
       timerNamingMode.value = settings.timerNamingMode;
     }
-    if (settings.fastMode !== undefined) fastMode.value = settings.fastMode;
     if (settings.keepCreatorFieldsOnBoardSave !== undefined) {
       keepCreatorFieldsOnBoardSave.value = settings.keepCreatorFieldsOnBoardSave;
     } else if (settings.keepCreatorFieldsOnLibrarySave !== undefined) {
@@ -222,7 +244,7 @@ export const useSettingsStore = defineStore("settings", () => {
     } else {
       appCards.value = [...defaultAppCards];
     }
-    tierMode.value = settings.tierMode !== undefined ? settings.tierMode : true;
+    applyCreatorSettings(settings);
     compactThreshold.value =
       settings.compactThreshold !== undefined ? settings.compactThreshold : 2;
     showTitleCard.value = settings.showTitleCard !== undefined ? settings.showTitleCard : true;
@@ -242,7 +264,6 @@ export const useSettingsStore = defineStore("settings", () => {
       settings.timerNamingMode === "both"
         ? settings.timerNamingMode
         : "both";
-    fastMode.value = settings.fastMode !== undefined ? settings.fastMode : false;
     keepCreatorFieldsOnBoardSave.value =
       settings.keepCreatorFieldsOnBoardSave !== undefined
         ? settings.keepCreatorFieldsOnBoardSave
@@ -277,7 +298,8 @@ export const useSettingsStore = defineStore("settings", () => {
   };
 
   const exportSettingsOptions = (): SettingsBackupOptions => ({
-    tierMode: tierMode.value,
+    creatorLayout: creatorLayout.value,
+    creatorStatSource: creatorStatSource.value,
     compactThreshold: compactThreshold.value,
     showTitleCard: showTitleCard.value,
     showCreditsCard: showCreditsCard.value,
@@ -286,7 +308,6 @@ export const useSettingsStore = defineStore("settings", () => {
     showSectionNav: showSectionNav.value,
     timerColorModeDefault: timerColorModeDefault.value,
     timerNamingMode: timerNamingMode.value,
-    fastMode: fastMode.value,
     keepCreatorFieldsOnBoardSave: keepCreatorFieldsOnBoardSave.value,
     boardCardExpandPreview: boardCardExpandPreview.value,
     defaultNewCardColor: defaultNewCardColor.value,
@@ -314,7 +335,8 @@ export const useSettingsStore = defineStore("settings", () => {
 
   const exportSettings = (): SettingsPersistedData => ({
     appCards: appCards.value,
-    tierMode: tierMode.value,
+    creatorLayout: creatorLayout.value,
+    creatorStatSource: creatorStatSource.value,
     compactThreshold: compactThreshold.value,
     showTitleCard: showTitleCard.value,
     showCreditsCard: showCreditsCard.value,
@@ -323,7 +345,6 @@ export const useSettingsStore = defineStore("settings", () => {
     showSectionNav: showSectionNav.value,
     timerColorModeDefault: timerColorModeDefault.value,
     timerNamingMode: timerNamingMode.value,
-    fastMode: fastMode.value,
     keepCreatorFieldsOnBoardSave: keepCreatorFieldsOnBoardSave.value,
     boardCardExpandPreview: boardCardExpandPreview.value,
     defaultNewCardColor: defaultNewCardColor.value,
@@ -429,8 +450,22 @@ export const useSettingsStore = defineStore("settings", () => {
     toggleCard(BOARDS_CARD_ID);
   };
 
-  const toggleTierMode = () => {
-    tierMode.value = !tierMode.value;
+  const setCreatorLayout = (layout: CreatorLayout) => {
+    creatorLayout.value = layout;
+    if (layout !== "full" && creatorStatSource.value === "manual") {
+      creatorStatSource.value = "tier";
+    }
+    saveSettings();
+  };
+
+  const setCreatorStatSource = (source: CreatorStatSource) => {
+    if (source === "manual" && creatorLayout.value !== "full") return;
+    creatorStatSource.value = source;
+    saveSettings();
+  };
+
+  const toggleKeepCreatorFieldsOnBoardSave = () => {
+    keepCreatorFieldsOnBoardSave.value = !keepCreatorFieldsOnBoardSave.value;
     saveSettings();
   };
 
@@ -474,11 +509,6 @@ export const useSettingsStore = defineStore("settings", () => {
     saveSettings();
   };
 
-  const toggleFastMode = () => {
-    fastMode.value = !fastMode.value;
-    saveSettings();
-  };
-
   const toggleBoardCardExpandPreview = () => {
     boardCardExpandPreview.value = !boardCardExpandPreview.value;
     saveSettings();
@@ -511,7 +541,8 @@ export const useSettingsStore = defineStore("settings", () => {
 
   const resetToDefaults = () => {
     appCards.value = [...defaultAppCards];
-    tierMode.value = true;
+    creatorLayout.value = "standard";
+    creatorStatSource.value = "tier";
     compactThreshold.value = 2;
     showTitleCard.value = true;
     showCreditsCard.value = true;
@@ -520,7 +551,6 @@ export const useSettingsStore = defineStore("settings", () => {
     showSectionNav.value = true;
     timerColorModeDefault.value = true;
     timerNamingMode.value = "both";
-    fastMode.value = false;
     keepCreatorFieldsOnBoardSave.value = true;
     boardCardExpandPreview.value = false;
     defaultNewCardColor.value = "Yellow";
@@ -531,7 +561,8 @@ export const useSettingsStore = defineStore("settings", () => {
 
   return {
     appCards,
-    tierMode,
+    creatorLayout,
+    creatorStatSource,
     compactThreshold,
     showTitleCard,
     showCreditsCard,
@@ -540,14 +571,15 @@ export const useSettingsStore = defineStore("settings", () => {
     showSectionNav,
     timerColorModeDefault,
     timerNamingMode,
-    fastMode,
     keepCreatorFieldsOnBoardSave,
     boardCardExpandPreview,
     defaultNewCardColor,
     scrollOnDeployMode,
     notifications,
     toggleCard,
-    toggleTierMode,
+    setCreatorLayout,
+    setCreatorStatSource,
+    toggleKeepCreatorFieldsOnBoardSave,
     updateCompactThreshold,
     toggleTitleCard,
     toggleCreditsCard,
@@ -556,7 +588,6 @@ export const useSettingsStore = defineStore("settings", () => {
     toggleSectionNav,
     toggleTimerColorModeDefault,
     setTimerNamingMode,
-    toggleFastMode,
     toggleBoardCardExpandPreview,
     setDefaultNewCardColor,
     setScrollOnDeployMode,

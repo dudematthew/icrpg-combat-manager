@@ -312,6 +312,34 @@ const onCardClick = () => {
   font-weight: 600;
 }
 
+.board-markdown code {
+  font-family: ui-monospace, "Cascadia Code", "Consolas", monospace;
+  font-size: 0.85em;
+  color: #78350f;
+  background: #fef7ed;
+  padding: 0.1em 0.35em;
+  border-radius: 0.25rem;
+}
+
+.board-markdown pre {
+  margin: 0.35rem 0;
+  padding: 0.5rem 0.75rem;
+  background: #fef7ed;
+  border: 1px solid #e7d5c4;
+  border-radius: 0.375rem;
+  overflow-x: auto;
+}
+
+.board-markdown pre code {
+  display: block;
+  color: #78350f;
+  background: transparent;
+  padding: 0;
+  font-size: 0.8125rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 .board-markdown ul.contains-task-list {
   list-style: none;
   padding-left: 0.25rem;

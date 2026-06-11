@@ -30,7 +30,8 @@ const fixtureEnvelope = (): BackupEnvelopeV1 => ({
         },
       ],
       options: {
-        tierMode: true,
+        creatorLayout: "standard",
+        creatorStatSource: "tier",
         compactThreshold: 2,
         showTitleCard: true,
         showCreditsCard: true,
@@ -39,7 +40,6 @@ const fixtureEnvelope = (): BackupEnvelopeV1 => ({
         showSectionNav: true,
         timerColorModeDefault: true,
         timerNamingMode: "both",
-        fastMode: false,
         keepCreatorFieldsOnBoardSave: true,
         boardCardExpandPreview: false,
         defaultNewCardColor: "Yellow",
@@ -110,6 +110,7 @@ describe("backup validate", () => {
         settings: {
           appCards: fixtureEnvelope().data.settings.appCards,
           tierMode: true,
+          fastMode: false,
           compactThreshold: 2,
           showTitleCard: true,
           showCreditsCard: true,
@@ -118,7 +119,6 @@ describe("backup validate", () => {
           showSectionNav: true,
           timerColorModeDefault: true,
           timerNamingMode: "both",
-          fastMode: false,
           keepCreatorFieldsOnBoardSave: true,
           boardCardExpandPreview: false,
           defaultNewCardColor: "Yellow",

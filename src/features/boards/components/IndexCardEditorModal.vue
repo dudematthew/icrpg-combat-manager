@@ -47,11 +47,12 @@
             label="Delete"
             confirm-label="Confirm"
             variant="danger"
+            size="sm"
             @confirm="onDelete"
           />
           <div class="index-editor-footer-actions">
-            <button type="button" class="rpg-button rpg-button-secondary" @click="close">Cancel</button>
-            <button type="button" class="rpg-button rpg-button-primary" @click="save">Save</button>
+            <button type="button" class="rpg-button rpg-button-sm rpg-button-secondary" @click="close">Cancel</button>
+            <button type="button" class="rpg-button rpg-button-sm rpg-button-primary" @click="save">Save</button>
           </div>
         </div>
       </div>
@@ -162,6 +163,7 @@ useModalShortcuts(open, { onSave: save, onClose: close });
   border-radius: 0.5rem;
   background: white;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  overflow-x: hidden;
   overflow-y: auto;
 }
 
@@ -204,5 +206,30 @@ useModalShortcuts(open, { onSave: save, onClose: close });
   display: flex;
   gap: 0.5rem;
   margin-left: auto;
+}
+
+@media (max-width: 767px) {
+  .index-editor-panel {
+    padding: 1rem;
+  }
+
+  .index-editor-footer {
+    flex-wrap: wrap;
+  }
+
+  .index-editor-footer :deep(.confirm-tap-btn) {
+    min-width: 4.5rem !important;
+    padding-left: 0.65rem;
+    padding-right: 0.65rem;
+  }
+
+  .index-editor-footer-actions {
+    margin-left: 0;
+  }
+
+  .index-editor-footer-actions .rpg-button {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
 }
 </style>

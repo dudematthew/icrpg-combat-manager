@@ -1,11 +1,8 @@
 <template>
-  <div
-    class="rpg-app"
-    :class="{
+  <div class="rpg-app" :class="{
       'has-section-nav': settingsStore.showSectionNav,
       'has-header': settingsStore.showTitleCard,
-    }"
-  >
+    }">
     <div v-if="settingsStore.showTitleCard" class="rpg-app__header rpg-card">
       <h1 class="rpg-title">ICRPG Combat Manager</h1>
       <div class="mt-2 text-neutral-500 text-sm text-center" style="font-family: 'Chalkduster', cursive;">
@@ -14,33 +11,17 @@
       </div>
     </div>
 
-    <AppColumns
-      ref="columnsRef"
-      class="rpg-app__columns"
-      :has-section-nav="settingsStore.showSectionNav"
-      :has-header="settingsStore.showTitleCard"
-      :show-boards-column="settingsStore.showBoardsColumn"
-    >
+    <AppColumns ref="columnsRef" class="rpg-app__columns" :has-section-nav="settingsStore.showSectionNav"
+      :has-header="settingsStore.showTitleCard" :show-boards-column="settingsStore.showBoardsColumn">
       <template #combat>
         <div class="space-y-6">
-          <ColumnAppCards
-            ref="combatColumnCardsRef"
-            :cards="combatColumnCards"
-            :current-turn="currentTurn"
-            :current-round="currentRound"
-            :active-monsters="activeMonsters"
-            :all-monsters-done="allMonstersDone"
+          <ColumnAppCards ref="combatColumnCardsRef" :cards="combatColumnCards" :current-turn="currentTurn"
+            :current-round="currentRound" :active-monsters="activeMonsters" :all-monsters-done="allMonstersDone"
             :should-use-compact-view="shouldUseCompactView"
-            :is-monster-creator-above-battlefield="isMonsterCreatorAboveBattlefield"
-            :on-next-turn="nextTurn"
-            :on-next-round="nextRound"
-            :on-remove-monster="removeMonster"
-            :on-update-monster="updateMonster"
-            :on-roll-damage="handleRollDamage"
-            :on-scroll-to-creator="scrollToCreator"
-            :on-reset-rounds-and-turns="resetRoundsAndTurns"
-            :on-confirm-clear="confirmClear"
-          />
+            :is-monster-creator-above-battlefield="isMonsterCreatorAboveBattlefield" :on-next-turn="nextTurn"
+            :on-next-round="nextRound" :on-remove-monster="removeMonster" :on-update-monster="updateMonster"
+            :on-roll-damage="handleRollDamage" :on-scroll-to-creator="scrollToCreator"
+            :on-reset-rounds-and-turns="resetRoundsAndTurns" :on-confirm-clear="confirmClear" />
 
           <div class="rpg-card">
             <button @click="showSettingsModal = true" class="w-full rpg-button rpg-button-secondary">
@@ -55,30 +36,18 @@
 
       <template #boards>
         <div class="space-y-6">
-          <ColumnAppCards
-            ref="boardsColumnCardsRef"
-            :cards="boardsColumnCards"
-            :current-turn="currentTurn"
-            :current-round="currentRound"
-            :active-monsters="activeMonsters"
-            :all-monsters-done="allMonstersDone"
+          <ColumnAppCards ref="boardsColumnCardsRef" :cards="boardsColumnCards" :current-turn="currentTurn"
+            :current-round="currentRound" :active-monsters="activeMonsters" :all-monsters-done="allMonstersDone"
             :should-use-compact-view="shouldUseCompactView"
-            :is-monster-creator-above-battlefield="isMonsterCreatorAboveBattlefield"
-            :on-next-turn="nextTurn"
-            :on-next-round="nextRound"
-            :on-remove-monster="removeMonster"
-            :on-update-monster="updateMonster"
-            :on-roll-damage="handleRollDamage"
-            :on-scroll-to-creator="scrollToCreator"
-            :on-reset-rounds-and-turns="resetRoundsAndTurns"
-            :on-confirm-clear="confirmClear"
-          />
+            :is-monster-creator-above-battlefield="isMonsterCreatorAboveBattlefield" :on-next-turn="nextTurn"
+            :on-next-round="nextRound" :on-remove-monster="removeMonster" :on-update-monster="updateMonster"
+            :on-roll-damage="handleRollDamage" :on-scroll-to-creator="scrollToCreator"
+            :on-reset-rounds-and-turns="resetRoundsAndTurns" :on-confirm-clear="confirmClear" />
         </div>
       </template>
     </AppColumns>
 
-    <div v-if="showSettingsModal"
-      class="z-50 fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 p-4"
+    <div v-if="showSettingsModal" class="z-50 fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 p-4"
       @mousedown.self="showSettingsModal = false" style="margin-top: 0;">
       <div class="bg-white shadow-xl rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto" @click.stop>
         <div class="p-6">
@@ -99,31 +68,64 @@
             </p>
 
             <div class="mb-6">
-              <h4 class="mb-3 rpg-label">Monster Creation Mode</h4>
-              <div class="flex justify-between items-center bg-neutral-50 p-3 border border-neutral-200 rounded-lg">
-                <div>
-                  <div class="font-bold text-sm rpg-body">
-                    {{ settingsStore.tierMode ? 'Tier Mode' : 'Manual Mode' }}
-                  </div>
-                  <div class="text-neutral-600 text-xs rpg-body">
-                    {{ settingsStore.tierMode
-                      ? 'Tier automatically sets stats, actions, and hearts'
-                      : 'Manually set stats, actions, and hearts' }}
-                  </div>
-                </div>
-                <SettingsControl variant="enabled" :active="settingsStore.tierMode" @click="handleTierModeToggle" />
-              </div>
-            </div>
-
-            <div class="mb-6">
-              <h4 class="mb-3 rpg-label">Fast Monster Creator</h4>
-              <div class="bg-neutral-50 p-3 border border-neutral-200 rounded-lg">
+              <h4 class="mb-3 rpg-label">Monster Creator</h4>
+              <div class="space-y-3 bg-neutral-50 p-3 border border-neutral-200 rounded-lg">
+                <p class="text-neutral-600 text-xs rpg-body">
+                  Controls which fields appear in the Monster Creator card and how stats are calculated.
+                </p>
                 <div class="flex justify-between items-center">
-                  <span class="font-bold text-sm rpg-body">Fast monster creator at the table</span>
-                  <SettingsControl variant="enabled" :active="settingsStore.fastMode" @click="settingsStore.toggleFastMode" />
+                  <div>
+                    <div class="font-bold text-sm rpg-body">Quick layout</div>
+                    <div class="text-neutral-600 text-xs rpg-body">Color, letter, and tier only</div>
+                  </div>
+                  <SettingsControl variant="choice" :active="settingsStore.creatorLayout === 'quick'"
+                    @click="settingsStore.setCreatorLayout('quick')" />
                 </div>
-                <div class="mt-2 text-neutral-600 text-xs rpg-body">
-                  Hides advanced options in the Monster Creator for quicker stat blocks mid-fight
+                <div class="flex justify-between items-center">
+                  <div>
+                    <div class="font-bold text-sm rpg-body">Standard layout</div>
+                    <div class="text-neutral-600 text-xs rpg-body">Quick fields plus notes and special abilities</div>
+                  </div>
+                  <SettingsControl variant="choice" :active="settingsStore.creatorLayout === 'standard'"
+                    @click="settingsStore.setCreatorLayout('standard')" />
+                </div>
+                <div class="flex justify-between items-center">
+                  <div>
+                    <div class="font-bold text-sm rpg-body">Full layout</div>
+                    <div class="text-neutral-600 text-xs rpg-body">Standard plus name, overrides, and trait generator
+                    </div>
+                  </div>
+                  <SettingsControl variant="choice" :active="settingsStore.creatorLayout === 'full'"
+                    @click="settingsStore.setCreatorLayout('full')" />
+                </div>
+                <div class="pt-2 border-neutral-200 border-t">
+                  <div class="flex justify-between items-center">
+                    <div>
+                      <div class="font-bold text-sm rpg-body">Tier table stats</div>
+                      <div class="text-neutral-600 text-xs rpg-body">Tier sets bonus, actions, and hearts</div>
+                    </div>
+                    <SettingsControl variant="choice" :active="settingsStore.creatorStatSource === 'tier'"
+                      @click="settingsStore.setCreatorStatSource('tier')" />
+                  </div>
+                  <div class="flex justify-between items-center mt-3"
+                    :class="{ 'opacity-50': settingsStore.creatorLayout !== 'full' }">
+                    <div>
+                      <div class="font-bold text-sm rpg-body">Manual stat overrides</div>
+                      <div class="text-neutral-600 text-xs rpg-body">
+                        {{ settingsStore.creatorLayout === 'full'
+                        ? 'Set stats, actions, and hearts yourself in advanced options'
+                        : 'Switch to Full layout to set stats manually' }}
+                      </div>
+                    </div>
+                    <SettingsControl variant="choice" :active="settingsStore.creatorStatSource === 'manual'"
+                      :class="{ 'pointer-events-none': settingsStore.creatorLayout !== 'full' }"
+                      @click="settingsStore.setCreatorStatSource('manual')" />
+                  </div>
+                </div>
+                <div class="flex justify-between items-center pt-2 border-neutral-200 border-t">
+                  <span class="font-bold text-sm rpg-body">Keep color &amp; tier after add</span>
+                  <SettingsControl variant="enabled" :active="settingsStore.keepCreatorFieldsOnBoardSave"
+                    @click="settingsStore.toggleKeepCreatorFieldsOnBoardSave" />
                 </div>
               </div>
             </div>
@@ -133,7 +135,8 @@
               <div class="bg-neutral-50 p-3 border border-neutral-200 rounded-lg">
                 <div class="flex justify-between items-center">
                   <span class="font-bold text-sm rpg-body">Sticky jump bar at bottom</span>
-                  <SettingsControl variant="visibility" :active="settingsStore.showSectionNav" @click="settingsStore.toggleSectionNav" />
+                  <SettingsControl variant="visibility" :active="settingsStore.showSectionNav"
+                    @click="settingsStore.toggleSectionNav" />
                 </div>
                 <div class="mt-2 text-neutral-600 text-xs rpg-body">
                   Combat column: jump between Timers, Battlefield, and other cards. Boards column: board bar.
@@ -145,21 +148,27 @@
               <h4 class="mb-3 rpg-label">Board Deploy</h4>
               <div class="space-y-3 bg-neutral-50 p-3 border border-neutral-200 rounded-lg">
                 <p class="text-neutral-600 text-xs rpg-body">
-                  When you deploy a card from the board column, jump to the matching combat section (timers, battlefield, etc.).
+                  When you deploy a card from the board column, jump to the matching combat section (timers,
+                  battlefield,
+                  etc.).
                 </p>
                 <div class="flex justify-between items-center">
                   <div>
                     <div class="font-bold text-sm rpg-body">Always scroll after deploy</div>
-                    <div class="text-neutral-600 text-xs rpg-body">Switches to the combat column on mobile, then scrolls</div>
+                    <div class="text-neutral-600 text-xs rpg-body">Switches to the combat column on mobile, then scrolls
+                    </div>
                   </div>
-                  <SettingsControl variant="choice" :active="settingsStore.scrollOnDeployMode === 'always'" @click="settingsStore.setScrollOnDeployMode('always')" />
+                  <SettingsControl variant="choice" :active="settingsStore.scrollOnDeployMode === 'always'"
+                    @click="settingsStore.setScrollOnDeployMode('always')" />
                 </div>
                 <div class="flex justify-between items-center">
                   <div>
                     <div class="font-bold text-sm rpg-body">Hold deploy to scroll</div>
-                    <div class="text-neutral-600 text-xs rpg-body">Tap deploys only; long-press deploy also scrolls</div>
+                    <div class="text-neutral-600 text-xs rpg-body">Tap deploys only; long-press deploy also scrolls
+                    </div>
                   </div>
-                  <SettingsControl variant="choice" :active="settingsStore.scrollOnDeployMode === 'hold'" @click="settingsStore.setScrollOnDeployMode('hold')" />
+                  <SettingsControl variant="choice" :active="settingsStore.scrollOnDeployMode === 'hold'"
+                    @click="settingsStore.setScrollOnDeployMode('hold')" />
                 </div>
               </div>
             </div>
@@ -169,15 +178,14 @@
               <div class="space-y-3 bg-neutral-50 p-3 border border-neutral-200 rounded-lg">
                 <div class="flex justify-between items-center">
                   <span class="font-bold text-sm rpg-body">Expand card previews</span>
-                  <SettingsControl variant="enabled" :active="settingsStore.boardCardExpandPreview" @click="settingsStore.toggleBoardCardExpandPreview" />
+                  <SettingsControl variant="enabled" :active="settingsStore.boardCardExpandPreview"
+                    @click="settingsStore.toggleBoardCardExpandPreview" />
                 </div>
                 <div class="settings-color-field">
                   <label class="font-bold text-sm rpg-body">Default new card color</label>
-                  <ColorSwatchPicker
-                    class="settings-color-field__picker"
+                  <ColorSwatchPicker class="settings-color-field__picker"
                     :model-value="settingsStore.defaultNewCardColor"
-                    @update:model-value="settingsStore.setDefaultNewCardColor"
-                  />
+                    @update:model-value="settingsStore.setDefaultNewCardColor" />
                 </div>
               </div>
             </div>
@@ -190,28 +198,33 @@
                     <div class="font-bold text-sm rpg-body">Named timers only</div>
                     <div class="text-neutral-600 text-xs rpg-body">Type a custom name for each timer</div>
                   </div>
-                  <SettingsControl variant="choice" :active="settingsStore.timerNamingMode === 'named'" @click="settingsStore.setTimerNamingMode('named')" />
+                  <SettingsControl variant="choice" :active="settingsStore.timerNamingMode === 'named'"
+                    @click="settingsStore.setTimerNamingMode('named')" />
                 </div>
                 <div class="flex justify-between items-center">
                   <div>
                     <div class="font-bold text-sm rpg-body">Color timers only</div>
                     <div class="text-neutral-600 text-xs rpg-body">Pick a swatch — no typing required</div>
                   </div>
-                  <SettingsControl variant="choice" :active="settingsStore.timerNamingMode === 'color'" @click="settingsStore.setTimerNamingMode('color')" />
+                  <SettingsControl variant="choice" :active="settingsStore.timerNamingMode === 'color'"
+                    @click="settingsStore.setTimerNamingMode('color')" />
                 </div>
                 <div class="flex justify-between items-center">
                   <div>
                     <div class="font-bold text-sm rpg-body">Named and Color tabs</div>
                     <div class="text-neutral-600 text-xs rpg-body">Switch between both styles in the Timers card</div>
                   </div>
-                  <SettingsControl variant="choice" :active="settingsStore.timerNamingMode === 'both'" @click="settingsStore.setTimerNamingMode('both')" />
+                  <SettingsControl variant="choice" :active="settingsStore.timerNamingMode === 'both'"
+                    @click="settingsStore.setTimerNamingMode('both')" />
                 </div>
-                <div v-if="settingsStore.timerNamingMode === 'both'" class="flex justify-between items-center pt-2 border-neutral-200 border-t">
+                <div v-if="settingsStore.timerNamingMode === 'both'"
+                  class="flex justify-between items-center pt-2 border-neutral-200 border-t">
                   <div>
                     <div class="font-bold text-sm rpg-body">Open on Color tab</div>
                     <div class="text-neutral-600 text-xs rpg-body">Which tab is selected when you open Timers</div>
                   </div>
-                  <SettingsControl variant="enabled" :active="settingsStore.timerColorModeDefault" @click="settingsStore.toggleTimerColorModeDefault" />
+                  <SettingsControl variant="enabled" :active="settingsStore.timerColorModeDefault"
+                    @click="settingsStore.toggleTimerColorModeDefault" />
                 </div>
               </div>
             </div>
@@ -221,11 +234,13 @@
               <div class="space-y-3 bg-neutral-50 p-3 border border-neutral-200 rounded-lg">
                 <div class="flex justify-between items-center">
                   <span class="font-bold text-sm rpg-body">Show title card at top</span>
-                  <SettingsControl variant="visibility" :active="settingsStore.showTitleCard" @click="settingsStore.toggleTitleCard" />
+                  <SettingsControl variant="visibility" :active="settingsStore.showTitleCard"
+                    @click="settingsStore.toggleTitleCard" />
                 </div>
                 <div class="flex justify-between items-center">
                   <span class="font-bold text-sm rpg-body">Show credits card at bottom</span>
-                  <SettingsControl variant="visibility" :active="settingsStore.showCreditsCard" @click="settingsStore.toggleCreditsCard" />
+                  <SettingsControl variant="visibility" :active="settingsStore.showCreditsCard"
+                    @click="settingsStore.toggleCreditsCard" />
                 </div>
               </div>
             </div>
@@ -242,7 +257,8 @@
                 </div>
                 <div class="flex justify-between items-center">
                   <span class="font-bold text-sm rpg-body">Show condition pills in compact view</span>
-                  <SettingsControl variant="visibility" :active="settingsStore.showCompactConditions" @click="settingsStore.toggleCompactConditions" />
+                  <SettingsControl variant="visibility" :active="settingsStore.showCompactConditions"
+                    @click="settingsStore.toggleCompactConditions" />
                 </div>
               </div>
             </div>
@@ -252,7 +268,8 @@
               <div class="bg-neutral-50 p-3 border border-neutral-200 rounded-lg">
                 <div class="flex justify-between items-center">
                   <span class="font-bold text-sm rpg-body">Auto-increment turn when all monsters are done</span>
-                  <SettingsControl variant="enabled" :active="settingsStore.autoTurnIncrement" @click="settingsStore.toggleAutoTurnIncrement" />
+                  <SettingsControl variant="enabled" :active="settingsStore.autoTurnIncrement"
+                    @click="settingsStore.toggleAutoTurnIncrement" />
                 </div>
               </div>
             </div>
@@ -262,15 +279,18 @@
               <div class="space-y-3 bg-neutral-50 p-3 border border-neutral-200 rounded-lg">
                 <div class="flex justify-between items-center">
                   <span class="font-bold text-sm rpg-body">Timer completed notifications</span>
-                  <SettingsControl variant="enabled" :active="settingsStore.notifications.timerDone" @click="settingsStore.toggleTimerDoneNotification" />
+                  <SettingsControl variant="enabled" :active="settingsStore.notifications.timerDone"
+                    @click="settingsStore.toggleTimerDoneNotification" />
                 </div>
                 <div class="flex justify-between items-center">
                   <span class="font-bold text-sm rpg-body">Turn auto-incremented notifications</span>
-                  <SettingsControl variant="enabled" :active="settingsStore.notifications.turnAutoIncremented" @click="settingsStore.toggleTurnAutoIncrementedNotification" />
+                  <SettingsControl variant="enabled" :active="settingsStore.notifications.turnAutoIncremented"
+                    @click="settingsStore.toggleTurnAutoIncrementedNotification" />
                 </div>
                 <div class="flex justify-between items-center">
                   <span class="font-bold text-sm rpg-body">Round end notifications</span>
-                  <SettingsControl variant="enabled" :active="settingsStore.notifications.roundEnded" @click="settingsStore.toggleRoundEndedNotification" />
+                  <SettingsControl variant="enabled" :active="settingsStore.notifications.roundEnded"
+                    @click="settingsStore.toggleRoundEndedNotification" />
                 </div>
               </div>
             </div>
@@ -282,10 +302,12 @@
           </div>
 
           <div class="flex sm:flex-row flex-col justify-between gap-3">
-            <button @click="settingsStore.resetToDefaults" class="px-3 sm:px-4 py-2 text-sm sm:text-base rpg-button rpg-button-secondary">
+            <button @click="settingsStore.resetToDefaults"
+              class="px-3 sm:px-4 py-2 text-sm sm:text-base rpg-button rpg-button-secondary">
               Reset to Defaults
             </button>
-            <button @click="showSettingsModal = false" class="px-3 sm:px-4 py-2 text-sm sm:text-base rpg-button rpg-button-primary">
+            <button @click="showSettingsModal = false"
+              class="px-3 sm:px-4 py-2 text-sm sm:text-base rpg-button rpg-button-primary">
               Close
             </button>
           </div>
@@ -293,27 +315,24 @@
       </div>
     </div>
 
-    <div v-if="showClearDialog"
-      class="z-50 fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 p-4">
+    <div v-if="showClearDialog" class="z-50 fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 p-4">
       <div class="bg-white shadow-xl p-6 rounded-lg w-full max-w-md">
         <div class="mb-4">
           <h3 class="mb-2 text-lg rpg-heading">Clear All Data</h3>
-          <p class="mb-2 text-neutral-700 rpg-body">Are you sure you want to clear all monsters, timers, and reset the combat state?</p>
+          <p class="mb-2 text-neutral-700 rpg-body">Are you sure you want to clear all monsters, timers, and reset the
+            combat state?</p>
           <p class="text-neutral-500 text-sm">This action cannot be undone.</p>
         </div>
         <div class="flex justify-end gap-3">
-          <button @click="clearAll" class="bg-danger hover:bg-red-700 border-danger text-white rpg-button">Clear All</button>
+          <button @click="clearAll" class="bg-danger hover:bg-red-700 border-danger text-white rpg-button">Clear
+            All</button>
           <button @click="showClearDialog = false" class="rpg-button rpg-button-secondary">Cancel</button>
         </div>
       </div>
     </div>
 
     <SectionNav v-if="activeColumn === 0" />
-    <BoardBar
-      v-else-if="settingsStore.showBoardsColumn"
-      @go-combat="goCombat"
-      @add-card="handleAddCard"
-    />
+    <BoardBar v-else-if="settingsStore.showBoardsColumn" @go-combat="goCombat" @add-card="handleAddCard" />
   </div>
 </template>
 
@@ -397,7 +416,6 @@ const scrollToCreator = () => {
 }
 
 const resetRoundsAndTurns = () => combatStore.resetRoundsAndTurns()
-const handleTierModeToggle = () => settingsStore.toggleTierMode()
 
 const handleAddCard = () => {
   const panel = boardsColumnCardsRef.value?.boardPanelRef ?? combatColumnCardsRef.value?.boardPanelRef

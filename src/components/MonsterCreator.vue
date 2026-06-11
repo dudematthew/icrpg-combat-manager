@@ -38,18 +38,20 @@
           </div>
         </div>
 
-        <div class="md:col-span-2">
-          <label for="notes" class="rpg-label">Notes (Optional)</label>
-          <textarea id="notes" v-model="newMonster.notes" placeholder="Add notes about this monster..." rows="4"
-            class="rpg-input" />
-        </div>
-        <div class="md:col-span-2">
-          <label for="abilities" class="rpg-label">Special Abilities (Optional)</label>
-          <textarea id="abilities" v-model="newMonster.specialAbilities" placeholder="Poison, blast, regeneration, etc."
-            rows="4" class="rpg-input" />
-        </div>
+        <template v-if="showStandardFields">
+          <div class="md:col-span-2">
+            <label for="notes" class="rpg-label">Notes (Optional)</label>
+            <textarea id="notes" v-model="newMonster.notes" placeholder="Add notes about this monster..." rows="4"
+              class="rpg-input" />
+          </div>
+          <div class="md:col-span-2">
+            <label for="abilities" class="rpg-label">Special Abilities (Optional)</label>
+            <textarea id="abilities" v-model="newMonster.specialAbilities"
+              placeholder="Poison, blast, regeneration, etc." rows="4" class="rpg-input" />
+          </div>
+        </template>
 
-        <div v-if="!settingsStore.fastMode" class="mt-6 pt-6 border-neutral-300 border-t-2">
+        <div v-if="showFullFields" class="mt-6">
           <details class="group">
             <summary class="cursor-pointer list-none">
               <div
@@ -75,13 +77,13 @@
                 </div>
               </div>
 
-              <div v-if="settingsStore.tierMode">
+              <div v-if="useTierStats">
                 <label for="hearts" class="rpg-label">Hearts Override</label>
                 <input id="hearts" v-model.number="newMonster.heartsMax" type="number" :min="1" :max="18"
                   placeholder="Default from tier" class="rpg-input" />
               </div>
 
-              <template v-if="!settingsStore.tierMode">
+              <template v-if="!useTierStats">
                 <div>
                   <label class="rpg-label">Stats Bonus Override</label>
                   <input v-model.number="newMonster.manualStatsBonus" type="number" :min="0" :max="20"
@@ -127,16 +129,16 @@
         </div>
 
         <div class="flex flex-col gap-2">
-          <button type="button" @click="addToBattlefield" :disabled="!canAddToBattlefield"
-            class="disabled:opacity-50 w-full text-xs disabled:cursor-not-allowed rpg-button rpg-button-sm rpg-button-primary">
-            <img :src="assetUrl('images/sword_icon.png')" class="icon-filter" alt="" />
-            To Battlefield
-          </button>
           <div class="flex justify-end">
             <button type="button" class="optional-action" :disabled="!canSaveToBoard" @click="saveToBoard">
               To Board
             </button>
           </div>
+          <button type="button" @click="addToBattlefield" :disabled="!canAddToBattlefield"
+            class="disabled:opacity-50 w-full text-xs disabled:cursor-not-allowed rpg-button rpg-button-sm rpg-button-primary">
+            <img :src="assetUrl('images/sword_icon.png')" class="icon-filter" alt="" />
+            To Battlefield
+          </button>
           <div class="flex gap-2">
             <button type="button" @click="addBlankMonster" class="flex-1 text-xs rpg-button rpg-button-secondary">
               <Plus class="h-5" />
@@ -202,7 +204,13 @@ const newMonster = reactive({
   manualHearts: 0,
 });
 
-const stats = computed(() => getEffectiveStats(newMonster, settingsStore.tierMode));
+const showStandardFields = computed(
+  () => settingsStore.creatorLayout === "standard" || settingsStore.creatorLayout === "full",
+);
+const showFullFields = computed(() => settingsStore.creatorLayout === "full");
+const useTierStats = computed(() => settingsStore.creatorStatSource === "tier");
+
+const stats = computed(() => getEffectiveStats(newMonster, useTierStats.value));
 const effectiveStatsBonus = computed(() => stats.value.statsBonus);
 const effectiveEffortBonus = computed(() => stats.value.effortBonus);
 const effectiveActions = computed(() => stats.value.actions);
@@ -251,14 +259,14 @@ const incrementLetter = () => {
 
 const addToBattlefield = () => {
   if (!canAddToBattlefield.value) return;
-  combatStore.addMonster(buildMonsterPayload(newMonster, settingsStore.tierMode, newMonster.letter));
+  combatStore.addMonster(buildMonsterPayload(newMonster, useTierStats.value, newMonster.letter));
   incrementLetter();
   clearFormAfterAdd(settingsStore.keepCreatorFieldsOnBoardSave);
 };
 
 const saveToBoard = () => {
   if (!canSaveToBoard.value) return;
-  const template = buildTemplateFromForm(newMonster, settingsStore.tierMode);
+  const template = buildTemplateFromForm(newMonster, useTierStats.value);
   boardsStore.pushPayloadCard(
     "monster",
     newMonster.name || templateLabel(template),

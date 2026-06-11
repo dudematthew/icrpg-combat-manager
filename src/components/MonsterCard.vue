@@ -190,7 +190,7 @@
 
   <!-- Edit Monster Modal -->
   <div v-if="showEditModal" class="z-50 fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 p-4"
-    @click="cancelEdit">
+    @mousedown.self="cancelEdit">
     <div class="bg-white shadow-xl mx-4 my-8 p-6 rounded-lg w-full max-w-md"
       style="max-height: 90vh; overflow-y: auto; overflow-x: none;" @click.stop>
       <div class="mb-4">
@@ -303,7 +303,7 @@
 
   <!-- Damage Dialog -->
   <div v-if="showDamageDialog" class="z-50 fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 p-4"
-    @click="showDamageDialog = false">
+    @mousedown.self="showDamageDialog = false">
     <div class="bg-white shadow-xl p-6 rounded-lg w-full max-w-sm" @click.stop>
       <div class="mb-4">
         <h3 class="mb-4 text-lg rpg-heading">Adjust HP</h3>

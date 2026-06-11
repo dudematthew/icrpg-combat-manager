@@ -9,7 +9,7 @@
 
         <!-- Recent Commits Popup -->
         <Teleport to="body">
-            <div v-if="showCommits && recentCommits.length > 0" class="commits-overlay" @click="closeCommits">
+            <div v-if="showCommits && recentCommits.length > 0" class="commits-overlay" @mousedown.self="closeCommits">
                 <div class="commits-popup rpg-card" @click.stop>
                     <div class="commits-header">
                         <h3 class="commits-title">Recent Commits</h3>

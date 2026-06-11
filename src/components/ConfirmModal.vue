@@ -3,7 +3,7 @@
     <div
       v-if="open"
       class="z-50 fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 p-4"
-      @click="onCancel"
+      @mousedown.self="onCancel"
     >
       <div class="bg-white shadow-xl p-6 rounded-lg w-full max-w-md" @click.stop>
         <h3 class="mb-2 text-lg rpg-heading">{{ title }}</h3>

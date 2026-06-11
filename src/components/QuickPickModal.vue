@@ -3,7 +3,7 @@
     <div
       v-if="isOpen"
       class="quick-pick-overlay"
-      @click="close"
+      @mousedown.self="close"
     >
       <div class="quick-pick-panel" @click.stop>
         <h3 class="quick-pick-title">{{ title }}</h3>

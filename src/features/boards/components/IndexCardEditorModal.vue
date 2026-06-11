@@ -1,6 +1,6 @@
 <template>
   <Teleport to="body">
-    <div v-if="open" class="index-editor-overlay" @click="close">
+    <div v-if="open" class="index-editor-overlay" @mousedown.self="close">
       <div class="index-editor-panel" @click.stop>
         <h3 class="index-editor-title">{{ card ? "Edit card" : "New card" }}</h3>
 

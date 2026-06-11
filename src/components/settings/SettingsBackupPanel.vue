@@ -109,7 +109,7 @@
       v-if="confirmOpen"
       class="z-[60] fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 p-4"
       style="margin-top: 0;"
-      @click="cancelConfirm"
+      @mousedown.self="cancelConfirm"
     >
       <div class="bg-white shadow-xl p-6 rounded-lg w-full max-w-md" @click.stop>
         <h3 class="mb-2 text-lg rpg-heading">Replace all data?</h3>

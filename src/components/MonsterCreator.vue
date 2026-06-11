@@ -191,8 +191,8 @@ const boardsStore = useBoardsStore();
 
 const newMonster = reactive({
   color: "Red",
-  letter: "",
-  tier: "" as "I" | "II" | "III" | "IV" | "",
+  letter: "A",
+  tier: "I" as "I" | "II" | "III" | "IV" | "",
   name: "",
   notes: "",
   heartsMax: 0,
@@ -202,6 +202,34 @@ const newMonster = reactive({
   manualActions: 0,
   manualHearts: 0,
 });
+
+const updateTierDefaults = () => {
+  if (!newMonster.tier) return;
+  const config = TIER_CONFIGS[newMonster.tier];
+  if (!config) return;
+  if (newMonster.heartsMax === 0) newMonster.heartsMax = config.hearts;
+  if (newMonster.manualStatsBonus === 0) newMonster.manualStatsBonus = config.bonus;
+  if (newMonster.manualEffortBonus === 0) newMonster.manualEffortBonus = config.effortBonus || 0;
+  if (newMonster.manualActions === 0) newMonster.manualActions = config.actions;
+  if (newMonster.manualHearts === 0) newMonster.manualHearts = config.hearts;
+};
+
+const resetCreatorDefaults = () => {
+  newMonster.color = "Red";
+  newMonster.letter = "A";
+  newMonster.tier = "I";
+  newMonster.name = "";
+  newMonster.notes = "";
+  newMonster.specialAbilities = "";
+  newMonster.heartsMax = 0;
+  newMonster.manualStatsBonus = 0;
+  newMonster.manualEffortBonus = 0;
+  newMonster.manualActions = 0;
+  newMonster.manualHearts = 0;
+  updateTierDefaults();
+};
+
+updateTierDefaults();
 
 const showStandardFields = computed(
   () => settingsStore.creatorLayout === "standard" || settingsStore.creatorLayout === "full",
@@ -218,34 +246,13 @@ const effectiveHearts = computed(() => stats.value.heartsMax);
 const canSaveToBoard = computed(() => Boolean(newMonster.color && newMonster.tier));
 const canAddToBattlefield = computed(() => Boolean(newMonster.color && newMonster.letter && newMonster.tier));
 
-const updateTierDefaults = () => {
-  if (!newMonster.tier) return;
-  const config = TIER_CONFIGS[newMonster.tier];
-  if (!config) return;
-  if (newMonster.heartsMax === 0) newMonster.heartsMax = config.hearts;
-  if (newMonster.manualStatsBonus === 0) newMonster.manualStatsBonus = config.bonus;
-  if (newMonster.manualEffortBonus === 0) newMonster.manualEffortBonus = config.effortBonus || 0;
-  if (newMonster.manualActions === 0) newMonster.manualActions = config.actions;
-  if (newMonster.manualHearts === 0) newMonster.manualHearts = config.hearts;
-};
-
 const clearFormAfterAdd = (keepColorTier: boolean) => {
   if (keepColorTier) {
     newMonster.name = "";
     newMonster.notes = "";
     newMonster.specialAbilities = "";
   } else {
-    newMonster.color = "Red";
-    newMonster.letter = "";
-    newMonster.tier = "";
-    newMonster.name = "";
-    newMonster.notes = "";
-    newMonster.specialAbilities = "";
-    newMonster.heartsMax = 0;
-    newMonster.manualStatsBonus = 0;
-    newMonster.manualEffortBonus = 0;
-    newMonster.manualActions = 0;
-    newMonster.manualHearts = 0;
+    resetCreatorDefaults();
   }
 };
 

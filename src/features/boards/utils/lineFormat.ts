@@ -1,4 +1,4 @@
-export type LineFormat = "h1" | "h2" | "h3" | "bullet" | "bold" | "italic" | "quote";
+export type LineFormat = "h1" | "h2" | "h3" | "bullet" | "task" | "bold" | "italic" | "quote";
 
 function wrapSelection(
   text: string,
@@ -42,9 +42,22 @@ export function applyLineFormat(
       cursor = lineStart + newLine.length;
       break;
     case "bullet":
-      newLine = line.match(/^[-*]\s/) ? line : `- ${line}`;
+      newLine = line.match(/^[-*+]\s/) ? line : `- ${line}`;
       cursor = lineStart + newLine.length;
       break;
+    case "task": {
+      const taskMatch = line.match(/^(\s*)[-*+]\s+\[([ xX])\]\s*(.*)$/);
+      if (taskMatch) {
+        const [, indent, state, rest] = taskMatch;
+        const nextState = state === "x" || state === "X" ? " " : "x";
+        newLine = `${indent}- [${nextState}] ${rest}`;
+      } else {
+        const stripped = line.replace(/^[-*+]\s+/, "");
+        newLine = `- [ ] ${stripped}`;
+      }
+      cursor = lineStart + newLine.length;
+      break;
+    }
     case "quote":
       newLine = line.match(/^>\s/) ? line : `> ${line}`;
       cursor = lineStart + newLine.length;

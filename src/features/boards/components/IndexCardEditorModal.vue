@@ -34,14 +34,15 @@
             >markdown</a>
             )
           </label>
-          <MarkdownToolbar @format="applyFormat" />
           <textarea
             ref="textareaRef"
             v-model="localBody"
             class="rpg-input index-editor-textarea"
             rows="12"
+            @keydown="onTextareaKeydown"
           />
-          <p class="mt-1 text-neutral-500 text-xs rpg-body">Ctrl+Enter save · Esc close · B/I need selected text</p>
+          <MarkdownToolbar @format="applyFormat" />
+          <p class="mt-1 text-neutral-500 text-xs rpg-body">Ctrl+B/I bold/italic · Ctrl+Enter save · Esc close</p>
         </div>
 
         <div class="index-editor-footer">
@@ -138,6 +139,18 @@ const applyFormat = (format: LineFormat) => {
     el.focus();
     el.setSelectionRange(cursor, cursor);
   });
+};
+
+const onTextareaKeydown = (e: KeyboardEvent) => {
+  if (!(e.ctrlKey || e.metaKey)) return;
+  const key = e.key.toLowerCase();
+  if (key === "b") {
+    e.preventDefault();
+    applyFormat("bold");
+  } else if (key === "i") {
+    e.preventDefault();
+    applyFormat("italic");
+  }
 };
 
 function save() {

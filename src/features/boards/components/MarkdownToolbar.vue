@@ -25,6 +25,7 @@ const buttons: { format: LineFormat; label: string; title: string }[] = [
   { format: "h2", label: "H2", title: "Heading 2" },
   { format: "h3", label: "H3", title: "Heading 3" },
   { format: "bullet", label: "•", title: "Bullet list" },
+  { format: "task", label: "☐", title: "Task item (- [ ] / toggle - [x])" },
   { format: "bold", label: "B", title: "Bold selected text" },
   { format: "italic", label: "I", title: "Italic selected text" },
   { format: "quote", label: ">", title: "Quote" },
@@ -36,7 +37,7 @@ const buttons: { format: LineFormat; label: string; title: string }[] = [
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem;
-  margin-bottom: 0.75rem;
+  margin-top: 0.5rem;
 }
 
 .markdown-toolbar__btn {

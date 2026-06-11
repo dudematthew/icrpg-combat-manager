@@ -11,27 +11,29 @@
         <p class="monster-popover__hint text-neutral-600 text-xs rpg-body">
           Pick effort die type. Monster effort bonus is added automatically.
         </p>
-        <label class="mb-1 rpg-label">Effort die</label>
-        <div class="flex flex-wrap gap-2">
-          <button
-            v-for="type in effortTypes"
-            :key="type.die"
-            type="button"
-            class="effort-die-btn"
-            :class="{ 'effort-die-btn--active': selectedDie === type.die }"
-            :title="type.useCase"
-            @click="selectedDie = type.die"
-          >
-            d{{ type.die }}
-          </button>
+        <div class="monster-popover__field">
+          <label class="rpg-label">Effort die</label>
+          <div class="monster-popover__btn-row">
+            <button
+              v-for="type in effortTypes"
+              :key="type.die"
+              type="button"
+              class="effort-die-btn"
+              :class="{ 'effort-die-btn--active': selectedDie === type.die }"
+              :title="type.useCase"
+              @click="selectedDie = type.die"
+            >
+              d{{ type.die }}
+            </button>
+          </div>
+          <p v-if="effortBonus > 0" class="text-neutral-600 text-xs rpg-body">
+            +{{ effortBonus }} monster effort bonus
+          </p>
         </div>
-        <p v-if="effortBonus > 0" class="mt-2 text-neutral-600 text-xs rpg-body">
-          +{{ effortBonus }} monster effort bonus
-        </p>
 
         <button
           type="button"
-          class="mt-3 w-full rpg-button rpg-button-primary rpg-button-sm"
+          class="w-full rpg-button rpg-button-primary rpg-button-sm"
           :disabled="isRolling"
           @click="roll"
         >
@@ -51,7 +53,7 @@
           </template>
         </div>
 
-        <button type="button" class="mt-3 optional-action" @click="close">Close</button>
+        <button type="button" class="optional-action" @click="close">Close</button>
       </div>
     </div>
   </Teleport>
@@ -130,11 +132,12 @@ const roll = async () => {
 }
 
 .monster-popover__hint {
-  margin: 0 0 0.75rem;
+  margin: 0;
 }
 
 .effort-die-btn {
-  padding: 0.35rem 0.55rem;
+  min-height: 2.375rem;
+  padding: 0.35rem 0.5rem;
   border: 2px solid #d4d4d4;
   border-radius: 0.375rem;
   background: #fafafa;
@@ -142,6 +145,7 @@ const roll = async () => {
   font-size: 0.7rem;
   font-weight: 900;
   cursor: pointer;
+  text-align: center;
 }
 
 .effort-die-btn--active {
@@ -151,7 +155,6 @@ const roll = async () => {
 }
 
 .monster-popover__result {
-  margin-top: 0.75rem;
   padding: 0.65rem;
   text-align: center;
   background: #faf5ff;

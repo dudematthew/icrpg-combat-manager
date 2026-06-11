@@ -11,12 +11,14 @@
         <p class="monster-popover__hint text-neutral-600 text-xs rpg-body">
           Player defense or room target for this roll.
         </p>
-        <label class="mb-1 rpg-label">Target</label>
-        <TargetPicker v-model="baseTarget" />
+        <div class="monster-popover__field">
+          <label class="rpg-label">Target</label>
+          <TargetPicker v-model="baseTarget" />
+        </div>
 
         <button
           type="button"
-          class="mt-3 w-full rpg-button rpg-button-primary rpg-button-sm"
+          class="w-full rpg-button rpg-button-primary rpg-button-sm"
           :disabled="isRolling"
           @click="roll"
         >
@@ -63,7 +65,7 @@
           </template>
         </div>
 
-        <button type="button" class="mt-3 optional-action" @click="close">Close</button>
+        <button type="button" class="optional-action" @click="close">Close</button>
       </div>
     </div>
   </Teleport>
@@ -154,11 +156,10 @@ const roll = async () => {
 }
 
 .monster-popover__hint {
-  margin: 0 0 0.75rem;
+  margin: 0;
 }
 
 .monster-popover__result {
-  margin-top: 0.75rem;
   padding: 0.65rem;
   text-align: center;
   background: #faf5ff;

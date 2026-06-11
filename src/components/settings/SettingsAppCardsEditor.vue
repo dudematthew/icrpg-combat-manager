@@ -2,106 +2,76 @@
   <div class="mb-6">
     <h4 class="mb-3 rpg-label">Application Cards</h4>
     <p class="mb-3 text-neutral-600 text-xs rpg-body">
-      Drag cards between sections to choose a column, or reorder within a section. Boards stays fixed; other cards can sit above or below it. At least one card stays at the table.
+      Drag cards between sections to choose a column, or reorder within a section. Boards stays fixed; other cards can
+      sit above or below it. At least one card stays at the table.
     </p>
 
-    <p class="mb-2 font-bold text-xs rpg-label uppercase tracking-wide">At the table</p>
+    <p class="mb-2 font-bold text-xs uppercase tracking-wide rpg-label">At the table</p>
     <div ref="combatListParent" class="space-y-1 mb-4">
-      <div
-        v-for="(card, index) in combatDraft"
-        :key="card.id"
-        :index="index"
-        :data-card-id="card.id"
-        class="flex items-center gap-2 bg-neutral-50 p-2 border border-neutral-200 rounded-lg"
-      >
-        <div
-          v-if="canDragAppCardInSettings(card.id, 'combat', combatDraft.length)"
-          class="flex-shrink-0 text-neutral-400 cursor-move drag-handle"
-        >
+      <div v-for="(card, index) in combatDraft" :key="card.id" :index="index" :data-card-id="card.id"
+        class="flex items-center gap-2 bg-neutral-50 p-2 border border-neutral-200 rounded-lg">
+        <div v-if="canDragAppCardInSettings(card.id, 'combat', combatDraft.length)"
+          class="flex-shrink-0 text-neutral-400 cursor-move drag-handle">
           <GripVertical class="w-4 h-4" />
         </div>
         <div v-else class="flex-shrink-0 w-4" aria-hidden="true" />
         <div class="flex-1 min-w-0">
           <div class="font-medium text-sm rpg-heading">{{ card.name }}</div>
-          <div class="text-neutral-600 text-xs rpg-body truncate">{{ card.description }}</div>
+          <div class="text-neutral-600 text-xs truncate rpg-body">{{ card.description }}</div>
         </div>
         <SettingsControl variant="visibility" :active="card.enabled" @click="toggleCard(card.id)" />
       </div>
     </div>
 
-    <div class="settings-boards-section-label mb-2">
-      <span class="font-bold text-xs rpg-label uppercase tracking-wide">On the board</span>
-      <SettingsControl
-        variant="visibility"
-        :active="settingsStore.boardsColumnEnabled"
-        @click="settingsStore.toggleBoardsColumn()"
-      />
+    <div class="mb-2 settings-boards-section-label">
+      <span class="font-bold text-xs uppercase tracking-wide rpg-label">On the board</span>
+      <SettingsControl variant="visibility" :active="settingsStore.boardsColumnEnabled"
+        @click="settingsStore.toggleBoardsColumn()" />
     </div>
     <div class="space-y-1">
-      <div ref="boardsAboveListParent" class="settings-boards-dropzone space-y-1">
-        <p
-          v-if="boardsAboveDraft.length === 0"
-          class="settings-boards-dropzone__placeholder text-neutral-400 text-xs rpg-body px-2 py-1 pointer-events-none"
-        >
+      <div ref="boardsAboveListParent" class="space-y-1 settings-boards-dropzone">
+        <p v-if="boardsAboveDraft.length === 0"
+          class="px-2 py-1 text-neutral-400 text-xs pointer-events-none settings-boards-dropzone__placeholder rpg-body">
           Drop cards above board
         </p>
-        <div
-          v-for="(card, index) in boardsAboveDraft"
-          :key="card.id"
-          :index="index"
-          :data-card-id="card.id"
-          class="flex items-center gap-2 bg-neutral-50 p-2 border border-neutral-200 rounded-lg"
-        >
-          <div
-            v-if="canDragAppCardInSettings(card.id, 'boards', combatDraft.length)"
-            class="flex-shrink-0 text-neutral-400 cursor-move drag-handle"
-          >
+        <div v-for="(card, index) in boardsAboveDraft" :key="card.id" :index="index" :data-card-id="card.id"
+          class="flex items-center gap-2 bg-neutral-50 p-2 border border-neutral-200 rounded-lg">
+          <div v-if="canDragAppCardInSettings(card.id, 'boards', combatDraft.length)"
+            class="flex-shrink-0 text-neutral-400 cursor-move drag-handle">
             <GripVertical class="w-4 h-4" />
           </div>
           <div v-else class="flex-shrink-0 w-4" aria-hidden="true" />
           <div class="flex-1 min-w-0">
             <div class="font-medium text-sm rpg-heading">{{ card.name }}</div>
-            <div class="text-neutral-600 text-xs rpg-body truncate">{{ card.description }}</div>
+            <div class="text-neutral-600 text-xs truncate rpg-body">{{ card.description }}</div>
           </div>
           <SettingsControl variant="visibility" :active="card.enabled" @click="toggleCard(card.id)" />
         </div>
       </div>
 
-      <div
-        v-if="boardsPinned"
-        class="flex items-center gap-2 bg-neutral-50 p-2 border border-neutral-200 rounded-lg"
-      >
+      <div v-if="boardsPinned" class="flex items-center gap-2 bg-neutral-50 p-2 border border-neutral-200 rounded-lg">
         <div class="flex-shrink-0 w-4" aria-hidden="true" />
         <div class="flex-1 min-w-0">
           <div class="font-medium text-sm rpg-heading">{{ boardsPinned.name }}</div>
-          <div class="text-neutral-600 text-xs rpg-body truncate">{{ boardsPinned.description }}</div>
+          <div class="text-neutral-600 text-xs truncate rpg-body">{{ boardsPinned.description }}</div>
         </div>
       </div>
 
-      <div ref="boardsBelowListParent" class="settings-boards-dropzone space-y-1">
-        <p
-          v-if="boardsBelowDraft.length === 0"
-          class="settings-boards-dropzone__placeholder text-neutral-400 text-xs rpg-body px-2 py-1 pointer-events-none"
-        >
+      <div ref="boardsBelowListParent" class="space-y-1 settings-boards-dropzone">
+        <p v-if="boardsBelowDraft.length === 0"
+          class="px-2 py-1 text-neutral-400 text-xs pointer-events-none settings-boards-dropzone__placeholder rpg-body">
           Drop cards below board
         </p>
-        <div
-          v-for="(card, index) in boardsBelowDraft"
-          :key="card.id"
-          :index="index"
-          :data-card-id="card.id"
-          class="flex items-center gap-2 bg-neutral-50 p-2 border border-neutral-200 rounded-lg"
-        >
-          <div
-            v-if="canDragAppCardInSettings(card.id, 'boards', combatDraft.length)"
-            class="flex-shrink-0 text-neutral-400 cursor-move drag-handle"
-          >
+        <div v-for="(card, index) in boardsBelowDraft" :key="card.id" :index="index" :data-card-id="card.id"
+          class="flex items-center gap-2 bg-neutral-50 p-2 border border-neutral-200 rounded-lg">
+          <div v-if="canDragAppCardInSettings(card.id, 'boards', combatDraft.length)"
+            class="flex-shrink-0 text-neutral-400 cursor-move drag-handle">
             <GripVertical class="w-4 h-4" />
           </div>
           <div v-else class="flex-shrink-0 w-4" aria-hidden="true" />
           <div class="flex-1 min-w-0">
             <div class="font-medium text-sm rpg-heading">{{ card.name }}</div>
-            <div class="text-neutral-600 text-xs rpg-body truncate">{{ card.description }}</div>
+            <div class="text-neutral-600 text-xs truncate rpg-body">{{ card.description }}</div>
           </div>
           <SettingsControl variant="visibility" :active="card.enabled" @click="toggleCard(card.id)" />
         </div>

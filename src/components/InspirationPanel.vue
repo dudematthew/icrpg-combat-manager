@@ -9,8 +9,14 @@
       Roll Full NPC
     </button>
 
-    <div class="inspiration-chips">
-      <button v-for="chip in chips" :key="chip.key" type="button" class="w-full text-xs rpg-button rpg-button-secondary"
+    <div class="inspiration-chips inspiration-chips--top">
+      <button v-for="chip in topChips" :key="chip.key" type="button" class="w-full text-xs rpg-button rpg-button-secondary"
+        v-bind="chipHandlers(chip.key)">
+        {{ chip.label }}
+      </button>
+    </div>
+    <div class="inspiration-chips inspiration-chips--bottom">
+      <button v-for="chip in bottomChips" :key="chip.key" type="button" class="w-full text-xs rpg-button rpg-button-secondary"
         v-bind="chipHandlers(chip.key)">
         {{ chip.label }}
       </button>
@@ -48,7 +54,8 @@ import { Sparkles } from "lucide-vue-next";
 import QuickPickModal from "@/components/QuickPickModal.vue";
 import { useHoldToPick, bindHoldHandlers } from "@/composables/useHoldToPick";
 import {
-  INSPIRATION_CHIPS,
+  INSPIRATION_TOP_CHIPS,
+  INSPIRATION_BOTTOM_CHIPS,
   rollCategory,
   rollFullNpc,
   getCategoryOptions,
@@ -59,7 +66,9 @@ import { useSettingsStore } from "@/stores/settings";
 
 const boardsStore = useBoardsStore();
 const settingsStore = useSettingsStore();
-const chips = INSPIRATION_CHIPS;
+const topChips = INSPIRATION_TOP_CHIPS;
+const bottomChips = INSPIRATION_BOTTOM_CHIPS;
+const allChips = [...topChips, ...bottomChips];
 
 const result = ref("");
 const resultLabel = ref("");
@@ -92,13 +101,13 @@ const rollFull = () => {
 
 const rollChip = (key: InspirationCategory) => {
   lastCategory.value = key;
-  const label = chips.find((c) => c.key === key)?.label ?? key;
+  const label = allChips.find((c) => c.key === key)?.label ?? key;
   setResult(label, rollCategory(key));
 };
 
 const openPick = (key: InspirationCategory) => {
   pickCategory.value = key;
-  pickTitle.value = `Pick ${chips.find((c) => c.key === key)?.label ?? key}`;
+  pickTitle.value = `Pick ${allChips.find((c) => c.key === key)?.label ?? key}`;
   pickOptions.value = getCategoryOptions(key);
   if (pickOptions.value.length === 0) {
     rollChip(key);
@@ -110,7 +119,7 @@ const openPick = (key: InspirationCategory) => {
 const onPick = (value: string) => {
   if (pickCategory.value) {
     lastCategory.value = pickCategory.value;
-    const label = chips.find((c) => c.key === pickCategory.value)?.label ?? pickCategory.value;
+    const label = allChips.find((c) => c.key === pickCategory.value)?.label ?? pickCategory.value;
     setResult(label, value);
   }
 };
@@ -144,7 +153,7 @@ const pushToBoard = () => {
 };
 
 const chipHandlerMap = new Map<InspirationCategory, ReturnType<typeof useHoldToPick>>();
-for (const chip of chips) {
+for (const chip of allChips) {
   chipHandlerMap.set(
     chip.key,
     useHoldToPick(
@@ -160,9 +169,34 @@ const chipHandlers = (key: InspirationCategory) => bindHoldHandlers(chipHandlerM
 <style scoped>
 .inspiration-chips {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.inspiration-chips--top {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.inspiration-chips--bottom {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   margin-bottom: 1rem;
 }
 
+.inspiration-chips :deep(.rpg-button) {
+  padding-left: 0.35rem;
+  padding-right: 0.35rem;
+  font-size: 0.65rem;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (min-width: 480px) {
+  .inspiration-chips :deep(.rpg-button) {
+    font-size: 0.75rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+}
 </style>

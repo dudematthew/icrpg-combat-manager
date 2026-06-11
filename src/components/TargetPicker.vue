@@ -1,17 +1,17 @@
 <template>
   <div class="target-picker">
-    <div class="flex flex-wrap gap-2 items-center">
+    <div class="checks-fill-row">
       <button
         v-for="tn in PRESET_TARGET_NUMBERS"
         :key="tn"
         type="button"
-        class="target-picker__chip"
+        class="target-picker__chip checks-fill-item"
         :class="{ 'target-picker__chip--active': !useCustom && modelValue === tn }"
         @click="selectPreset(tn)"
       >
         {{ tn }}
       </button>
-      <label class="target-picker__custom">
+      <label class="target-picker__custom checks-fill-item">
         <span class="sr-only">Custom target</span>
         <input
           :value="useCustom ? modelValue : ''"
@@ -57,8 +57,8 @@ const onCustomInput = (event: Event) => {
 
 <style scoped>
 .target-picker__chip {
-  min-width: 2.5rem;
-  padding: 0.35rem 0.65rem;
+  padding: 0.35rem 0.25rem;
+  min-height: 2.375rem;
   border: 2px solid #d4d4d4;
   border-radius: 0.375rem;
   background: #fafafa;
@@ -66,6 +66,7 @@ const onCustomInput = (event: Event) => {
   font-size: 0.75rem;
   font-weight: 900;
   cursor: pointer;
+  text-align: center;
   transition: background 0.15s, border-color 0.15s, color 0.15s;
 }
 
@@ -81,14 +82,18 @@ const onCustomInput = (event: Event) => {
 }
 
 .target-picker__custom {
-  flex: 1;
-  min-width: 5rem;
+  display: flex;
+  min-width: 0;
 }
 
 .target-picker__input {
+  width: 100%;
   max-width: none;
-  padding: 0.35rem 0.5rem;
+  min-height: 2.375rem;
+  max-height: 2.375rem;
+  padding: 0.5rem 0.75rem;
   font-size: 0.875rem;
+  resize: none;
 }
 
 .sr-only {

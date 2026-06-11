@@ -8,7 +8,9 @@
   font-family: "FlatBread";
   font-style: normal;
   font-weight: 500;
-  src: local("FlatBread"), url("https://fonts.cdnfonts.com/s/68553/FlatBread.woff") format("woff");
+  src:
+    local("FlatBread"),
+    url("https://fonts.cdnfonts.com/s/68553/FlatBread.woff") format("woff");
   font-display: swap;
 }
 
@@ -16,7 +18,9 @@
   font-family: "nusaliver";
   font-style: normal;
   font-weight: 900;
-  src: local("nusaliver"), url("https://fonts.cdnfonts.com/s/53177/nusaliver.woff") format("woff");
+  src:
+    local("nusaliver"),
+    url("https://fonts.cdnfonts.com/s/53177/nusaliver.woff") format("woff");
   font-display: swap;
 }
 
@@ -24,7 +28,8 @@
   font-family: "Chalkduster";
   font-style: normal;
   font-weight: 400;
-  src: local("Chalkduster"),
+  src:
+    local("Chalkduster"),
     url("https://fonts.cdnfonts.com/s/39881/Chalkduster.woff") format("woff");
   font-display: swap;
 }
@@ -34,7 +39,8 @@
   font-family: "Source Serif Pro";
   font-style: normal;
   font-weight: 400;
-  src: local("Source Serif Pro"),
+  src:
+    local("Source Serif Pro"),
     url("https://fonts.gstatic.com/s/sourceserifpro/v15/6xK1dSBYKcSV-LCoeQqfX1RYOo3qPa7kFUAJTUwOmhLDOg.woff2")
       format("woff2");
   font-display: swap;
@@ -44,7 +50,8 @@
   font-family: "Source Serif Pro";
   font-style: normal;
   font-weight: 600;
-  src: local("Source Serif Pro SemiBold"),
+  src:
+    local("Source Serif Pro SemiBold"),
     url("https://fonts.gstatic.com/s/sourceserifpro/v15/6xK1dSBYKcSV-LCoeQqfX1RYOo3qPa7kBWAJTUwOmhLDOg.woff2")
       format("woff2");
   font-display: swap;
@@ -52,8 +59,8 @@
 
 /* Base styles */
 body {
-  background: linear-gradient(rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.15)),
-    var(--paper-bg), #f5f5f5;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.15)), var(--paper-bg), #f5f5f5;
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center center;
@@ -165,8 +172,9 @@ body {
   }
 
   body {
-    background: linear-gradient(rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.15)),
-      var(--paper-bg), #e5e5e5;
+    background:
+      linear-gradient(rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.15)), var(--paper-bg),
+      #e5e5e5;
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center center;
@@ -179,7 +187,9 @@ body {
   background: white;
   border: 2px solid #e5e5e5;
   border-radius: 0.75rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
   padding: 1.5rem;
   margin-bottom: 1rem;
   position: relative;
@@ -492,6 +502,34 @@ body {
   margin-bottom: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+}
+
+/* Equal-width control rows (Checks target, difficulty, effort, etc.) */
+.checks-fill-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.checks-fill-item {
+  flex: 1 1 3rem;
+  min-width: 3rem;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.checks-fill-item--wide {
+  flex: 5.5 1 3rem;
+}
+
+.checks-fill-item--action {
+  flex: 4.5 1 3rem;
+}
+
+.checks-fill-row--align-end {
+  align-items: flex-end;
 }
 
 /* Monster Card Tiers */
@@ -1093,7 +1131,9 @@ body {
 }
 
 .shadow-xl {
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
 .transition-colors {

@@ -18,28 +18,28 @@
       </div>
 
       <div class="flex flex-col flex-wrap gap-4 mb-6">
-        <div v-if="effectiveNamingMode === 'named'">
+        <div v-if="effectiveNamingMode === 'named'" class="timer-field">
           <label class="rpg-label">Timer Name</label>
-          <div class="flex gap-2">
+          <div class="timer-inline-row">
             <input v-model="newTimer.name" placeholder="e.g., Building collapses" @keyup.enter="addTimer"
-              class="flex-1 rpg-input" />
-            <button type="button" @click="generateTimerName" class="p-0 rpg-button rpg-button-secondary"
+              class="timer-inline-row__input rpg-input" />
+            <button type="button" @click="generateTimerName" class="timer-inline-row__btn rpg-button rpg-button-secondary"
               title="Generate random clock name">
               <img :src="assetUrl('images/d6_dice_icon.png')" class="h-5 icon-filter" alt="Generate name" />
             </button>
           </div>
         </div>
-        <div v-else>
+        <div v-else class="timer-field">
           <label class="rpg-label">Timer Color</label>
-          <ColorSwatchPicker v-model="newTimer.color" />
+          <ColorSwatchPicker v-model="newTimer.color" compact />
           <div v-if="newTimer.color" class="mt-2 text-neutral-600 text-xs">{{ colorTimerName }}</div>
         </div>
 
-        <div>
+        <div class="timer-field">
           <label class="rpg-label">Timer Type</label>
-          <div class="flex gap-2">
+          <div class="timer-type-grid">
             <button v-for="t in timerTypes" :key="t" type="button" @click="newTimer.type = t"
-              :class="['flex-1 text-xs rpg-button', newTimer.type === t ? 'rpg-button-primary' : 'rpg-button-secondary']">
+              :class="['text-xs rpg-button', newTimer.type === t ? 'rpg-button-primary' : 'rpg-button-secondary']">
               {{ t === 'rounds' ? 'Rounds' : t === 'turns' ? 'Turns' : 'Manual' }}
             </button>
           </div>
@@ -50,12 +50,12 @@
           </div>
         </div>
 
-        <div>
+        <div class="timer-field">
           <label class="rpg-label">Duration{{ newTimer.type !== 'manual' ? ` (${newTimer.type})` : '' }}</label>
-          <div class="flex gap-2">
+          <div class="timer-inline-row">
             <input v-model.number="newTimer.duration" type="number" :min="1" :max="20" placeholder="4"
-              @keyup.enter="addTimer" class="flex-1 rpg-input" />
-            <button type="button" @click="generateDuration" class="p-0 rpg-button rpg-button-secondary"
+              @keyup.enter="addTimer" class="timer-inline-row__input rpg-input" />
+            <button type="button" @click="generateDuration" class="timer-inline-row__btn rpg-button rpg-button-secondary"
               title="Roll d4 for random duration">
               <img :src="assetUrl('images/d4_dice_icon.png')" class="h-5 icon-filter" alt="Roll d4" />
             </button>
@@ -244,3 +244,41 @@ const saveToBoard = () => {
   boardsStore.pushPayloadCard("timer", name, color || "Yellow", captureTimerPayload(data));
 };
 </script>
+
+<style scoped>
+.timer-field {
+  width: 100%;
+  min-width: 0;
+}
+
+.timer-type-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.timer-inline-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+  width: 100%;
+  min-width: 0;
+}
+
+.timer-inline-row__input {
+  flex: 1;
+  min-width: 0;
+  max-width: none;
+  min-height: 2.5rem;
+  padding: 0.5rem 0.75rem;
+}
+
+.timer-inline-row__btn {
+  flex-shrink: 0;
+  width: 2.5rem;
+  min-height: 2.5rem;
+  padding: 0;
+  justify-content: center;
+}
+</style>

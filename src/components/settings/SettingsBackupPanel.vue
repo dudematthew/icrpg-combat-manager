@@ -13,7 +13,7 @@
           <span class="text-neutral-700 text-xs rpg-body">Include app options (tier mode, notifications, layout prefs, etc.)</span>
         </label>
 
-        <div class="flex flex-col sm:flex-row gap-2.5">
+        <div class="backup-actions">
           <button type="button" class="flex-1 rpg-button rpg-button-secondary text-sm" @click="exportToFile">
             Export to file
           </button>
@@ -39,8 +39,18 @@
           </p>
         </div>
 
-        <div class="flex flex-col sm:flex-row gap-2.5">
+        <div class="backup-actions">
           <button
+            v-if="canUpdateServer"
+            type="button"
+            class="flex-1 rpg-button rpg-button-primary text-sm"
+            :disabled="busy"
+            @click="updateServer"
+          >
+            Update server backup
+          </button>
+          <button
+            v-else
             type="button"
             class="flex-1 rpg-button rpg-button-primary text-sm"
             :disabled="busy"
@@ -53,28 +63,33 @@
             type="button"
             class="flex-1 rpg-button rpg-button-secondary text-sm"
             :disabled="busy"
-            @click="updateServer"
+            @click="confirmNewBackupOpen = true"
           >
-            Update server backup
+            Create new backup code
           </button>
         </div>
 
         <div
-          v-if="revealedSlug"
-          class="backup-code-reveal bg-amber-50 p-3 border-2 border-amber-300 rounded-lg"
-          :class="{ 'backup-code-reveal--highlight': codeHighlight }"
+          v-if="activeCloudSlug"
+          class="backup-code-reveal bg-neutral-50 p-3 border border-neutral-200 rounded-lg"
+          :class="{ 'backup-code-reveal--highlight': codeHighlight && justCreatedBackup }"
         >
-          <p class="mb-1 font-bold text-amber-900 text-sm rpg-heading">Important — save your backup code</p>
-          <p class="mb-3 text-amber-800 text-xs rpg-body">
+          <p class="mb-1 font-bold text-neutral-800 text-sm rpg-heading">
+            {{ justCreatedBackup ? "Important — save your backup code" : "Active server backup" }}
+          </p>
+          <p v-if="justCreatedBackup" class="mb-3 text-amber-800 text-xs rpg-body">
             Copy or write this down now. You need it to restore on another device — the server will not show it again.
           </p>
-          <div class="flex items-center gap-2 bg-white p-2 border border-amber-200 rounded-md">
-            <code class="flex-1 font-semibold text-sm rpg-mono break-all">{{ revealedSlug }}</code>
-            <button type="button" class="rpg-button rpg-button-sm rpg-button-primary" @click="copyRevealedSlug">
+          <p v-else class="mb-3 text-neutral-600 text-xs rpg-body">
+            This browser updates this code when you use Update server backup.
+          </p>
+          <div class="flex items-center gap-2 bg-white p-2 border border-neutral-200 rounded-md">
+            <code class="flex-1 font-semibold text-sm rpg-mono break-all">{{ activeCloudSlug }}</code>
+            <button type="button" class="rpg-button rpg-button-sm rpg-button-primary" @click="copyActiveSlug">
               Copy
             </button>
           </div>
-          <p class="mt-2 text-amber-700 text-xs rpg-body">
+          <p v-if="justCreatedBackup" class="mt-2 text-amber-700 text-xs rpg-body">
             This browser remembers the edit key so you can update this backup later.
           </p>
         </div>
@@ -144,6 +159,27 @@
         </div>
       </div>
     </div>
+
+    <div
+      v-if="confirmNewBackupOpen"
+      class="z-[60] fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 p-4"
+      style="margin-top: 0;"
+      @mousedown.self="confirmNewBackupOpen = false"
+    >
+      <div class="bg-white shadow-xl p-6 rounded-lg w-full max-w-md" @click.stop>
+        <h3 class="mb-2 text-lg rpg-heading">Create new backup code?</h3>
+        <p class="mb-4 text-neutral-700 text-sm rpg-body">
+          This generates a fresh server backup and replaces the code this browser updates.
+          Your old code still exists on the server, but you will need that code to load it again.
+        </p>
+        <div class="flex justify-end gap-3">
+          <button type="button" class="rpg-button rpg-button-secondary" @click="confirmNewBackupOpen = false">Cancel</button>
+          <button type="button" class="rpg-button rpg-button-primary" :disabled="busy" @click="createNewBackup">
+            Create new
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -169,8 +205,9 @@ const busy = ref(false);
 const statusMessage = ref("");
 const statusIsError = ref(false);
 const importSlug = ref("");
-const revealedSlug = ref("");
 const codeHighlight = ref(false);
+const justCreatedBackup = ref(false);
+const confirmNewBackupOpen = ref(false);
 const confirmOpen = ref(false);
 let highlightTimer: ReturnType<typeof setTimeout> | undefined;
 const pendingImport = ref<ParsedBackup | null>(null);
@@ -180,6 +217,8 @@ const canUpdateServer = computed(() => {
   const creds = getCloudCredentials();
   return Boolean(creds?.slug && creds.writeToken);
 });
+
+const activeCloudSlug = computed(() => getCloudCredentials()?.slug ?? "");
 
 const importConfirmMessage = computed(() => {
   const settings = pendingImport.value?.data.settings;
@@ -266,7 +305,8 @@ const saveToServer = async () => {
     const envelope = buildBackupEnvelope(undefined, includeOptionsInBackup.value);
     const { slug, writeToken } = await createCloudBackup(envelope);
     setCloudCredentials({ slug, writeToken });
-    revealedSlug.value = slug;
+    importSlug.value = slug;
+    justCreatedBackup.value = true;
     flashCodeReveal();
     setStatus("Backup saved to server. Copy your code above before you close settings.");
   } catch (error) {
@@ -274,6 +314,11 @@ const saveToServer = async () => {
   } finally {
     busy.value = false;
   }
+};
+
+const createNewBackup = async () => {
+  confirmNewBackupOpen.value = false;
+  await saveToServer();
 };
 
 const updateServer = async () => {
@@ -287,6 +332,7 @@ const updateServer = async () => {
   try {
     const envelope = buildBackupEnvelope(creds, includeOptionsInBackup.value);
     await updateCloudBackup(creds.slug, creds.writeToken, envelope);
+    justCreatedBackup.value = false;
     setStatus("Server backup updated.");
   } catch (error) {
     setStatus(error instanceof Error ? error.message : "Server update failed.", true);
@@ -295,10 +341,10 @@ const updateServer = async () => {
   }
 };
 
-const copyRevealedSlug = async () => {
-  if (!revealedSlug.value) return;
+const copyActiveSlug = async () => {
+  if (!activeCloudSlug.value) return;
   try {
-    await navigator.clipboard.writeText(revealedSlug.value);
+    await navigator.clipboard.writeText(activeCloudSlug.value);
     setStatus("Backup code copied to clipboard.");
   } catch {
     setStatus("Could not copy to clipboard.", true);
@@ -316,6 +362,7 @@ const confirmImport = () => {
     applyBackupEnvelope(pendingImport.value);
     if (pendingImport.value.cloud) {
       importSlug.value = pendingImport.value.cloud.slug;
+      justCreatedBackup.value = false;
     }
     setStatus("Backup restored.");
   } catch (error) {
@@ -328,6 +375,19 @@ const confirmImport = () => {
 </script>
 
 <style scoped>
+.backup-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .backup-actions {
+    flex-direction: row;
+  }
+}
+
 .backup-security-summary {
   list-style: none;
 }

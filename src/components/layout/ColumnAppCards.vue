@@ -3,11 +3,12 @@
     <TimerManager v-if="card.id === 'timers'" />
 
     <div v-if="card.id === 'battlefield'" id="battlefield" class="rpg-card battlefield-section">
-      <div class="flex items-baseline gap-3 mb-4">
-        <img :src="assetUrl('images/sword_icon.png')" class="flex-shrink-0 w-6 h-6 text-accent icon-filter" alt="Battlefield" />
-        <h2 class="flex-shrink-0 rpg-heading">Battlefield</h2>
-        <span class="flex-shrink-0 font-body font-semibold text-accent text-sm">({{ activeMonsters.length }}
-          active)</span>
+      <div class="battlefield-header">
+        <img :src="assetUrl('images/sword_icon.png')" class="battlefield-header__icon icon-filter" alt="Battlefield" />
+        <div class="battlefield-header__title-block">
+          <h2 class="rpg-heading">Battlefield</h2>
+          <p class="battlefield-header__subtitle">({{ activeMonsters.length }} active)</p>
+        </div>
       </div>
 
       <div class="bg-neutral-50 mb-4 p-3 text-center">
@@ -110,3 +111,48 @@ const boardPanelRef = ref<InstanceType<typeof BoardPanel> | null>(null);
 
 defineExpose({ monsterCardRefs, combatMechanicsRef, boardPanelRef });
 </script>
+
+<style scoped>
+.battlefield-section {
+  container-type: inline-size;
+  container-name: battlefield;
+}
+
+.battlefield-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.battlefield-header__icon {
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #dc2626;
+}
+
+.battlefield-header__title-block {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 0.5rem;
+  row-gap: 0.125rem;
+  min-width: 0;
+}
+
+.battlefield-header__subtitle {
+  margin: 0;
+  font-family: "Source Serif Pro", Georgia, serif;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #dc2626;
+  white-space: nowrap;
+}
+
+@container battlefield (max-width: 22rem) {
+  .battlefield-header__subtitle {
+    flex-basis: 100%;
+  }
+}
+</style>

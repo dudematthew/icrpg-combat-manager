@@ -131,8 +131,11 @@ export const INSPIRATION_CHIPS: { key: InspirationCategory; label: string }[] = 
   { key: "name", label: "Name" },
   { key: "job", label: "Job" },
   { key: "quirkPersonality", label: "Quirk" },
-  { key: "relationship", label: "Relation" },
+  { key: "hook", label: "Hook" },
   { key: "location", label: "Location" },
   { key: "obstacle", label: "Obstacle" },
-  { key: "hook", label: "Hook" },
+  { key: "relationship", label: "Relation" },
 ];
+
+export const INSPIRATION_TOP_CHIPS = INSPIRATION_CHIPS.slice(0, 4);
+export const INSPIRATION_BOTTOM_CHIPS = INSPIRATION_CHIPS.slice(4);

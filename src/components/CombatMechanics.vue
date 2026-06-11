@@ -12,20 +12,23 @@
 
       <div>
         <label class="mb-2 rpg-label">Difficulty</label>
-        <div class="flex flex-wrap gap-2">
-          <button v-for="opt in difficultyOptions" :key="opt.value" type="button" class="checks-diff-btn"
+        <div class="checks-fill-row">
+          <button v-for="opt in difficultyOptions" :key="opt.value" type="button"
+            class="checks-diff-btn checks-fill-item"
             :class="{ 'checks-diff-btn--active': difficulty === opt.value }" @click="difficulty = opt.value">
             {{ opt.label }}
           </button>
         </div>
       </div>
 
-      <div class="flex flex-wrap items-end gap-2">
-        <div class="flex-1 min-w-[5rem]">
+      <div class="checks-fill-row checks-fill-row--align-end">
+        <div class="checks-action-row__field checks-fill-item checks-fill-item--wide">
           <label class="rpg-label">Stat bonus</label>
-          <input v-model.number="checkStat" type="number" :min="-5" :max="20" class="w-full rpg-input" />
+          <input v-model.number="checkStat" type="number" :min="-5" :max="20" class="checks-control rpg-input" />
         </div>
-        <button type="button" class="rpg-button rpg-button-primary rpg-button-sm" :disabled="isCheckRolling"
+        <button type="button"
+          class="checks-fill-item checks-fill-item--action checks-control rpg-button rpg-button-primary rpg-button-sm"
+          :disabled="isCheckRolling"
           @click="rollCheck">
           {{ isCheckRolling ? "Rolling…" : "Roll Check" }}
         </button>
@@ -33,20 +36,33 @@
 
       <div class="pt-3 border-neutral-200 border-t">
         <label class="mb-2 rpg-label">Effort</label>
-        <div class="flex flex-wrap items-end gap-2">
-          <div class="flex-1 min-w-[8rem]">
-            <select v-model="effortType" class="w-full rpg-input">
-              <option value="none">None (d0)</option>
-              <option v-for="type in effortTypes" :key="type.value" :value="type.value">
-                {{ type.label }}
-              </option>
-            </select>
-          </div>
-          <button type="button" class="rpg-button rpg-button-secondary rpg-button-sm"
-            :disabled="isEffortRolling || effortDie === 0" @click="rollEffortAction">
-            {{ isEffortRolling ? "Rolling…" : "Roll Effort" }}
+        <div class="checks-fill-row">
+          <button
+            v-for="type in effortTypes"
+            :key="type.die"
+            type="button"
+            class="checks-effort-btn checks-fill-item"
+            :class="{
+              'checks-effort-btn--active': selectedEffortDie === type.die,
+              'checks-effort-btn--ultimate': type.die === 12 && effortCritHint,
+            }"
+            :title="type.useCase"
+            @click="selectEffortDie(type.die)"
+          >
+            d{{ type.die }}
+          </button>
+          <button
+            type="button"
+            class="checks-effort-roll checks-fill-item checks-control rpg-button rpg-button-secondary rpg-button-sm"
+            :disabled="isEffortRolling"
+            @click="rollEffortAction"
+          >
+            {{ isEffortRolling ? "Rolling…" : "Roll" }}
           </button>
         </div>
+        <p v-if="effortCritHint" class="mt-2 text-violet-700 text-xs rpg-body">
+          Natural 20 — Ultimate effort (d12) selected for crit.
+        </p>
       </div>
 
       <div class="checks-history">
@@ -59,19 +75,23 @@
             <template v-if="entry.kind === 'check'">
               Check · d20 {{ entry.naturalRoll }} + {{ entry.statBonus }} = {{ entry.totalRoll }}
               vs {{ entry.targetNumber }} ·
-              <span :class="entry.hit ? 'text-success' : 'text-danger'">
+              <span
+                class="checks-history__result"
+                :class="entry.hit ? 'checks-history__result--hit' : 'checks-history__result--miss'"
+              >
                 {{ entry.hit ? "Hit" : "Miss" }}
               </span>
-              <span v-if="entry.critical" class="text-warning"> · Nat 20</span>
+              <span v-if="entry.critical" class="checks-history__result checks-history__result--crit"> · Nat 20</span>
             </template>
             <template v-else>
               Effort ·
               <template v-if="entry.die > 0">
-                d{{ entry.die }} {{ entry.roll }}
-                <template v-if="entry.bonus > 0"> + {{ entry.bonus }}</template>
-                = {{ entry.total }}
+                d{{ entry.die }} {{ entry.roll }}<template v-if="entry.bonus > 0"> + {{ entry.bonus }}</template> =
+                <span class="checks-history__result checks-history__result--effort">{{ entry.total }}</span>
               </template>
-              <template v-else>{{ entry.total }}</template>
+              <template v-else>
+                <span class="checks-history__result checks-history__result--effort">{{ entry.total }}</span>
+              </template>
             </template>
           </li>
         </ul>
@@ -81,11 +101,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
+import { ref, watch } from "vue";
 import { EFFORT_TYPES } from "@/types";
 import TargetPicker from "@/components/TargetPicker.vue";
 import {
-  getEffortDie,
   rollCheckOnly,
   rollCheckOnlyAsync,
   rollEffort,
@@ -96,6 +115,8 @@ import { loadLastUsedTarget, saveLastUsedTarget } from "@/utils/lastUsedTarget";
 import { assetUrl } from "@/utils/assetUrl";
 
 const HISTORY_LIMIT = 5;
+const ULTIMATE_DIE = 12;
+const DEFAULT_EFFORT_DIE = 6;
 
 type RollHistoryEntry =
   | {
@@ -118,7 +139,8 @@ type RollHistoryEntry =
 const baseTarget = ref(loadLastUsedTarget());
 const difficulty = ref<RollDifficulty>("normal");
 const checkStat = ref(0);
-const effortType = ref("Weapons & Tools");
+const selectedEffortDie = ref(DEFAULT_EFFORT_DIE);
+const effortCritHint = ref(false);
 const rollHistory = ref<RollHistoryEntry[]>([]);
 const isCheckRolling = ref(false);
 const isEffortRolling = ref(false);
@@ -129,12 +151,7 @@ const difficultyOptions: { value: RollDifficulty; label: string }[] = [
   { value: "hard", label: "Hard (+3)" },
 ];
 
-const effortTypes = EFFORT_TYPES.map((type) => ({
-  label: `${type.type} (d${type.die})`,
-  value: type.type,
-}));
-
-const effortDie = computed(() => getEffortDie(effortType.value));
+const effortTypes = EFFORT_TYPES;
 
 watch(baseTarget, (tn) => saveLastUsedTarget(tn));
 
@@ -142,42 +159,45 @@ const pushHistory = (entry: RollHistoryEntry) => {
   rollHistory.value = [entry, ...rollHistory.value].slice(0, HISTORY_LIMIT);
 };
 
+const selectEffortDie = (die: number) => {
+  selectedEffortDie.value = die;
+  if (die !== ULTIMATE_DIE) effortCritHint.value = false;
+};
+
+const applyCheckResult = (result: ReturnType<typeof rollCheckOnly>) => {
+  pushHistory({
+    kind: "check",
+    naturalRoll: result.naturalRoll,
+    totalRoll: result.totalRoll,
+    targetNumber: result.targetNumber,
+    statBonus: checkStat.value,
+    hit: result.hit,
+    critical: result.critical,
+  });
+  if (result.critical) {
+    selectedEffortDie.value = ULTIMATE_DIE;
+    effortCritHint.value = true;
+  }
+};
+
 const rollCheck = async () => {
   if (isCheckRolling.value) return;
   isCheckRolling.value = true;
   saveLastUsedTarget(baseTarget.value);
   try {
-    const result = await rollCheckOnlyAsync(checkStat.value, baseTarget.value, difficulty.value);
-    pushHistory({
-      kind: "check",
-      naturalRoll: result.naturalRoll,
-      totalRoll: result.totalRoll,
-      targetNumber: result.targetNumber,
-      statBonus: checkStat.value,
-      hit: result.hit,
-      critical: result.critical,
-    });
+    applyCheckResult(await rollCheckOnlyAsync(checkStat.value, baseTarget.value, difficulty.value));
   } catch {
-    const result = rollCheckOnly(checkStat.value, baseTarget.value, difficulty.value);
-    pushHistory({
-      kind: "check",
-      naturalRoll: result.naturalRoll,
-      totalRoll: result.totalRoll,
-      targetNumber: result.targetNumber,
-      statBonus: checkStat.value,
-      hit: result.hit,
-      critical: result.critical,
-    });
+    applyCheckResult(rollCheckOnly(checkStat.value, baseTarget.value, difficulty.value));
   } finally {
     isCheckRolling.value = false;
   }
 };
 
 const rollEffortAction = async () => {
-  if (isEffortRolling.value || effortDie.value === 0) return;
+  if (isEffortRolling.value) return;
   isEffortRolling.value = true;
   try {
-    const result = await rollEffortAsync(effortDie.value);
+    const result = await rollEffortAsync(selectedEffortDie.value);
     pushHistory({
       kind: "effort",
       die: result.die,
@@ -186,7 +206,7 @@ const rollEffortAction = async () => {
       total: result.total,
     });
   } catch {
-    const result = rollEffort(effortDie.value);
+    const result = rollEffort(selectedEffortDie.value);
     pushHistory({
       kind: "effort",
       die: result.die,
@@ -201,8 +221,34 @@ const rollEffortAction = async () => {
 </script>
 
 <style scoped>
+.combat-mechanics .checks-control {
+  min-height: 2.375rem;
+  max-height: 2.375rem;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.combat-mechanics .checks-control.rpg-input {
+  padding: 0.5rem 0.75rem;
+  resize: none;
+}
+
+.combat-mechanics .checks-control.rpg-button-sm {
+  padding-top: 0;
+  padding-bottom: 0;
+  justify-content: center;
+}
+
+.checks-action-row__field {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
 .checks-diff-btn {
-  padding: 0.35rem 0.65rem;
+  padding: 0.35rem 0.25rem;
+  min-height: 2.375rem;
+  box-sizing: border-box;
   border: 2px solid #d4d4d4;
   border-radius: 0.375rem;
   background: #fafafa;
@@ -211,11 +257,50 @@ const rollEffortAction = async () => {
   font-weight: 900;
   text-transform: uppercase;
   cursor: pointer;
+  text-align: center;
 }
 
 .checks-diff-btn--active {
   border-color: #dc2626;
   background: #dc2626;
+  color: white;
+}
+
+.checks-effort-btn {
+  padding: 0.35rem 0.25rem;
+  min-height: 2.375rem;
+  box-sizing: border-box;
+  border: 2px solid #d4d4d4;
+  border-radius: 0.375rem;
+  background: #fafafa;
+  font-family: "nusaliver", "Arial Black", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 900;
+  cursor: pointer;
+  text-align: center;
+  justify-content: center;
+}
+
+.checks-effort-roll {
+  padding-left: 0.35rem;
+  padding-right: 0.35rem;
+}
+
+.checks-effort-btn--active {
+  border-color: #525252;
+  background: #e5e5e5;
+  color: #171717;
+}
+
+.checks-effort-btn--ultimate {
+  border-color: #7c3aed;
+  background: #faf5ff;
+  color: #7c3aed;
+}
+
+.checks-effort-btn--ultimate.checks-effort-btn--active {
+  border-color: #7c3aed;
+  background: #7c3aed;
   color: white;
 }
 
@@ -252,5 +337,26 @@ const rollEffortAction = async () => {
 
 .checks-history__item:first-child {
   padding-top: 0;
+}
+
+.checks-history__result {
+  font-family: "nusaliver", "Arial Black", sans-serif;
+  font-weight: 900;
+}
+
+.checks-history__result--hit {
+  color: #16a34a;
+}
+
+.checks-history__result--miss {
+  color: #dc2626;
+}
+
+.checks-history__result--crit {
+  color: #d97706;
+}
+
+.checks-history__result--effort {
+  color: #7c3aed;
 }
 </style>

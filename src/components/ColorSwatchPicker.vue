@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-wrap gap-2">
+  <div class="color-swatch-picker" :class="{ 'color-swatch-picker--compact': compact }">
     <button
       v-for="color in colors"
       :key="color.value"
@@ -19,6 +19,7 @@ import { getMonsterColor } from "@/utils/combat";
 
 defineProps<{
   modelValue: string;
+  compact?: boolean;
 }>();
 
 defineEmits<{
@@ -29,6 +30,19 @@ const colors = TIMER_COLOR_OPTIONS;
 </script>
 
 <style scoped>
+.color-swatch-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.color-swatch-picker--compact .swatch {
+  width: 1.65rem;
+  height: 1.65rem;
+}
+
 .swatch {
   width: 2rem;
   height: 2rem;

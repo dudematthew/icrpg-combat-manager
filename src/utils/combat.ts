@@ -29,6 +29,34 @@ export const rollDieAsync = async (
   return randomService.rollDie(sides, forcePseudo);
 };
 
+export const PRESET_TARGET_NUMBERS = [10, 12, 15, 18] as const;
+
+export type RollDifficulty = "easy" | "normal" | "hard";
+
+export function adjustTarget(baseTarget: number, difficulty: RollDifficulty): number {
+  if (difficulty === "hard") return baseTarget + 3;
+  if (difficulty === "easy") return baseTarget - 3;
+  return baseTarget;
+}
+
+export interface CheckRollResult {
+  naturalRoll: number;
+  totalRoll: number;
+  baseTarget: number;
+  targetNumber: number;
+  hit: boolean;
+  critical: boolean;
+  randomSource?: RandomSource;
+}
+
+export interface EffortRollResult {
+  die: number;
+  roll: number;
+  bonus: number;
+  total: number;
+  randomSource?: RandomSource;
+}
+
 export interface AttackResult {
   success: boolean;
   naturalRoll: number;
@@ -117,6 +145,135 @@ export const makeAttackAsync = async (
     baseEffort,
     criticalBonus,
     critical,
+    randomSource: naturalRollResult.source,
+  };
+};
+
+export interface MonsterAttackPreview {
+  naturalRoll: number;
+  totalRoll: number;
+  targets: {
+    easy: number;
+    normal: number;
+    hard: number;
+  };
+  randomSource?: RandomSource;
+}
+
+/** One d20 + stat; totals for easy/normal/hard targets (no success/fail). */
+export const rollCheckOnly = (
+  statBonus: number,
+  baseTarget: number,
+  difficulty: RollDifficulty = "normal",
+): CheckRollResult => {
+  const naturalRoll = rollD20();
+  const targetNumber = adjustTarget(baseTarget, difficulty);
+  const totalRoll = naturalRoll + statBonus;
+  return {
+    naturalRoll,
+    totalRoll,
+    baseTarget,
+    targetNumber,
+    hit: totalRoll >= targetNumber,
+    critical: naturalRoll === 20,
+  };
+};
+
+export const rollCheckOnlyAsync = async (
+  statBonus: number,
+  baseTarget: number,
+  difficulty: RollDifficulty = "normal",
+  forcePseudo = false,
+): Promise<CheckRollResult> => {
+  const naturalRollResult = await rollD20Async(forcePseudo);
+  const naturalRoll = naturalRollResult.value;
+  const targetNumber = adjustTarget(baseTarget, difficulty);
+  const totalRoll = naturalRoll + statBonus;
+  return {
+    naturalRoll,
+    totalRoll,
+    baseTarget,
+    targetNumber,
+    hit: totalRoll >= targetNumber,
+    critical: naturalRoll === 20,
+    randomSource: naturalRollResult.source,
+  };
+};
+
+export const rollEffort = (die: number, bonus = 0): EffortRollResult => {
+  const roll = die > 0 ? rollDie(die) : 0;
+  return { die, roll, bonus, total: roll + bonus };
+};
+
+export const rollEffortAsync = async (
+  die: number,
+  bonus = 0,
+  forcePseudo = false,
+): Promise<EffortRollResult> => {
+  if (die <= 0) return { die, roll: 0, bonus, total: bonus };
+  const result = await rollDieAsync(die, forcePseudo);
+  return { die, roll: result.value, bonus, total: result.value + bonus, randomSource: result.source };
+};
+
+export interface MonsterCheckOutcomes {
+  easy: boolean;
+  normal: boolean;
+  hard: boolean;
+}
+
+/** Pass/fail vs easy, normal, and hard targets for a picked base TN. */
+export function monsterCheckOutcomes(totalRoll: number, baseTarget: number): MonsterCheckOutcomes {
+  return {
+    easy: totalRoll >= baseTarget - 3,
+    normal: totalRoll >= baseTarget,
+    hard: totalRoll >= baseTarget + 3,
+  };
+}
+
+/** Which preset TNs the total beats at normal difficulty. */
+export function presetTargetSummary(totalRoll: number): { beats: number[]; misses: number[] } {
+  const beats: number[] = [];
+  const misses: number[] = [];
+  for (const tn of PRESET_TARGET_NUMBERS) {
+    if (totalRoll >= tn) beats.push(tn);
+    else misses.push(tn);
+  }
+  return { beats, misses };
+}
+
+export const rollMonsterAttackPreview = (
+  statBonus: number,
+  baseTarget: number,
+): MonsterAttackPreview => {
+  const naturalRoll = rollD20();
+  const totalRoll = naturalRoll + statBonus;
+  return {
+    naturalRoll,
+    totalRoll,
+    targets: {
+      easy: baseTarget - 3,
+      normal: baseTarget,
+      hard: baseTarget + 3,
+    },
+  };
+};
+
+export const rollMonsterAttackPreviewAsync = async (
+  statBonus: number,
+  baseTarget: number,
+  forcePseudo = false,
+): Promise<MonsterAttackPreview> => {
+  const naturalRollResult = await rollD20Async(forcePseudo);
+  const naturalRoll = naturalRollResult.value;
+  const totalRoll = naturalRoll + statBonus;
+  return {
+    naturalRoll,
+    totalRoll,
+    targets: {
+      easy: baseTarget - 3,
+      normal: baseTarget,
+      hard: baseTarget + 3,
+    },
     randomSource: naturalRollResult.source,
   };
 };

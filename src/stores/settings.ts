@@ -100,8 +100,8 @@ export const useSettingsStore = defineStore("settings", () => {
     },
     {
       id: "target",
-      name: "Target",
-      description: "Scene target numbers and attack rolls",
+      name: "Checks",
+      description: "Player checks and effort rolls against a chosen TN",
       enabled: true,
       column: "combat",
     },

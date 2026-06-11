@@ -33,7 +33,7 @@
         <div v-for="monster in activeMonsters" :key="monster.id">
           <MonsterCard ref="monsterCardRefs" :monster="monster" :compact="shouldUseCompactView"
             @remove="onRemoveMonster(monster.id)" @update="onUpdateMonster(monster.id, $event)"
-            @rollDamage="onRollDamage" />
+            />
         </div>
       </div>
 
@@ -99,7 +99,6 @@ defineProps<{
   onNextRound: () => void;
   onRemoveMonster: (id: string) => void;
   onUpdateMonster: (id: string, updates: Partial<Monster>) => void;
-  onRollDamage: (monster: Monster) => void;
   onScrollToCreator: () => void;
   onResetRoundsAndTurns: () => void;
   onConfirmClear: () => void;

@@ -40,7 +40,7 @@ const SECTION_ICONS: Record<string, LucideIcon> = {
 const SHORT_NAMES: Record<string, string> = {
   timers: "Timers",
   battlefield: "Fight",
-  target: "Target",
+  target: "Checks",
   "monster-creator": "Create",
   inspirations: "Inspire",
 };

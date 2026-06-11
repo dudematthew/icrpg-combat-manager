@@ -164,24 +164,48 @@
       </div>
     </details>
 
-    <!-- Action buttons for alive monsters -->
     <div v-if="(!compact || isHoverDelayed) && monster.heartsCurrent > 0" class="flex gap-2 mt-4">
-      <button v-if="isTargetSectionEnabled" @click="$emit('rollDamage', monster)"
-        title="Roll for Check or Attempt with Monsters modifier"
-        class="flex justify-center items-center gap-2 px-4 py-2 border-2 rounded-md font-heading text-xs uppercase tracking-wide transition-colors cursor-pointer grow rpg-icon-button rpg-icon-button-violet">
-        <img :src="assetUrl('images/d20_dice_icon.png')" class="w-4 h-4 icon-filter" alt="Roll" />
-        Check or Attempt
+      <button
+        ref="checkButtonRef"
+        type="button"
+        title="Roll check vs player defense or room target"
+        class="flex flex-1 justify-center items-center gap-2 px-4 py-2 border-2 rounded-md font-heading text-xs uppercase tracking-wide transition-colors cursor-pointer grow rpg-icon-button rpg-icon-button-violet"
+        @click="showCheckPopover = true"
+      >
+        <img :src="assetUrl('images/d20_dice_icon.png')" class="w-4 h-4 icon-filter" alt="" />
+        Check
       </button>
-      <button @click="$emit('remove')"
-        :class="isTargetSectionEnabled ?
-          'flex justify-center items-center px-2 py-2 border-2 rounded-md transition-colors cursor-pointer rpg-icon-button rpg-icon-button-danger' :
-          'flex justify-center items-center gap-2 px-4 py-2 border-2 rounded-md font-heading text-xs uppercase tracking-wide transition-colors cursor-pointer w-full rpg-icon-button rpg-icon-button-danger'"
-        :title="isTargetSectionEnabled ? 'Remove Monster' : undefined">
+      <button
+        ref="effortButtonRef"
+        type="button"
+        title="Roll effort damage"
+        class="flex flex-1 justify-center items-center gap-2 px-4 py-2 border-2 rounded-md font-heading text-xs uppercase tracking-wide transition-colors cursor-pointer grow rpg-icon-button rpg-icon-button-violet"
+        @click="showEffortPopover = true"
+      >
+        <img :src="assetUrl('images/sword_icon.png')" class="w-4 h-4 icon-filter" alt="" />
+        Effort
+      </button>
+      <button
+        type="button"
+        @click="$emit('remove')"
+        class="flex justify-center items-center px-2 py-2 border-2 rounded-md rpg-icon-button rpg-icon-button-danger"
+        title="Remove Monster"
+      >
         <Trash2 class="w-4 h-4" />
-        <span v-if="!isTargetSectionEnabled">Remove Monster</span>
       </button>
     </div>
   </div>
+
+  <MonsterCheckPopover
+    v-model="showCheckPopover"
+    :stat-bonus="monster.statsBonus"
+    :anchor-el="checkButtonRef"
+  />
+  <MonsterEffortPopover
+    v-model="showEffortPopover"
+    :effort-bonus="monster.effortBonus"
+    :anchor-el="effortButtonRef"
+  />
 
   <!-- Edit Monster Modal -->
   <div v-if="showEditModal" class="z-50 fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 p-4"
@@ -328,18 +352,24 @@
 import { ref, computed } from 'vue'
 import type { Monster, MonsterTemplate } from '@/types'
 import { CONDITIONS, TIER_CONFIGS } from '@/types'
-import { formatMonsterIdentifier, getTierColor, getMonsterColor, getTextColorForBackground } from '@/utils/combat'
+import {
+  formatMonsterIdentifier,
+  getTierColor,
+  getMonsterColor,
+  getTextColorForBackground,
+} from '@/utils/combat'
 import { assetUrl } from '@/utils/assetUrl'
+import MonsterCheckPopover from '@/components/MonsterCheckPopover.vue'
+import MonsterEffortPopover from '@/components/MonsterEffortPopover.vue'
 import TraitPickButtons from '@/components/TraitPickButtons.vue'
 import { useBoardsStore } from '@/features/boards/stores/boards'
+import { useSettingsStore } from '@/stores/settings'
 import { captureMonsterFromBattlefield } from '@/features/boards/adapters/monsterAdapter'
 import { templateLabel } from '@/utils/monsterForm'
 import { Trash2, ChevronDown, Undo2 } from 'lucide-vue-next'
 import InlineEditableText from './InlineEditableText.vue'
 import { useHoverDelay } from '@/composables/useHoverDelay'
 import { useScrollLock } from '@/composables/useScrollLock'
-import { useSettingsStore } from '@/stores/settings'
-
 interface Props {
   monster: Monster
   compact?: boolean
@@ -349,16 +379,15 @@ const props = defineProps<Props>()
 const emit = defineEmits<{
   remove: []
   update: [updates: Partial<Monster>]
-  rollDamage: [monster: Monster]
 }>()
 
-const settingsStore = useSettingsStore()
 const boardsStore = useBoardsStore()
+const settingsStore = useSettingsStore()
 
-const isTargetSectionEnabled = computed(() => {
-  const targetCard = settingsStore.appCards.find(card => card.id === 'target')
-  return targetCard?.enabled ?? true
-})
+const showCheckPopover = ref(false)
+const showEffortPopover = ref(false)
+const checkButtonRef = ref<HTMLElement | null>(null)
+const effortButtonRef = ref<HTMLElement | null>(null)
 
 const showDamageDialog = ref(false)
 const showEditModal = ref(false)
@@ -555,4 +584,5 @@ defineExpose({
   text-decoration-thickness: 2px;
   text-decoration-color: currentColor;
 }
+
 </style>

@@ -20,7 +20,7 @@
             :should-use-compact-view="shouldUseCompactView"
             :is-monster-creator-above-battlefield="isMonsterCreatorAboveBattlefield" :on-next-turn="nextTurn"
             :on-next-round="nextRound" :on-remove-monster="removeMonster" :on-update-monster="updateMonster"
-            :on-roll-damage="handleRollDamage" :on-scroll-to-creator="scrollToCreator"
+            :on-scroll-to-creator="scrollToCreator"
             :on-reset-rounds-and-turns="resetRoundsAndTurns" :on-confirm-clear="confirmClear" />
 
           <div class="rpg-card">
@@ -41,7 +41,7 @@
             :should-use-compact-view="shouldUseCompactView"
             :is-monster-creator-above-battlefield="isMonsterCreatorAboveBattlefield" :on-next-turn="nextTurn"
             :on-next-round="nextRound" :on-remove-monster="removeMonster" :on-update-monster="updateMonster"
-            :on-roll-damage="handleRollDamage" :on-scroll-to-creator="scrollToCreator"
+            :on-scroll-to-creator="scrollToCreator"
             :on-reset-rounds-and-turns="resetRoundsAndTurns" :on-confirm-clear="confirmClear" />
         </div>
       </template>
@@ -424,29 +424,6 @@ const handleAddCard = () => {
   }
 }
 
-const handleRollDamage = (monster: Monster) => {
-  const allRefs = [
-    ...(combatColumnCardsRef.value?.monsterCardRefs ?? []),
-    ...(boardsColumnCardsRef.value?.monsterCardRefs ?? []),
-  ]
-  allRefs.forEach((cardRef) => {
-    if (cardRef && typeof cardRef.forceReset === 'function') {
-      cardRef.forceReset()
-    }
-  })
-  setTimeout(() => {
-    const targetElement = document.getElementById('difficulty-modifiers')
-    if (targetElement) {
-      targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }
-    const combatMechanicsComponent =
-      combatColumnCardsRef.value?.combatMechanicsRef?.[0]
-      ?? boardsColumnCardsRef.value?.combatMechanicsRef?.[0]
-    if (combatMechanicsComponent?.setAttackStat) {
-      combatMechanicsComponent.setAttackStat(monster.statsBonus)
-    }
-  }, 50)
-}
 </script>
 
 <style scoped>

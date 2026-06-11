@@ -272,6 +272,26 @@ body {
   border-color: #525252;
 }
 
+.optional-action {
+  color: #737373;
+  font-size: 0.75rem;
+  text-decoration: underline;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.optional-action:hover:not(:disabled) {
+  color: #dc2626;
+}
+
+.optional-action:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 /* Icon Filter for Custom PNG Icons */
 .icon-filter {
   filter: brightness(0) saturate(100%);

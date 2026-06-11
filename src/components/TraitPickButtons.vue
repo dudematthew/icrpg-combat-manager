@@ -5,7 +5,7 @@
         v-for="btn in stateMotivationButtons"
         :key="btn.key"
         type="button"
-        class="flex items-center gap-1 text-xs rpg-button rpg-button-secondary"
+        class="trait-hold-btn flex items-center gap-1 text-xs rpg-button rpg-button-secondary"
         style="padding-inline: 16px"
         v-bind="getHandlers(btn.key)"
       >
@@ -27,7 +27,7 @@
         v-for="btn in abilityButtons"
         :key="btn.key"
         type="button"
-        class="flex items-center gap-1 text-xs rpg-button rpg-button-secondary"
+        class="trait-hold-btn flex items-center gap-1 text-xs rpg-button rpg-button-secondary"
         style="padding-inline: 16px"
         v-bind="getHandlers(btn.key)"
       >
@@ -51,7 +51,7 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import QuickPickModal from "@/components/QuickPickModal.vue";
-import { useHoldToPick } from "@/composables/useHoldToPick";
+import { useHoldToPick, bindHoldHandlers } from "@/composables/useHoldToPick";
 import { assetUrl } from "@/utils/assetUrl";
 import {
   MONSTER_STATES,
@@ -179,15 +179,7 @@ const handlerMap = new Map<TraitKey, ReturnType<typeof useHoldToPick>>();
   handlerMap.set(key, useHoldToPick(() => tap(key), () => openPick(key)));
 });
 
-const getHandlers = (key: TraitKey) => {
-  const h = handlerMap.get(key)!;
-  return {
-    onPointerdown: h.onPointerDown,
-    onPointerup: h.onPointerUp,
-    onPointerleave: h.onPointerLeave,
-    onPointercancel: h.onPointerLeave,
-  };
-};
+const getHandlers = (key: TraitKey) => bindHoldHandlers(handlerMap.get(key)!);
 
 const applyStateMotivation = () => {
   const parts = [previewState.value, previewMotivation.value].filter(Boolean);
@@ -213,3 +205,11 @@ const clearAbilities = () => {
   previewUpgrades.value = "";
 };
 </script>
+
+<style scoped>
+.trait-hold-btn {
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+}
+</style>

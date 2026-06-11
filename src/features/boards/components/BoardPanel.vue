@@ -108,6 +108,7 @@ const showCaptureModal = ref(false);
 const showRestoreModal = ref(false);
 const showBoardModal = ref(false);
 const pendingDeployId = ref<string | null>(null);
+const pendingDeployHeld = ref(false);
 let syncingFromStore = false;
 
 const selectedBoardId = computed({
@@ -182,22 +183,24 @@ const openEdit = (id: string) => {
   editorOpen.value = true;
 };
 
-const deployCard = (id: string) => {
+const deployCard = (id: string, held = false) => {
   const card = boardsStore.cards[id];
   if (!card) return;
   if (card.kind === "snapshot") {
     pendingDeployId.value = id;
+    pendingDeployHeld.value = held;
     showRestoreModal.value = true;
     return;
   }
-  getAdapter(card.kind).deploy(card);
+  getAdapter(card.kind).deploy(card, held);
 };
 
 const confirmRestore = () => {
   if (!pendingDeployId.value) return;
   const card = boardsStore.cards[pendingDeployId.value];
-  if (card) getAdapter(card.kind).deploy(card);
+  if (card) getAdapter(card.kind).deploy(card, pendingDeployHeld.value);
   pendingDeployId.value = null;
+  pendingDeployHeld.value = false;
 };
 
 const onSave = (data: { title: string; color: string; body: string }) => {

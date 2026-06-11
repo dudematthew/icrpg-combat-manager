@@ -47,7 +47,8 @@
         v-if="canDeployCard"
         type="button"
         class="index-card__deploy rpg-button rpg-button-xs rpg-button-secondary"
-        @click.stop="emit('deploy', card.id)"
+        v-bind="deployPointerHandlers"
+        @click.stop="onDeployClick"
       >
         Deploy
       </button>
@@ -65,6 +66,7 @@ import { getAdapter, canDeploy as isDeployable } from "../adapters";
 import { formatCardFacePayloadPreview } from "../utils/payloadPreview";
 import { toggleTaskListLine } from "../utils/taskList";
 import { useDragClickGuard } from "@/composables/useDragClickGuard";
+import { useHoldToPick, bindHoldHandlers } from "@/composables/useHoldToPick";
 import type { IndexCard } from "../types";
 
 const { onGripPointerDown, shouldBlockClick } = useDragClickGuard();
@@ -74,13 +76,27 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  deploy: [id: string];
+  deploy: [id: string, held?: boolean];
   edit: [id: string];
   "toggle-expand": [id: string];
   "update-body": [body: string];
 }>();
 
 const settingsStore = useSettingsStore();
+
+const holdDeploy = useHoldToPick(
+  () => emit("deploy", props.card.id, false),
+  () => emit("deploy", props.card.id, true),
+);
+
+const deployPointerHandlers = computed(() =>
+  settingsStore.scrollOnDeployMode === "hold" ? bindHoldHandlers(holdDeploy) : {},
+);
+
+const onDeployClick = () => {
+  if (settingsStore.scrollOnDeployMode !== "always") return;
+  emit("deploy", props.card.id, false);
+};
 const adapter = computed(() => getAdapter(props.card.kind));
 
 const payloadHtml = computed(() => {

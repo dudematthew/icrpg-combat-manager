@@ -127,15 +127,13 @@
         </div>
 
         <div class="flex flex-col gap-2">
-          <div class="flex gap-2">
-            <button type="button" @click="addToBattlefield" :disabled="!canAddToBattlefield"
-              class="flex-1 disabled:opacity-50 text-xs disabled:cursor-not-allowed rpg-button rpg-button-sm rpg-button-primary">
-              <img :src="assetUrl('images/sword_icon.png')" class="icon-filter" alt="" />
-              To Battlefield
-            </button>
-            <button type="button" @click="saveToBoard" :disabled="!canSaveToBoard"
-              class="flex-1 disabled:opacity-50 text-xs disabled:cursor-not-allowed rpg-button rpg-button-sm rpg-button-secondary">
-              <BookMarked class="w-4 h-4" />
+          <button type="button" @click="addToBattlefield" :disabled="!canAddToBattlefield"
+            class="disabled:opacity-50 w-full text-xs disabled:cursor-not-allowed rpg-button rpg-button-sm rpg-button-primary">
+            <img :src="assetUrl('images/sword_icon.png')" class="icon-filter" alt="" />
+            To Battlefield
+          </button>
+          <div class="flex justify-end">
+            <button type="button" class="optional-action" :disabled="!canSaveToBoard" @click="saveToBoard">
               To Board
             </button>
           </div>
@@ -177,7 +175,8 @@ import { buildMonsterPayload, buildTemplateFromForm, getEffectiveStats, template
 import { generateMonsterName as getRandomMonsterName } from "@/utils/monsterNameGenerator";
 import { MONSTER_COLORS, MONSTER_LETTERS, TIER_OPTIONS } from "@/constants/monsterOptions";
 import TraitPickButtons from "@/components/TraitPickButtons.vue";
-import { BookMarked, ChevronDown, ChevronUp, Plus } from "lucide-vue-next";
+import { scrollToCombatSection } from "@/composables/useDeployScroll";
+import { ChevronDown, ChevronUp, Plus } from "lucide-vue-next";
 
 interface Props {
   isAboveBattlefield?: boolean;
@@ -291,6 +290,6 @@ const generateMonsterName = () => {
 };
 
 const scrollToBattlefield = () => {
-  document.getElementById("battlefield")?.scrollIntoView({ behavior: "smooth" });
+  scrollToCombatSection("battlefield");
 };
 </script>

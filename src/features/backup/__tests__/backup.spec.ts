@@ -29,20 +29,23 @@ const fixtureEnvelope = (): BackupEnvelopeV1 => ({
           column: "combat",
         },
       ],
-      tierMode: true,
-      compactThreshold: 2,
-      showTitleCard: true,
-      showCreditsCard: true,
-      showCompactConditions: false,
-      autoTurnIncrement: true,
-      showSectionNav: true,
-      timerColorModeDefault: true,
-      timerNamingMode: "both",
-      fastMode: false,
-      keepCreatorFieldsOnBoardSave: true,
-      boardCardExpandPreview: false,
-      defaultNewCardColor: "Yellow",
-      notifications: { timerDone: true, turnAutoIncremented: true, roundEnded: false },
+      options: {
+        tierMode: true,
+        compactThreshold: 2,
+        showTitleCard: true,
+        showCreditsCard: true,
+        showCompactConditions: false,
+        autoTurnIncrement: true,
+        showSectionNav: true,
+        timerColorModeDefault: true,
+        timerNamingMode: "both",
+        fastMode: false,
+        keepCreatorFieldsOnBoardSave: true,
+        boardCardExpandPreview: false,
+        defaultNewCardColor: "Yellow",
+        scrollOnDeployMode: "always" as const,
+        notifications: { timerDone: true, turnAutoIncremented: true, roundEnded: false },
+      },
     },
   },
 });
@@ -83,6 +86,48 @@ describe("backup validate", () => {
     };
     const parsed = parseBackupEnvelope(withEmptyCardsArray);
     expect(parsed.data.boards.cards).toEqual({});
+  });
+
+  it("accepts layout-only settings without options", () => {
+    const layoutOnly = {
+      ...fixtureEnvelope(),
+      data: {
+        ...fixtureEnvelope().data,
+        settings: {
+          appCards: fixtureEnvelope().data.settings.appCards,
+        },
+      },
+    };
+    const parsed = parseBackupEnvelope(layoutOnly);
+    expect(parsed.data.settings.options).toBeUndefined();
+  });
+
+  it("accepts legacy flat settings backups", () => {
+    const legacy = {
+      ...fixtureEnvelope(),
+      data: {
+        ...fixtureEnvelope().data,
+        settings: {
+          appCards: fixtureEnvelope().data.settings.appCards,
+          tierMode: true,
+          compactThreshold: 2,
+          showTitleCard: true,
+          showCreditsCard: true,
+          showCompactConditions: false,
+          autoTurnIncrement: true,
+          showSectionNav: true,
+          timerColorModeDefault: true,
+          timerNamingMode: "both",
+          fastMode: false,
+          keepCreatorFieldsOnBoardSave: true,
+          boardCardExpandPreview: false,
+          defaultNewCardColor: "Yellow",
+          scrollOnDeployMode: "always",
+          notifications: { timerDone: true, turnAutoIncremented: true, roundEnded: false },
+        },
+      },
+    };
+    expect(() => parseBackupEnvelope(legacy)).not.toThrow();
   });
 
   it("strips cloud metadata for server upload", () => {

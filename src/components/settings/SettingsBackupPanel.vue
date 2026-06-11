@@ -8,6 +8,11 @@
           Export or import combat, boards, notes, snapshots, and settings as one JSON file.
         </p>
 
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input v-model="includeOptionsInBackup" type="checkbox" class="rounded border-neutral-300" />
+          <span class="text-neutral-700 text-xs rpg-body">Include app options (tier mode, notifications, layout prefs, etc.)</span>
+        </label>
+
         <div class="flex flex-col sm:flex-row gap-2.5">
           <button type="button" class="flex-1 rpg-button rpg-button-secondary text-sm" @click="exportToFile">
             Export to file
@@ -129,7 +134,7 @@
       <div class="bg-white shadow-xl p-6 rounded-lg w-full max-w-md" @click.stop>
         <h3 class="mb-2 text-lg rpg-heading">Replace all data?</h3>
         <p class="mb-4 text-neutral-700 text-sm rpg-body">
-          This replaces all monsters, timers, boards, notes, and settings with the backup. This cannot be undone.
+          {{ importConfirmMessage }}
         </p>
         <div class="flex justify-end gap-3">
           <button type="button" class="rpg-button rpg-button-secondary" @click="cancelConfirm">Cancel</button>
@@ -155,6 +160,7 @@ import {
 } from "@/features/backup/cloudApi";
 import { getCloudCredentials, setCloudCredentials } from "@/features/backup/cloudCredentials";
 import type { ParsedBackup } from "@/features/backup/types";
+import { isLegacySettingsBackup } from "@/stores/settings";
 
 const fileInputRef = ref<HTMLInputElement | null>(null);
 const cloudAvailable = ref(false);
@@ -168,10 +174,22 @@ const codeHighlight = ref(false);
 const confirmOpen = ref(false);
 let highlightTimer: ReturnType<typeof setTimeout> | undefined;
 const pendingImport = ref<ParsedBackup | null>(null);
+const includeOptionsInBackup = ref(false);
 
 const canUpdateServer = computed(() => {
   const creds = getCloudCredentials();
   return Boolean(creds?.slug && creds.writeToken);
+});
+
+const importConfirmMessage = computed(() => {
+  const settings = pendingImport.value?.data.settings;
+  const hasOptions = settings
+    ? isLegacySettingsBackup(settings) || Boolean(settings.options)
+    : false;
+  const optionsNote = hasOptions
+    ? " App options in this backup will replace your current options."
+    : " Your current app options will be kept.";
+  return `This replaces all monsters, timers, boards, notes, and card layout with the backup.${optionsNote} This cannot be undone.`;
 });
 
 const setStatus = (message: string, isError = false) => {
@@ -199,7 +217,7 @@ const flashCodeReveal = () => {
 
 const exportToFile = () => {
   const cloud = getCloudCredentials();
-  const envelope = buildBackupEnvelope(cloud ?? undefined);
+  const envelope = buildBackupEnvelope(cloud ?? undefined, includeOptionsInBackup.value);
   downloadBackupEnvelope(envelope);
   setStatus("Backup file downloaded.");
 };
@@ -245,7 +263,7 @@ const importFromServer = async () => {
 const saveToServer = async () => {
   busy.value = true;
   try {
-    const envelope = buildBackupEnvelope();
+    const envelope = buildBackupEnvelope(undefined, includeOptionsInBackup.value);
     const { slug, writeToken } = await createCloudBackup(envelope);
     setCloudCredentials({ slug, writeToken });
     revealedSlug.value = slug;
@@ -267,7 +285,7 @@ const updateServer = async () => {
 
   busy.value = true;
   try {
-    const envelope = buildBackupEnvelope(creds);
+    const envelope = buildBackupEnvelope(creds, includeOptionsInBackup.value);
     await updateCloudBackup(creds.slug, creds.writeToken, envelope);
     setStatus("Server backup updated.");
   } catch (error) {

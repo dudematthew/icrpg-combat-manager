@@ -12,13 +12,14 @@ import { deployTimerPayload } from "./timerAdapter";
 import { deployInspirationPayload } from "./inspirationAdapter";
 import { deploySnapshotPayload } from "./snapshotAdapter";
 import { formatPayloadPreview } from "../utils/payloadPreview";
+import { afterDeployScroll, scrollTargetForKind } from "@/composables/useDeployScroll";
 
 export interface PayloadAdapter {
   kind: IndexCardKind;
   icon: Component;
   label: string;
   deploySummary(card: IndexCard): string;
-  deploy(card: IndexCard): void;
+  deploy(card: IndexCard, held?: boolean): void;
 }
 
 const adapters: Record<IndexCardKind, PayloadAdapter> = {
@@ -34,8 +35,9 @@ const adapters: Record<IndexCardKind, PayloadAdapter> = {
     icon: Skull,
     label: "Monster",
     deploySummary: (card) => formatPayloadPreview(card) || card.title,
-    deploy: (card) => {
+    deploy: (card, held = false) => {
       if (card.payload?.kind === "monster") deployMonsterPayload(card.payload.data);
+      afterDeployScroll(scrollTargetForKind("monster"), held);
     },
   },
   timer: {
@@ -43,8 +45,9 @@ const adapters: Record<IndexCardKind, PayloadAdapter> = {
     icon: Clock,
     label: "Timer",
     deploySummary: (card) => formatPayloadPreview(card) || card.title,
-    deploy: (card) => {
+    deploy: (card, held = false) => {
       if (card.payload?.kind === "timer") deployTimerPayload(card.payload.data);
+      afterDeployScroll(scrollTargetForKind("timer"), held);
     },
   },
   inspiration: {
@@ -61,8 +64,9 @@ const adapters: Record<IndexCardKind, PayloadAdapter> = {
     icon: Camera,
     label: "Snapshot",
     deploySummary: (card) => formatPayloadPreview(card) || card.title,
-    deploy: (card) => {
+    deploy: (card, held = false) => {
       if (card.payload?.kind === "snapshot") deploySnapshotPayload(card.payload.data);
+      afterDeployScroll(scrollTargetForKind("snapshot"), held);
     },
   },
 };

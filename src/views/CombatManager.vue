@@ -142,6 +142,29 @@
             </div>
 
             <div class="mb-6">
+              <h4 class="mb-3 rpg-label">Board Deploy</h4>
+              <div class="space-y-3 bg-neutral-50 p-3 border border-neutral-200 rounded-lg">
+                <p class="text-neutral-600 text-xs rpg-body">
+                  When you deploy a card from the board column, jump to the matching combat section (timers, battlefield, etc.).
+                </p>
+                <div class="flex justify-between items-center">
+                  <div>
+                    <div class="font-bold text-sm rpg-body">Always scroll after deploy</div>
+                    <div class="text-neutral-600 text-xs rpg-body">Switches to the combat column on mobile, then scrolls</div>
+                  </div>
+                  <SettingsControl variant="choice" :active="settingsStore.scrollOnDeployMode === 'always'" @click="settingsStore.setScrollOnDeployMode('always')" />
+                </div>
+                <div class="flex justify-between items-center">
+                  <div>
+                    <div class="font-bold text-sm rpg-body">Hold deploy to scroll</div>
+                    <div class="text-neutral-600 text-xs rpg-body">Tap deploys only; long-press deploy also scrolls</div>
+                  </div>
+                  <SettingsControl variant="choice" :active="settingsStore.scrollOnDeployMode === 'hold'" @click="settingsStore.setScrollOnDeployMode('hold')" />
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-6">
               <h4 class="mb-3 rpg-label">Boards</h4>
               <div class="space-y-3 bg-neutral-50 p-3 border border-neutral-200 rounded-lg">
                 <div class="flex justify-between items-center">

@@ -63,20 +63,24 @@
           </div>
         </div>
 
-        <div class="flex flex-wrap gap-2 w-full">
-          <button type="button" @click="addTimer" :disabled="!canAddTimer" class="disabled:opacity-50 flex-1 text-xs disabled:cursor-not-allowed rpg-button rpg-button-primary">
+        <div class="flex flex-col gap-2 w-full">
+          <button type="button" @click="addTimer" :disabled="!canAddTimer" class="disabled:opacity-50 w-full text-xs disabled:cursor-not-allowed rpg-button rpg-button-primary">
             <img :src="assetUrl('images/clock_icon.png')" class="h-5 icon-filter" alt="Add timer" />
             Add Timer
           </button>
-          <button type="button" @click="saveToBoard" :disabled="!canAddTimer" class="disabled:opacity-50 flex-1 text-xs disabled:cursor-not-allowed rpg-button rpg-button-secondary">
-            To Board
-          </button>
-          <button v-if="combatStore.lastTimerTemplate" type="button" @click="combatStore.repeatLastTimer()" class="flex-1 text-xs rpg-button rpg-button-secondary">
-            Repeat Last
-          </button>
-          <button v-if="doneTimers.length > 0" type="button" @click="clearDoneTimers" class="flex-1 text-xs rpg-button rpg-button-secondary">
-            Clear Done ({{ doneTimers.length }})
-          </button>
+          <div class="flex justify-end">
+            <button type="button" class="optional-action" :disabled="!canAddTimer" @click="saveToBoard">
+              To Board
+            </button>
+          </div>
+          <div v-if="combatStore.lastTimerTemplate || doneTimers.length > 0" class="flex flex-wrap gap-2">
+            <button v-if="combatStore.lastTimerTemplate" type="button" @click="combatStore.repeatLastTimer()" class="flex-1 text-xs rpg-button rpg-button-secondary">
+              Repeat Last
+            </button>
+            <button v-if="doneTimers.length > 0" type="button" @click="clearDoneTimers" class="flex-1 text-xs rpg-button rpg-button-secondary">
+              Clear Done ({{ doneTimers.length }})
+            </button>
+          </div>
         </div>
       </div>
 

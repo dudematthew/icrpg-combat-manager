@@ -3,7 +3,10 @@ import { useBoardsStore } from "@/features/boards/stores/boards";
 import { useSettingsStore } from "@/stores/settings";
 import { BACKUP_FORMAT, BACKUP_VERSION, type BackupCloudMeta, type BackupEnvelopeV1 } from "./types";
 
-export function buildBackupEnvelope(cloud?: BackupCloudMeta): BackupEnvelopeV1 {
+export function buildBackupEnvelope(
+  cloud?: BackupCloudMeta,
+  includeOptions = false,
+): BackupEnvelopeV1 {
   const combatStore = useCombatStore();
   const boardsStore = useBoardsStore();
   const settingsStore = useSettingsStore();
@@ -15,7 +18,7 @@ export function buildBackupEnvelope(cloud?: BackupCloudMeta): BackupEnvelopeV1 {
     data: {
       combat: combatStore.exportSnapshot(),
       boards: boardsStore.exportState(),
-      settings: settingsStore.exportSettings(),
+      settings: settingsStore.exportSettingsForBackup(includeOptions),
     },
   };
 

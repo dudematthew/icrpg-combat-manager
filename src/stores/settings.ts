@@ -36,9 +36,10 @@ interface LegacyAppCard extends Omit<AppCard, "column"> {
 const CARD_IDS = ALL_CARD_IDS;
 
 export type TimerNamingMode = "both" | "named" | "color";
+export type ScrollOnDeployMode = "always" | "hold";
 
-export interface SettingsBackupData {
-  appCards: AppCard[];
+/** UI preferences — optional in backup files. */
+export interface SettingsBackupOptions {
   tierMode: boolean;
   compactThreshold: number;
   showTitleCard: boolean;
@@ -52,7 +53,23 @@ export interface SettingsBackupData {
   keepCreatorFieldsOnBoardSave: boolean;
   boardCardExpandPreview: boolean;
   defaultNewCardColor: string;
+  scrollOnDeployMode: ScrollOnDeployMode;
   notifications: NotificationSettings;
+}
+
+/** Card layout in backup exports; options are included only when requested. */
+export interface SettingsBackupData {
+  appCards: AppCard[];
+  options?: SettingsBackupOptions;
+}
+
+/** Flat settings blob in localStorage and legacy backup files. */
+export type SettingsPersistedData = SettingsBackupData & SettingsBackupOptions;
+
+export function isLegacySettingsBackup(
+  data: SettingsBackupData | SettingsPersistedData,
+): data is SettingsPersistedData {
+  return "tierMode" in data;
 }
 
 export const useSettingsStore = defineStore("settings", () => {
@@ -121,6 +138,7 @@ export const useSettingsStore = defineStore("settings", () => {
   const keepCreatorFieldsOnBoardSave = ref(true);
   const boardCardExpandPreview = ref(false);
   const defaultNewCardColor = ref("Yellow");
+  const scrollOnDeployMode = ref<ScrollOnDeployMode>("always");
   const notifications = ref<NotificationSettings>({ ...defaultNotifications });
 
   const migrateAppCards = (saved: LegacyAppCard[] | undefined): AppCard[] => {
@@ -148,7 +166,57 @@ export const useSettingsStore = defineStore("settings", () => {
     return sanitizeAppCards(cleaned);
   };
 
-  const applySettingsData = (settings: Partial<SettingsBackupData> & { keepCreatorFieldsOnLibrarySave?: boolean }) => {
+  const applySettingsOptionsPartial = (
+    settings: Partial<SettingsBackupOptions> & { keepCreatorFieldsOnLibrarySave?: boolean },
+  ) => {
+    if (settings.tierMode !== undefined) tierMode.value = settings.tierMode;
+    if (settings.compactThreshold !== undefined) compactThreshold.value = settings.compactThreshold;
+    if (settings.showTitleCard !== undefined) showTitleCard.value = settings.showTitleCard;
+    if (settings.showCreditsCard !== undefined) showCreditsCard.value = settings.showCreditsCard;
+    if (settings.showCompactConditions !== undefined) {
+      showCompactConditions.value = settings.showCompactConditions;
+    }
+    if (settings.autoTurnIncrement !== undefined) autoTurnIncrement.value = settings.autoTurnIncrement;
+    if (settings.showSectionNav !== undefined) showSectionNav.value = settings.showSectionNav;
+    if (settings.timerColorModeDefault !== undefined) {
+      timerColorModeDefault.value = settings.timerColorModeDefault;
+    }
+    if (
+      settings.timerNamingMode === "named" ||
+      settings.timerNamingMode === "color" ||
+      settings.timerNamingMode === "both"
+    ) {
+      timerNamingMode.value = settings.timerNamingMode;
+    }
+    if (settings.fastMode !== undefined) fastMode.value = settings.fastMode;
+    if (settings.keepCreatorFieldsOnBoardSave !== undefined) {
+      keepCreatorFieldsOnBoardSave.value = settings.keepCreatorFieldsOnBoardSave;
+    } else if (settings.keepCreatorFieldsOnLibrarySave !== undefined) {
+      keepCreatorFieldsOnBoardSave.value = settings.keepCreatorFieldsOnLibrarySave;
+    }
+    if (settings.boardCardExpandPreview !== undefined) {
+      boardCardExpandPreview.value = settings.boardCardExpandPreview;
+    }
+    if (settings.defaultNewCardColor !== undefined) {
+      defaultNewCardColor.value = settings.defaultNewCardColor;
+    }
+    if (settings.scrollOnDeployMode === "hold" || settings.scrollOnDeployMode === "always") {
+      scrollOnDeployMode.value = settings.scrollOnDeployMode;
+    }
+    if (settings.notifications) {
+      if (settings.notifications.timerDone !== undefined) {
+        notifications.value.timerDone = settings.notifications.timerDone;
+      }
+      if (settings.notifications.turnAutoIncremented !== undefined) {
+        notifications.value.turnAutoIncremented = settings.notifications.turnAutoIncremented;
+      }
+      if (settings.notifications.roundEnded !== undefined) {
+        notifications.value.roundEnded = settings.notifications.roundEnded;
+      }
+    }
+  };
+
+  const applySettingsData = (settings: Partial<SettingsPersistedData> & { keepCreatorFieldsOnLibrarySave?: boolean }) => {
     if (settings.appCards) {
       appCards.value = migrateAppCards(settings.appCards);
     } else {
@@ -185,6 +253,8 @@ export const useSettingsStore = defineStore("settings", () => {
       settings.boardCardExpandPreview !== undefined ? settings.boardCardExpandPreview : false;
     defaultNewCardColor.value =
       settings.defaultNewCardColor !== undefined ? settings.defaultNewCardColor : "Yellow";
+    scrollOnDeployMode.value =
+      settings.scrollOnDeployMode === "hold" ? "hold" : "always";
 
     if (settings.notifications) {
       notifications.value = {
@@ -206,7 +276,43 @@ export const useSettingsStore = defineStore("settings", () => {
     }
   };
 
-  const exportSettings = (): SettingsBackupData => ({
+  const exportSettingsOptions = (): SettingsBackupOptions => ({
+    tierMode: tierMode.value,
+    compactThreshold: compactThreshold.value,
+    showTitleCard: showTitleCard.value,
+    showCreditsCard: showCreditsCard.value,
+    showCompactConditions: showCompactConditions.value,
+    autoTurnIncrement: autoTurnIncrement.value,
+    showSectionNav: showSectionNav.value,
+    timerColorModeDefault: timerColorModeDefault.value,
+    timerNamingMode: timerNamingMode.value,
+    fastMode: fastMode.value,
+    keepCreatorFieldsOnBoardSave: keepCreatorFieldsOnBoardSave.value,
+    boardCardExpandPreview: boardCardExpandPreview.value,
+    defaultNewCardColor: defaultNewCardColor.value,
+    scrollOnDeployMode: scrollOnDeployMode.value,
+    notifications: { ...notifications.value },
+  });
+
+  const exportSettingsForBackup = (includeOptions: boolean): SettingsBackupData => {
+    const data: SettingsBackupData = { appCards: appCards.value };
+    if (includeOptions) {
+      data.options = exportSettingsOptions();
+    }
+    return data;
+  };
+
+  const importSettingsBackup = (data: SettingsBackupData | SettingsPersistedData) => {
+    appCards.value = migrateAppCards(data.appCards);
+    if (isLegacySettingsBackup(data)) {
+      applySettingsOptionsPartial(data);
+    } else if (data.options) {
+      applySettingsOptionsPartial(data.options);
+    }
+    saveSettings();
+  };
+
+  const exportSettings = (): SettingsPersistedData => ({
     appCards: appCards.value,
     tierMode: tierMode.value,
     compactThreshold: compactThreshold.value,
@@ -221,10 +327,11 @@ export const useSettingsStore = defineStore("settings", () => {
     keepCreatorFieldsOnBoardSave: keepCreatorFieldsOnBoardSave.value,
     boardCardExpandPreview: boardCardExpandPreview.value,
     defaultNewCardColor: defaultNewCardColor.value,
+    scrollOnDeployMode: scrollOnDeployMode.value,
     notifications: { ...notifications.value },
   });
 
-  const importSettings = (data: SettingsBackupData) => {
+  const importSettings = (data: SettingsPersistedData) => {
     applySettingsData(data);
     saveSettings();
   };
@@ -382,6 +489,11 @@ export const useSettingsStore = defineStore("settings", () => {
     saveSettings();
   };
 
+  const setScrollOnDeployMode = (mode: ScrollOnDeployMode) => {
+    scrollOnDeployMode.value = mode;
+    saveSettings();
+  };
+
   const toggleTimerDoneNotification = () => {
     notifications.value.timerDone = !notifications.value.timerDone;
     saveSettings();
@@ -412,6 +524,7 @@ export const useSettingsStore = defineStore("settings", () => {
     keepCreatorFieldsOnBoardSave.value = true;
     boardCardExpandPreview.value = false;
     defaultNewCardColor.value = "Yellow";
+    scrollOnDeployMode.value = "always";
     notifications.value = { ...defaultNotifications };
     saveSettings();
   };
@@ -431,6 +544,7 @@ export const useSettingsStore = defineStore("settings", () => {
     keepCreatorFieldsOnBoardSave,
     boardCardExpandPreview,
     defaultNewCardColor,
+    scrollOnDeployMode,
     notifications,
     toggleCard,
     toggleTierMode,
@@ -445,6 +559,7 @@ export const useSettingsStore = defineStore("settings", () => {
     toggleFastMode,
     toggleBoardCardExpandPreview,
     setDefaultNewCardColor,
+    setScrollOnDeployMode,
     toggleTimerDoneNotification,
     toggleTurnAutoIncrementedNotification,
     toggleRoundEndedNotification,
@@ -459,7 +574,9 @@ export const useSettingsStore = defineStore("settings", () => {
     splitAppCardsBySection,
     splitAppCardsForSettings,
     exportSettings,
+    exportSettingsForBackup,
     importSettings,
+    importSettingsBackup,
     resetToDefaults,
   };
 });

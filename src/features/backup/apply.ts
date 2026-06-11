@@ -11,7 +11,7 @@ export function applyBackupEnvelope(envelope: ParsedBackup): void {
 
   combatStore.importState(envelope.data.combat);
   boardsStore.importState(envelope.data.boards);
-  settingsStore.importSettings(envelope.data.settings);
+  settingsStore.importSettingsBackup(envelope.data.settings);
 
   if (envelope.cloud) {
     setCloudCredentials(envelope.cloud);

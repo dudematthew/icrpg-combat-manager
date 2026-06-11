@@ -20,13 +20,13 @@
       <div class="flex justify-between items-baseline gap-3 mb-2">
         <span class="font-bold text-base normal-case tracking-normal rpg-heading">{{ resultLabel }}</span>
         <div class="flex flex-shrink-0 gap-3">
-          <button type="button" class="inspiration-action" @click="copyResult">
+          <button type="button" class="optional-action" @click="copyResult">
             Copy
           </button>
-          <button type="button" class="inspiration-action" @click="pushToBoard">
+          <button type="button" class="optional-action" @click="pushToBoard">
             To Board
           </button>
-          <button type="button" class="inspiration-action" @click="reroll">
+          <button type="button" class="optional-action" @click="reroll">
             Re-roll
           </button>
         </div>
@@ -46,7 +46,7 @@
 import { ref, computed } from "vue";
 import { Sparkles } from "lucide-vue-next";
 import QuickPickModal from "@/components/QuickPickModal.vue";
-import { useHoldToPick } from "@/composables/useHoldToPick";
+import { useHoldToPick, bindHoldHandlers } from "@/composables/useHoldToPick";
 import {
   INSPIRATION_CHIPS,
   rollCategory,
@@ -145,15 +145,7 @@ for (const chip of chips) {
   );
 }
 
-const chipHandlers = (key: InspirationCategory) => {
-  const h = chipHandlerMap.get(key)!;
-  return {
-    onPointerdown: h.onPointerDown,
-    onPointerup: h.onPointerUp,
-    onPointerleave: h.onPointerLeave,
-    onPointercancel: h.onPointerLeave,
-  };
-};
+const chipHandlers = (key: InspirationCategory) => bindHoldHandlers(chipHandlerMap.get(key)!);
 </script>
 
 <style scoped>
@@ -164,17 +156,4 @@ const chipHandlers = (key: InspirationCategory) => {
   margin-bottom: 1rem;
 }
 
-.inspiration-action {
-  color: #737373;
-  font-size: 0.75rem;
-  text-decoration: underline;
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-}
-
-.inspiration-action:hover {
-  color: #dc2626;
-}
 </style>

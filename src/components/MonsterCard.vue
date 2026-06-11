@@ -69,13 +69,8 @@
       </div>
 
       <div class="flex xs:flex-row flex-col gap-1">
-        <button
-          type="button"
-          class="p-1 rpg-icon-button rpg-icon-button-neutral"
-          title="Save to board"
-          @click="saveToBoard"
-        >
-          <BookMarked class="w-4 h-4" />
+        <button type="button" class="optional-action self-center px-1" @click="saveToBoard">
+          To Board
         </button>
         <button v-if="monster.heartsCurrent <= 0" @click="reviveMonster"
           class="flex items-center gap-1 rpg-icon-button rpg-icon-button-neutral" title="Revive Monster to Full Health">
@@ -284,8 +279,8 @@
             </div>
           </details>
 
-          <div class="flex flex-wrap justify-end gap-3">
-            <button type="button" @click="saveToBoard" class="rpg-button rpg-button-secondary">
+          <div class="flex flex-wrap justify-end items-center gap-3">
+            <button type="button" class="optional-action mr-auto" @click="saveToBoard">
               To Board
             </button>
             <button @click="saveChanges" class="rpg-button rpg-button-primary">
@@ -339,7 +334,7 @@ import TraitPickButtons from '@/components/TraitPickButtons.vue'
 import { useBoardsStore } from '@/features/boards/stores/boards'
 import { captureMonsterFromBattlefield } from '@/features/boards/adapters/monsterAdapter'
 import { templateLabel } from '@/utils/monsterForm'
-import { Trash2, ChevronDown, Undo2, BookMarked } from 'lucide-vue-next'
+import { Trash2, ChevronDown, Undo2 } from 'lucide-vue-next'
 import InlineEditableText from './InlineEditableText.vue'
 import { useHoverDelay } from '@/composables/useHoverDelay'
 import { useScrollLock } from '@/composables/useScrollLock'

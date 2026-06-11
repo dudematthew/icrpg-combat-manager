@@ -3,15 +3,23 @@
     type="button"
     :class="buttonClasses"
     :style="sizeStyle"
+    :aria-label="armed ? confirmLabel : label"
+    :title="titleText"
     @click="onClick"
     @blur="reset"
   >
-    {{ armed ? confirmLabel : label }}
+    <Check v-if="armed && iconOnly" class="w-4 h-4" aria-hidden="true" />
+    <template v-else-if="armed">{{ confirmLabel }}</template>
+    <slot v-else-if="$slots.default" />
+    <template v-else>{{ label }}</template>
   </button>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onUnmounted } from "vue";
+import { ref, computed, onUnmounted, useAttrs } from "vue";
+import { Check } from "lucide-vue-next";
+
+defineOptions({ inheritAttrs: false });
 
 const props = withDefaults(
   defineProps<{
@@ -19,12 +27,14 @@ const props = withDefaults(
     confirmLabel?: string;
     variant?: "default" | "danger";
     size?: "default" | "sm";
+    iconOnly?: boolean;
     timeoutMs?: number;
   }>(),
   {
     confirmLabel: "Confirm",
     variant: "default",
     size: "default",
+    iconOnly: false,
     timeoutMs: 3000,
   },
 );
@@ -33,20 +43,31 @@ const emit = defineEmits<{
   confirm: [];
 }>();
 
+const attrs = useAttrs();
 const armed = ref(false);
 let timer: ReturnType<typeof setTimeout> | null = null;
 
 const buttonClasses = computed(() => [
   "confirm-tap-btn",
-  "rpg-button",
+  props.iconOnly ? null : "rpg-button",
   props.size === "sm" ? "rpg-button-sm" : "",
   props.variant === "danger" ? "confirm-tap-btn--danger" : "rpg-button-secondary",
   { "confirm-tap-btn--armed": armed.value },
+  attrs.class,
 ]);
 
-const sizeStyle = computed(() => ({
-  minWidth: props.size === "sm" ? "5.5rem" : "6.75rem",
-}));
+const sizeStyle = computed(() => {
+  if (props.iconOnly) return undefined;
+  return { minWidth: props.size === "sm" ? "5.5rem" : "6.75rem" };
+});
+
+const titleText = computed(() => {
+  const explicit = attrs.title as string | undefined;
+  if (armed.value) {
+    return props.iconOnly ? `${props.confirmLabel} remove` : `${props.confirmLabel}?`;
+  }
+  return explicit ?? props.label;
+});
 
 const reset = () => {
   armed.value = false;

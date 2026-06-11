@@ -77,17 +77,39 @@ export const TIER_CONFIGS: Record<string, TierConfig> = {
 
 export interface Condition {
   name: string;
-  effect: string;
+  /** GM-facing mechanical summary (shown on hold). */
+  gmHint: string;
   autoDamage?: number;
-  modifier?: number;
 }
 
 export const CONDITIONS: Condition[] = [
-  { name: "Paralyzed", effect: "Cannot take actions" },
-  { name: "Poisoned", effect: "Roll HARD on checks", autoDamage: 1 },
-  { name: "Burning", effect: "Take damage each round", autoDamage: 1 },
-  { name: "Stunned", effect: "Skip next turn" },
-  { name: "Bleeding", effect: "Take damage each turn", autoDamage: 1 },
+  {
+    name: "Paralyzed",
+    gmHint:
+      "Motionless and vulnerable—cannot act. Often broken with a CON check; while paralyzed, call affected rolls HARD (+3 TN).",
+  },
+  {
+    name: "Poisoned",
+    gmHint:
+      "Poison damage over time; attempts and checks are usually HARD (+3 TN). Track DOT in notes (e.g. Poison 3/rnd).",
+  },
+  {
+    name: "Burning",
+    gmHint:
+      "Burn damage each round like poison; may ignite nearby flammables. This app applies 1♥ at round end when Burning is set.",
+    autoDamage: 1,
+  },
+  {
+    name: "Stunned",
+    gmHint:
+      "Loses a turn or sits out for a set duration. A common reason to call HARD rolls (+3 TN) until they recover.",
+  },
+  {
+    name: "Bleeding",
+    gmHint:
+      "Bleeds each turn—DOT like poison; at 0 HP, narrate bleeding out on the death timer. This app applies 1♥ at round end when Bleeding is set.",
+    autoDamage: 1,
+  },
 ];
 
 export interface EffortConfig {

@@ -23,8 +23,8 @@
         </div>
         <div class="flex-1">
           <div class="flex flex-row items-center gap-2 mb-2 text-base rpg-heading">
-            <img v-if="monster.heartsCurrent <= 0" :src="assetUrl('images/skull_icon.png')" class="inline icon-filter" alt="Dead"
-              style="height: 1.1rem;" />
+            <img v-if="monster.heartsCurrent <= 0" :src="assetUrl('images/skull_icon.png')" class="inline icon-filter"
+              alt="Dead" style="height: 1.1rem;" />
             <span :class="{ 'line-through': monster.doneTurn && monster.heartsCurrent > 0 }" class="cursor-pointer"
               @click="showEditModal = true">
               {{ monster.name || formatMonsterIdentifier(monster.color, monster.letter) }}
@@ -69,7 +69,7 @@
       </div>
 
       <div class="flex xs:flex-row flex-col gap-1">
-        <button type="button" class="optional-action self-center px-1" @click="saveToBoard">
+        <button type="button" class="self-center px-1 optional-action" @click="saveToBoard">
           To Board
         </button>
         <button v-if="monster.heartsCurrent <= 0" @click="reviveMonster"
@@ -84,10 +84,17 @@
           <img v-else :src="assetUrl('images/checkmark_icon.png')" class="w-4 h-4 icon-filter" alt="Mark done" />
         </button>
         <!-- For dead monsters: show remove button -->
-        <button v-if="monster.heartsCurrent <= 0" @click="$emit('remove')"
-          class="rpg-icon-button rpg-icon-button-danger">
+        <ConfirmTapButton
+          v-if="monster.heartsCurrent <= 0"
+          icon-only
+          variant="danger"
+          label="Remove monster"
+          confirm-label="Confirm"
+          class="rpg-icon-button rpg-icon-button-danger"
+          @confirm="$emit('remove')"
+        >
           <Trash2 class="w-4 h-4" />
-        </button>
+        </ConfirmTapButton>
       </div>
     </div>
 
@@ -132,10 +139,10 @@
 
     <!-- Conditions -->
     <div v-if="(!compact || isHoverDelayed) && (monster.heartsCurrent > 0 || isHoverDelayed)" class="mb-4">
-      <div class="mb-3 font-medium text-sm rpg-body">Conditions:</div>
+      <div class="mb-3 font-medium text-sm rpg-body">Conditions: (hold for info)</div>
       <div class="flex flex-wrap gap-2">
-        <span v-for="condition in CONDITIONS" :key="condition.name" @click="toggleCondition(condition.name)"
-          class="condition-badge" :class="{ 'active': monster.conditions.includes(condition.name) }">
+        <span v-for="condition in CONDITIONS" :key="condition.name" role="button" tabindex="0" class="condition-badge"
+          :class="{ active: monster.conditions.includes(condition.name) }" v-bind="conditionHandlers(condition.name)">
           {{ condition.name }}
         </span>
       </div>
@@ -165,47 +172,48 @@
     </details>
 
     <div v-if="(!compact || isHoverDelayed) && monster.heartsCurrent > 0" class="flex gap-2 mt-4">
-      <button
-        ref="checkButtonRef"
-        type="button"
-        title="Roll check vs player defense or room target"
+      <button ref="checkButtonRef" type="button" title="Roll check vs player defense or room target"
         class="flex flex-1 justify-center items-center gap-2 px-4 py-2 border-2 rounded-md font-heading text-xs uppercase tracking-wide transition-colors cursor-pointer grow rpg-icon-button rpg-icon-button-violet"
-        @click="showCheckPopover = true"
-      >
+        @click="showCheckPopover = true">
         <img :src="assetUrl('images/d20_dice_icon.png')" class="w-4 h-4 icon-filter" alt="" />
         Check
       </button>
-      <button
-        ref="effortButtonRef"
-        type="button"
-        title="Roll effort damage"
+      <button ref="effortButtonRef" type="button" title="Roll effort damage"
         class="flex flex-1 justify-center items-center gap-2 px-4 py-2 border-2 rounded-md font-heading text-xs uppercase tracking-wide transition-colors cursor-pointer grow rpg-icon-button rpg-icon-button-violet"
-        @click="showEffortPopover = true"
-      >
+        @click="showEffortPopover = true">
         <img :src="assetUrl('images/sword_icon.png')" class="w-4 h-4 icon-filter" alt="" />
         Effort
       </button>
-      <button
-        type="button"
-        @click="$emit('remove')"
+      <ConfirmTapButton
+        icon-only
+        variant="danger"
+        label="Remove monster"
+        confirm-label="Confirm"
         class="flex justify-center items-center px-2 py-2 border-2 rounded-md rpg-icon-button rpg-icon-button-danger"
-        title="Remove Monster"
+        @confirm="$emit('remove')"
       >
         <Trash2 class="w-4 h-4" />
-      </button>
+      </ConfirmTapButton>
     </div>
   </div>
 
-  <MonsterCheckPopover
-    v-model="showCheckPopover"
-    :stat-bonus="monster.statsBonus"
-    :anchor-el="checkButtonRef"
-  />
-  <MonsterEffortPopover
-    v-model="showEffortPopover"
-    :effort-bonus="monster.effortBonus"
-    :anchor-el="effortButtonRef"
-  />
+  <MonsterCheckPopover v-model="showCheckPopover" :stat-bonus="monster.statsBonus" :anchor-el="checkButtonRef" />
+  <MonsterEffortPopover v-model="showEffortPopover" :effort-bonus="monster.effortBonus" :anchor-el="effortButtonRef" />
+
+  <Teleport to="body">
+    <div v-if="conditionInfoOpen" class="z-50 fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 p-4"
+      @mousedown.self="conditionInfoOpen = false">
+      <div class="bg-white shadow-xl p-6 rounded-lg w-full max-w-md" @click.stop>
+        <h3 class="mb-2 text-lg rpg-heading">{{ conditionInfoName }}</h3>
+        <p class="text-neutral-700 text-sm leading-relaxed rpg-body">{{ conditionInfoText }}</p>
+        <div class="flex justify-end mt-4">
+          <button type="button" class="rpg-button rpg-button-secondary" @click="conditionInfoOpen = false">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </Teleport>
 
   <!-- Edit Monster Modal -->
   <div v-if="showEditModal" class="z-50 fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 p-4"
@@ -293,18 +301,14 @@
               <!-- Generator Section -->
               <div class="space-y-3 bg-neutral-50 p-3 border border-neutral-200 rounded-lg">
                 <h4 class="rpg-label">Generate Traits</h4>
-                <TraitPickButtons
-                  :notes="localNotes"
-                  :special-abilities="localAbilities"
-                  @update:notes="localNotes = $event"
-                  @update:special-abilities="localAbilities = $event"
-                />
+                <TraitPickButtons :notes="localNotes" :special-abilities="localAbilities"
+                  @update:notes="localNotes = $event" @update:special-abilities="localAbilities = $event" />
               </div>
             </div>
           </details>
 
           <div class="flex flex-wrap justify-end items-center gap-3">
-            <button type="button" class="optional-action mr-auto" @click="saveToBoard">
+            <button type="button" class="mr-auto optional-action" @click="saveToBoard">
               To Board
             </button>
             <button @click="saveChanges" class="rpg-button rpg-button-primary">
@@ -367,8 +371,10 @@ import { useSettingsStore } from '@/stores/settings'
 import { monsterToTemplate } from '@/utils/monsterForm'
 import { Trash2, ChevronDown, Undo2 } from 'lucide-vue-next'
 import InlineEditableText from './InlineEditableText.vue'
+import ConfirmTapButton from './ConfirmTapButton.vue'
 import { useHoverDelay } from '@/composables/useHoverDelay'
 import { useScrollLock } from '@/composables/useScrollLock'
+import { useHoldToPick, bindHoldHandlers } from '@/composables/useHoldToPick'
 interface Props {
   monster: Monster
   compact?: boolean
@@ -390,10 +396,18 @@ const effortButtonRef = ref<HTMLElement | null>(null)
 
 const showDamageDialog = ref(false)
 const showEditModal = ref(false)
+const conditionInfoOpen = ref(false)
+const conditionInfoName = ref('')
 const customDamage = ref<number | null>(null)
 
+const conditionInfoText = computed(() =>
+  CONDITIONS.find((c) => c.name === conditionInfoName.value)?.gmHint ?? '',
+)
+
 // Computed for combined modal state for scroll lock
-const isModalOpen = computed(() => showEditModal.value || showDamageDialog.value)
+const isModalOpen = computed(() =>
+  showEditModal.value || showDamageDialog.value || conditionInfoOpen.value,
+)
 
 // Apply scroll lock when any modal is open
 useScrollLock(isModalOpen)
@@ -456,6 +470,24 @@ const toggleCondition = (condition: string) => {
     : [...props.monster.conditions, condition]
   emit('update', { conditions })
 }
+
+const showConditionInfo = (name: string) => {
+  conditionInfoName.value = name
+  conditionInfoOpen.value = true
+}
+
+const conditionHandlerMap = new Map<string, ReturnType<typeof useHoldToPick>>()
+for (const condition of CONDITIONS) {
+  conditionHandlerMap.set(
+    condition.name,
+    useHoldToPick(
+      () => toggleCondition(condition.name),
+      () => showConditionInfo(condition.name),
+    ),
+  )
+}
+
+const conditionHandlers = (name: string) => bindHoldHandlers(conditionHandlerMap.get(name)!)
 
 const updateNotes = (value: string) => {
   localNotes.value = value
@@ -575,5 +607,4 @@ defineExpose({
   text-decoration-thickness: 2px;
   text-decoration-color: currentColor;
 }
-
 </style>

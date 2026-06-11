@@ -15,7 +15,7 @@
             <GripVertical class="index-card__grip" />
           </div>
           <component :is="adapter.icon" class="index-card__icon" :style="{ color: getMonsterColor(card.color) }" />
-          <h3 class="index-card__title">{{ card.title }}</h3>
+          <h3 class="index-card__title">{{ displayTitle }}</h3>
         </div>
 
         <div
@@ -63,7 +63,8 @@ import { getMonsterColor } from "@/utils/combat";
 import { useSettingsStore } from "@/stores/settings";
 import { renderMarkdown } from "../utils/markdown";
 import { getAdapter, canDeploy as isDeployable } from "../adapters";
-import { formatCardFacePayloadPreview } from "../utils/payloadPreview";
+import { formatPayloadPreview } from "../utils/payloadPreview";
+import { getCardDisplayTitle, getCardDisplayNotes } from "../utils/cardDisplay";
 import { toggleTaskListLine } from "../utils/taskList";
 import { useDragClickGuard } from "@/composables/useDragClickGuard";
 import { useHoldToPick, bindHoldHandlers } from "@/composables/useHoldToPick";
@@ -99,15 +100,15 @@ const onDeployClick = () => {
 };
 const adapter = computed(() => getAdapter(props.card.kind));
 
+const displayTitle = computed(() => getCardDisplayTitle(props.card));
+
 const payloadHtml = computed(() => {
   if (props.card.kind === "text") return "";
-  const source = formatCardFacePayloadPreview(props.card);
+  const source = formatPayloadPreview(props.card);
   return source ? renderMarkdown(source) : "";
 });
 
-const notesSource = computed(() =>
-  props.card.kind === "text" ? props.card.body : props.card.body.trim(),
-);
+const notesSource = computed(() => getCardDisplayNotes(props.card));
 
 const notesHtml = computed(() =>
   notesSource.value ? renderMarkdown(notesSource.value) : "",

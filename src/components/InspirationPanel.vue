@@ -126,6 +126,15 @@ const copyResult = async () => {
 
 const pushToBoard = () => {
   if (!result.value) return;
+  if (lastCategory.value === "full" && fullNpcParts.value) {
+    boardsStore.addCard({
+      kind: "text",
+      color: settingsStore.defaultNewCardColor,
+      title: fullNpcParts.value.name,
+      body: fullNpcParts.value.rest,
+    });
+    return;
+  }
   boardsStore.addCard({
     kind: "text",
     color: settingsStore.defaultNewCardColor,

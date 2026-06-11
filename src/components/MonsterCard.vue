@@ -350,7 +350,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import type { Monster, MonsterTemplate } from '@/types'
+import type { Monster } from '@/types'
 import { CONDITIONS, TIER_CONFIGS } from '@/types'
 import {
   formatMonsterIdentifier,
@@ -364,8 +364,7 @@ import MonsterEffortPopover from '@/components/MonsterEffortPopover.vue'
 import TraitPickButtons from '@/components/TraitPickButtons.vue'
 import { useBoardsStore } from '@/features/boards/stores/boards'
 import { useSettingsStore } from '@/stores/settings'
-import { captureMonsterFromBattlefield } from '@/features/boards/adapters/monsterAdapter'
-import { templateLabel } from '@/utils/monsterForm'
+import { monsterToTemplate } from '@/utils/monsterForm'
 import { Trash2, ChevronDown, Undo2 } from 'lucide-vue-next'
 import InlineEditableText from './InlineEditableText.vue'
 import { useHoverDelay } from '@/composables/useHoverDelay'
@@ -518,15 +517,7 @@ const saveChanges = () => {
 }
 
 const saveToBoard = () => {
-  const payload = captureMonsterFromBattlefield(props.monster)
-  const title = props.monster.name || templateLabel(payload.data as MonsterTemplate)
-  boardsStore.pushPayloadCard(
-    'monster',
-    title,
-    props.monster.color,
-    payload,
-    props.monster.notes || '',
-  )
+  boardsStore.addMonsterCard(monsterToTemplate(props.monster))
 }
 
 const cancelEdit = () => {

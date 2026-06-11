@@ -63,26 +63,24 @@
         </div>
 
         <div class="flex flex-col gap-2 w-full">
-          <button type="button" @click="addTimer" :disabled="!canAddTimer"
-            class="disabled:opacity-50 w-full text-xs disabled:cursor-not-allowed rpg-button rpg-button-primary">
-            <img :src="assetUrl('images/clock_icon.png')" class="h-5 icon-filter" alt="Add timer" />
-            Add Timer
-          </button>
           <div class="flex justify-end">
             <button type="button" class="optional-action" :disabled="!canAddTimer" @click="saveToBoard">
               To Board
             </button>
           </div>
-          <div v-if="combatStore.lastTimerTemplate || doneTimers.length > 0" class="flex flex-wrap gap-2">
-            <button v-if="combatStore.lastTimerTemplate" type="button" @click="combatStore.repeatLastTimer()"
-              class="flex-1 text-xs rpg-button rpg-button-secondary">
-              Repeat Last
-            </button>
-            <button v-if="doneTimers.length > 0" type="button" @click="clearDoneTimers"
-              class="flex-1 text-xs rpg-button rpg-button-secondary">
-              Clear Done ({{ doneTimers.length }})
-            </button>
-          </div>
+          <button type="button" @click="addTimer" :disabled="!canAddTimer"
+            class="disabled:opacity-50 w-full text-xs disabled:cursor-not-allowed rpg-button rpg-button-primary">
+            <img :src="assetUrl('images/clock_icon.png')" class="h-5 icon-filter" alt="Add timer" />
+            Add Timer
+          </button>
+          <button
+            v-if="doneTimers.length > 0"
+            type="button"
+            @click="clearDoneTimers"
+            class="w-full text-xs rpg-button rpg-button-secondary"
+          >
+            Clear Done ({{ doneTimers.length }})
+          </button>
         </div>
       </div>
 
@@ -98,8 +96,8 @@
                 Duration: {{ timer.duration }} {{ timer.type === 'manual' ? '' : timer.type }} |
                 Remaining:
                 <span :class="timer.remaining <= 0 ? 'text-danger font-bold' : 'text-accent font-bold'">
-                  {{ timer.remaining <= 0 ? 'done' : timer.type === 'manual' ? timer.remaining : `${timer.remaining} ${timer.type}` }}
-                </span>
+                  {{ timer.remaining <= 0 ? 'done' : timer.type==='manual' ? timer.remaining : `${timer.remaining}
+                    ${timer.type}` }} </span>
               </div>
             </div>
             <div class="flex items-center gap-2">

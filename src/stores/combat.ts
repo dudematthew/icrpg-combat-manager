@@ -13,7 +13,6 @@ export const useCombatStore = defineStore("combat", () => {
   const currentTurn = ref(1);
   const currentRound = ref(1);
   const lastAddedMonsterPayload = ref<Omit<Monster, "id"> | null>(null);
-  const lastTimerTemplate = ref<Omit<Timer, "id" | "remaining"> | null>(null);
 
   const applyCombatState = (state: CombatState) => {
     sceneTargetNumber.value = state.sceneTargetNumber;
@@ -150,21 +149,7 @@ export const useCombatStore = defineStore("combat", () => {
       id: generateId(),
     };
     timers.value.push(newTimer);
-    lastTimerTemplate.value = {
-      name: timer.name,
-      duration: timer.duration,
-      type: timer.type,
-      color: timer.color,
-    };
     saveState();
-  };
-
-  const repeatLastTimer = () => {
-    if (!lastTimerTemplate.value) return;
-    addTimer({
-      ...lastTimerTemplate.value,
-      remaining: lastTimerTemplate.value.duration,
-    });
   };
 
   const updateTimer = (id: string, updates: Partial<Timer>) => {
@@ -395,9 +380,7 @@ export const useCombatStore = defineStore("combat", () => {
     clearAll,
     resetRoundsAndTurns,
     duplicateLastMonster,
-    repeatLastTimer,
     lastAddedMonsterPayload,
-    lastTimerTemplate,
     exportSnapshot,
     importState,
     saveState,

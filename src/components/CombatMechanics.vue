@@ -4,11 +4,6 @@
       <img :src="assetUrl('images/target_icon.png')" class="w-5 h-5 text-accent icon-filter" alt="Checks" />
       <h2 class="rpg-heading">Checks</h2>
     </div>
-
-    <p class="mb-4 text-neutral-600 text-xs rpg-body">
-      Pick a target number for this roll. Use Easy or Hard when the fiction calls for it.
-    </p>
-
     <div class="space-y-4">
       <div>
         <label class="mb-2 rpg-label">Target</label>
@@ -18,14 +13,8 @@
       <div>
         <label class="mb-2 rpg-label">Difficulty</label>
         <div class="flex flex-wrap gap-2">
-          <button
-            v-for="opt in difficultyOptions"
-            :key="opt.value"
-            type="button"
-            class="checks-diff-btn"
-            :class="{ 'checks-diff-btn--active': difficulty === opt.value }"
-            @click="difficulty = opt.value"
-          >
+          <button v-for="opt in difficultyOptions" :key="opt.value" type="button" class="checks-diff-btn"
+            :class="{ 'checks-diff-btn--active': difficulty === opt.value }" @click="difficulty = opt.value">
             {{ opt.label }}
           </button>
         </div>
@@ -36,12 +25,8 @@
           <label class="rpg-label">Stat bonus</label>
           <input v-model.number="checkStat" type="number" :min="-5" :max="20" class="w-full rpg-input" />
         </div>
-        <button
-          type="button"
-          class="rpg-button rpg-button-primary rpg-button-sm"
-          :disabled="isCheckRolling"
-          @click="rollCheck"
-        >
+        <button type="button" class="rpg-button rpg-button-primary rpg-button-sm" :disabled="isCheckRolling"
+          @click="rollCheck">
           {{ isCheckRolling ? "Rolling…" : "Roll Check" }}
         </button>
       </div>
@@ -57,12 +42,8 @@
               </option>
             </select>
           </div>
-          <button
-            type="button"
-            class="rpg-button rpg-button-secondary rpg-button-sm"
-            :disabled="isEffortRolling || effortDie === 0"
-            @click="rollEffortAction"
-          >
+          <button type="button" class="rpg-button rpg-button-secondary rpg-button-sm"
+            :disabled="isEffortRolling || effortDie === 0" @click="rollEffortAction">
             {{ isEffortRolling ? "Rolling…" : "Roll Effort" }}
           </button>
         </div>
@@ -70,11 +51,11 @@
 
       <div class="checks-history">
         <div class="checks-history__title rpg-label">Recent rolls</div>
-        <div v-if="rollHistory.length === 0" class="checks-history__empty text-neutral-500 text-xs rpg-body">
+        <div v-if="rollHistory.length === 0" class="text-neutral-500 text-xs checks-history__empty rpg-body">
           No rolls yet
         </div>
         <ul v-else class="checks-history__list">
-          <li v-for="(entry, index) in rollHistory" :key="index" class="checks-history__item text-sm rpg-body">
+          <li v-for="(entry, index) in rollHistory" :key="index" class="text-sm checks-history__item rpg-body">
             <template v-if="entry.kind === 'check'">
               Check · d20 {{ entry.naturalRoll }} + {{ entry.statBonus }} = {{ entry.totalRoll }}
               vs {{ entry.targetNumber }} ·

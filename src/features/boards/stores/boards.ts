@@ -5,6 +5,7 @@ import { generateId } from "@/utils/generateId";
 import { templateLabel } from "@/utils/monsterForm";
 import type { Board, BoardId, BoardsState, CardPayload, IndexCard, IndexCardId, IndexCardKind } from "../types";
 import { captureSnapshotPayload } from "../adapters/snapshotAdapter";
+import { captureMonsterPayload } from "../adapters/monsterAdapter";
 
 const STORAGE_KEY = "icrpg-boards";
 const LIBRARY_KEY = "icrpg-monster-library";
@@ -256,6 +257,13 @@ export const useBoardsStore = defineStore("boards", () => {
     return addCard({ kind, color, title, body, payload });
   };
 
+  const addMonsterCard = (data: Omit<MonsterTemplate, "label" | "savedAt">) => {
+    const payload = captureMonsterPayload(data as MonsterTemplate);
+    const title = data.name?.trim() || templateLabel(data as MonsterTemplate);
+    const body = data.notes?.trim() || "";
+    return pushPayloadCard("monster", title, data.color, payload, body);
+  };
+
   const addTextCard = (title = "New note", color = "Yellow") => {
     return addCard({ kind: "text", color, title, body: "" });
   };
@@ -288,6 +296,7 @@ export const useBoardsStore = defineStore("boards", () => {
     toggleCardCollapsed,
     reorderBoardCards,
     pushPayloadCard,
+    addMonsterCard,
     addTextCard,
     captureSnapshot,
     exportState,

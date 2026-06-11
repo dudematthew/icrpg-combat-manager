@@ -169,11 +169,10 @@ import { reactive, computed } from "vue";
 import { useCombatStore } from "@/stores/combat";
 import { useSettingsStore } from "@/stores/settings";
 import { useBoardsStore } from "@/features/boards/stores/boards";
-import { captureMonsterPayload } from "@/features/boards/adapters/monsterAdapter";
 import { TIER_CONFIGS } from "@/types";
 import { formatMonsterIdentifier } from "@/utils/combat";
 import { assetUrl } from "@/utils/assetUrl";
-import { buildMonsterPayload, buildTemplateFromForm, getEffectiveStats, templateLabel } from "@/utils/monsterForm";
+import { buildMonsterPayload, buildTemplateFromForm, getEffectiveStats } from "@/utils/monsterForm";
 import { generateMonsterName as getRandomMonsterName } from "@/utils/monsterNameGenerator";
 import { MONSTER_COLORS, MONSTER_LETTERS, TIER_OPTIONS } from "@/constants/monsterOptions";
 import TraitPickButtons from "@/components/TraitPickButtons.vue";
@@ -267,13 +266,7 @@ const addToBattlefield = () => {
 const saveToBoard = () => {
   if (!canSaveToBoard.value) return;
   const template = buildTemplateFromForm(newMonster, useTierStats.value);
-  boardsStore.pushPayloadCard(
-    "monster",
-    newMonster.name || templateLabel(template),
-    template.color,
-    captureMonsterPayload(template),
-    template.notes || "",
-  );
+  boardsStore.addMonsterCard(template);
   clearFormAfterAdd(settingsStore.keepCreatorFieldsOnBoardSave);
 };
 

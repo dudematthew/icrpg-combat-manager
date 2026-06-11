@@ -3,7 +3,7 @@ import { ref, computed } from "vue";
 import type { MonsterTemplate } from "@/types";
 import { generateId } from "@/utils/generateId";
 import { templateLabel } from "@/utils/monsterForm";
-import type { Board, BoardId, CardPayload, IndexCard, IndexCardId, IndexCardKind } from "../types";
+import type { Board, BoardId, BoardsState, CardPayload, IndexCard, IndexCardId, IndexCardKind } from "../types";
 import { captureSnapshotPayload } from "../adapters/snapshotAdapter";
 
 const STORAGE_KEY = "icrpg-boards";
@@ -91,15 +91,22 @@ export const useBoardsStore = defineStore("boards", () => {
     ensureDefaultBoard();
   };
 
+  const exportState = (): BoardsState => ({
+    boards: boards.value,
+    cards: cards.value,
+    activeBoardId: activeBoardId.value,
+  });
+
+  const importState = (state: BoardsState) => {
+    boards.value = state.boards || [];
+    cards.value = state.cards || {};
+    activeBoardId.value = state.activeBoardId;
+    ensureDefaultBoard();
+    persist();
+  };
+
   const persist = () => {
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify({
-        boards: boards.value,
-        cards: cards.value,
-        activeBoardId: activeBoardId.value,
-      }),
-    );
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(exportState()));
   };
 
   load();
@@ -256,5 +263,7 @@ export const useBoardsStore = defineStore("boards", () => {
     pushPayloadCard,
     addTextCard,
     captureSnapshot,
+    exportState,
+    importState,
   };
 });

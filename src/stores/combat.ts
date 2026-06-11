@@ -15,41 +15,44 @@ export const useCombatStore = defineStore("combat", () => {
   const lastAddedMonsterPayload = ref<Omit<Monster, "id"> | null>(null);
   const lastTimerTemplate = ref<Omit<Timer, "id" | "remaining"> | null>(null);
 
-  // Load from localStorage on init
+  const applyCombatState = (state: CombatState) => {
+    sceneTargetNumber.value = state.sceneTargetNumber;
+    monsters.value = state.monsters.map((monster, index) => ({
+      ...monster,
+      doneTurn: monster.doneTurn || false,
+      turnOrder: monster.turnOrder !== undefined ? monster.turnOrder : index,
+      completionOrder: monster.completionOrder,
+    }));
+    timers.value = state.timers.map((timer) => ({
+      ...timer,
+      type: timer.type || "rounds",
+    }));
+    currentTurn.value = state.currentTurn;
+    currentRound.value = state.currentRound;
+  };
+
+  const exportSnapshot = (): CombatState => ({
+    sceneTargetNumber: sceneTargetNumber.value,
+    monsters: monsters.value,
+    timers: timers.value,
+    currentTurn: currentTurn.value,
+    currentRound: currentRound.value,
+  });
+
+  const importState = (state: CombatState) => {
+    applyCombatState(state);
+    saveState();
+  };
+
   const loadState = () => {
     const saved = localStorage.getItem("icrpg-combat-state");
     if (saved) {
-      const state: CombatState = JSON.parse(saved);
-      sceneTargetNumber.value = state.sceneTargetNumber;
-
-      // Migrate monsters for backward compatibility
-      monsters.value = state.monsters.map((monster, index) => ({
-        ...monster,
-        doneTurn: monster.doneTurn || false,
-        turnOrder: monster.turnOrder !== undefined ? monster.turnOrder : index,
-        completionOrder: monster.completionOrder, // Keep existing or undefined
-      }));
-
-      // Migrate timers without type property to "rounds" for backward compatibility
-      timers.value = state.timers.map((timer) => ({
-        ...timer,
-        type: timer.type || "rounds",
-      }));
-      currentTurn.value = state.currentTurn;
-      currentRound.value = state.currentRound;
+      applyCombatState(JSON.parse(saved) as CombatState);
     }
   };
 
-  // Save to localStorage
   const saveState = () => {
-    const state: CombatState = {
-      sceneTargetNumber: sceneTargetNumber.value,
-      monsters: monsters.value,
-      timers: timers.value,
-      currentTurn: currentTurn.value,
-      currentRound: currentRound.value,
-    };
-    localStorage.setItem("icrpg-combat-state", JSON.stringify(state));
+    localStorage.setItem("icrpg-combat-state", JSON.stringify(exportSnapshot()));
   };
 
   // Initialize
@@ -395,6 +398,8 @@ export const useCombatStore = defineStore("combat", () => {
     repeatLastTimer,
     lastAddedMonsterPayload,
     lastTimerTemplate,
+    exportSnapshot,
+    importState,
     saveState,
   };
 });

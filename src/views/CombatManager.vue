@@ -252,6 +252,8 @@
               </div>
             </div>
 
+            <SettingsBackupPanel v-if="showSettingsModal" />
+
             <SettingsAppCardsEditor v-if="showSettingsModal" />
 
           </div>
@@ -309,6 +311,7 @@ import SectionNav from '@/components/SectionNav.vue'
 import BoardBar from '@/components/BoardBar.vue'
 import AppColumns from '@/components/layout/AppColumns.vue'
 import ColumnAppCards from '@/components/layout/ColumnAppCards.vue'
+import SettingsBackupPanel from '@/components/settings/SettingsBackupPanel.vue'
 import SettingsAppCardsEditor from '@/components/settings/SettingsAppCardsEditor.vue'
 import GitHubVersion from '@/components/GitHubVersion.vue'
 import CreditsCard from '@/components/CreditsCard.vue'

@@ -36,6 +36,7 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     SectionNav: typeof import('./src/components/SectionNav.vue')['default']
     SettingsAppCardsEditor: typeof import('./src/components/settings/SettingsAppCardsEditor.vue')['default']
+    SettingsBackupPanel: typeof import('./src/components/settings/SettingsBackupPanel.vue')['default']
     SettingsControl: typeof import('./src/components/SettingsControl.vue')['default']
     TheWelcome: typeof import('./src/components/TheWelcome.vue')['default']
     TimerManager: typeof import('./src/components/TimerManager.vue')['default']

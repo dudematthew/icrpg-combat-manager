@@ -1,4 +1,5 @@
 import type { IndexCard } from "../types";
+import { templateLabel } from "@/utils/monsterForm";
 
 const CARD_FACE_MAX_LINES = 2;
 const CARD_FACE_LINE_CHARS = 72;
@@ -21,6 +22,7 @@ export function getPayloadPreviewLines(card: IndexCard): string[] {
     case "monster": {
       const m = payload.data;
       const lines = [
+        m.name?.trim() || templateLabel(m),
         `Tier ${m.tier} · +${m.statsBonus} · ${m.actions} action${m.actions === 1 ? "" : "s"} · ${m.heartsMax} heart${m.heartsMax === 1 ? "" : "s"}`,
       ];
       if (m.effortBonus > 0) lines.push(`+${m.effortBonus} effort`);
@@ -32,7 +34,7 @@ export function getPayloadPreviewLines(card: IndexCard): string[] {
     }
     case "timer": {
       const t = payload.data;
-      return [`${t.duration} ${t.type}`, t.name];
+      return [t.name, `${t.duration} ${t.type}`];
     }
     case "snapshot": {
       const d = payload.data;

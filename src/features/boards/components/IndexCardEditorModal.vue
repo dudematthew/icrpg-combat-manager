@@ -16,6 +16,9 @@
 
         <div v-if="card?.payload" class="index-editor-payload">
           <span class="rpg-label">Payload</span>
+          <p v-if="payloadIdentity" class="index-editor-payload__identity rpg-body">
+            {{ payloadKindLabel }}: <strong>{{ payloadIdentity }}</strong>
+          </p>
           <div class="text-neutral-600 text-sm whitespace-pre-wrap rpg-body">{{ payloadSummary }}</div>
         </div>
 
@@ -69,6 +72,7 @@ import { useScrollLock } from "@/composables/useScrollLock";
 import { useModalShortcuts } from "@/composables/useModalShortcuts";
 import { applyLineFormat, type LineFormat } from "../utils/lineFormat";
 import { formatPayloadPreview } from "../utils/payloadPreview";
+import { getPayloadIdentityName } from "../utils/cardDisplay";
 import type { IndexCard } from "../types";
 
 const props = defineProps<{
@@ -99,9 +103,25 @@ watch(
   },
 );
 
+const payloadIdentity = computed(() =>
+  props.card ? getPayloadIdentityName(props.card) : null,
+);
+
+const payloadKindLabel = computed(() => {
+  const kind = props.card?.payload?.kind;
+  if (kind === "monster") return "Monster";
+  if (kind === "timer") return "Timer";
+  if (kind === "snapshot") return "Snapshot";
+  return "Payload";
+});
+
 const payloadSummary = computed(() => {
   if (!props.card?.payload) return "";
-  return formatPayloadPreview(props.card);
+  const full = formatPayloadPreview(props.card);
+  const identity = payloadIdentity.value;
+  if (!identity || !full.startsWith(identity)) return full;
+  const rest = full.slice(identity.length).replace(/^\n/, "");
+  return rest || full;
 });
 
 const applyFormat = (format: LineFormat) => {
@@ -184,6 +204,12 @@ useModalShortcuts(open, { onSave: save, onClose: close });
   background: #fafafa;
   border: 1px solid #e5e5e5;
   border-radius: 0.5rem;
+}
+
+.index-editor-payload__identity {
+  margin: 0 0 0.5rem;
+  font-size: 0.875rem;
+  color: #404040;
 }
 
 .index-editor-textarea {

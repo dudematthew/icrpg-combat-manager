@@ -6,6 +6,7 @@ import { templateLabel } from "@/utils/monsterForm";
 import type { Board, BoardId, BoardsState, CardPayload, IndexCard, IndexCardId, IndexCardKind } from "../types";
 import { captureSnapshotPayload } from "../adapters/snapshotAdapter";
 import { captureMonsterPayload } from "../adapters/monsterAdapter";
+import { mergeIndexCardUpdates } from "../utils/cardDisplay";
 
 const STORAGE_KEY = "icrpg-boards";
 const LIBRARY_KEY = "icrpg-monster-library";
@@ -213,7 +214,7 @@ export const useBoardsStore = defineStore("boards", () => {
   const updateCard = (id: IndexCardId, updates: Partial<IndexCard>) => {
     const card = cards.value[id];
     if (!card) return;
-    cards.value[id] = { ...card, ...updates, updatedAt: new Date().toISOString() };
+    cards.value[id] = mergeIndexCardUpdates(card, updates);
     persist();
   };
 

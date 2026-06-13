@@ -2,6 +2,7 @@ import { useCombatStore } from "@/stores/combat";
 import { useBoardsStore } from "@/features/boards/stores/boards";
 import { useSettingsStore } from "@/stores/settings";
 import { BACKUP_FORMAT, BACKUP_VERSION, type BackupCloudMeta, type BackupEnvelopeV1 } from "./types";
+import { prepareBackupEnvelopeForExport } from "./prepareBackupExport";
 
 export function buildBackupEnvelope(
   cloud?: BackupCloudMeta,
@@ -11,7 +12,7 @@ export function buildBackupEnvelope(
   const boardsStore = useBoardsStore();
   const settingsStore = useSettingsStore();
 
-  const envelope: BackupEnvelopeV1 = {
+  const draft: BackupEnvelopeV1 = {
     format: BACKUP_FORMAT,
     version: BACKUP_VERSION,
     exportedAt: new Date().toISOString(),
@@ -23,10 +24,10 @@ export function buildBackupEnvelope(
   };
 
   if (cloud) {
-    envelope.cloud = { slug: cloud.slug, writeToken: cloud.writeToken };
+    draft.cloud = { slug: cloud.slug, writeToken: cloud.writeToken };
   }
 
-  return envelope;
+  return prepareBackupEnvelopeForExport(draft, includeOptions);
 }
 
 export function downloadBackupEnvelope(envelope: BackupEnvelopeV1): void {

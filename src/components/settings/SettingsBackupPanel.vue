@@ -39,6 +39,29 @@
           </p>
         </div>
 
+        <div
+          v-if="activeCloudSlug"
+          class="backup-code-reveal bg-neutral-50 p-3 border border-neutral-200 rounded-lg"
+          :class="{ 'backup-code-reveal--highlight': codeHighlight && justCreatedBackup }"
+        >
+          <p class="mb-1 font-bold text-neutral-800 text-sm rpg-heading">Active backup code</p>
+          <p v-if="justCreatedBackup" class="mb-3 text-amber-800 text-xs rpg-body">
+            Copy or write this down now. You need it to restore on another device.
+          </p>
+          <p v-else-if="canUpdateServer" class="mb-3 text-neutral-600 text-xs rpg-body">
+            This device can update this code. Use the button below to save your latest session.
+          </p>
+          <p v-else class="mb-3 text-amber-800 text-xs rpg-body">
+            Read-only on this device — link your edit key to update this code instead of creating a new one.
+          </p>
+          <div class="flex items-center gap-2 bg-white p-2 border border-neutral-200 rounded-md">
+            <code class="flex-1 font-semibold text-sm rpg-mono break-all">{{ activeCloudSlug }}</code>
+            <button type="button" class="rpg-button rpg-button-sm rpg-button-primary" @click="copyActiveSlug">
+              Copy
+            </button>
+          </div>
+        </div>
+
         <div class="backup-actions">
           <button
             v-if="canUpdateServer"
@@ -47,7 +70,7 @@
             :disabled="busy"
             @click="updateServer"
           >
-            Update server backup
+            Update {{ activeCloudSlug }}
           </button>
           <button
             v-else
@@ -56,43 +79,68 @@
             :disabled="busy"
             @click="saveToServer"
           >
-            Save to server (new)
-          </button>
-          <button
-            v-if="canUpdateServer"
-            type="button"
-            class="flex-1 rpg-button rpg-button-secondary text-sm"
-            :disabled="busy"
-            @click="confirmNewBackupOpen = true"
-          >
-            Create new backup code
+            {{ activeCloudSlug ? "Save copy as new code" : "Create server backup" }}
           </button>
         </div>
 
-        <div
-          v-if="activeCloudSlug"
-          class="backup-code-reveal bg-neutral-50 p-3 border border-neutral-200 rounded-lg"
-          :class="{ 'backup-code-reveal--highlight': codeHighlight && justCreatedBackup }"
-        >
-          <p class="mb-1 font-bold text-neutral-800 text-sm rpg-heading">
-            {{ justCreatedBackup ? "Important — save your backup code" : "Active server backup" }}
-          </p>
-          <p v-if="justCreatedBackup" class="mb-3 text-amber-800 text-xs rpg-body">
-            Copy or write this down now. You need it to restore on another device — the server will not show it again.
-          </p>
-          <p v-else class="mb-3 text-neutral-600 text-xs rpg-body">
-            This browser updates this code when you use Update server backup.
-          </p>
-          <div class="flex items-center gap-2 bg-white p-2 border border-neutral-200 rounded-md">
-            <code class="flex-1 font-semibold text-sm rpg-mono break-all">{{ activeCloudSlug }}</code>
-            <button type="button" class="rpg-button rpg-button-sm rpg-button-primary" @click="copyActiveSlug">
-              Copy
+        <details v-if="activeCloudSlug" class="backup-switch-details text-xs rpg-body">
+          <summary class="cursor-pointer font-bold text-neutral-700">Switch or link backup code</summary>
+          <div class="flex flex-col gap-3 mt-3">
+            <div class="flex flex-col gap-2">
+              <label class="font-bold text-xs rpg-label">Use a different code</label>
+              <div class="flex gap-2">
+                <input
+                  v-model="importSlug"
+                  type="text"
+                  class="flex-1 rpg-input text-sm"
+                  placeholder="juggly-apple-terminator-cosmos"
+                  autocomplete="off"
+                  spellcheck="false"
+                />
+                <button
+                  type="button"
+                  class="rpg-button rpg-button-secondary text-sm"
+                  :disabled="!importSlug.trim()"
+                  @click="setActiveSlug"
+                >
+                  Set active
+                </button>
+              </div>
+            </div>
+
+            <div v-if="activeCloudSlug && !canUpdateServer" class="flex flex-col gap-2">
+              <label class="font-bold text-xs rpg-label">Link edit key (from exported JSON)</label>
+              <div class="flex gap-2">
+                <input
+                  v-model="linkWriteToken"
+                  type="password"
+                  class="flex-1 rpg-input text-sm"
+                  placeholder="Paste edit key"
+                  autocomplete="off"
+                  spellcheck="false"
+                />
+                <button
+                  type="button"
+                  class="rpg-button rpg-button-secondary text-sm"
+                  :disabled="busy || !linkWriteToken.trim()"
+                  @click="linkEditKey"
+                >
+                  Link
+                </button>
+              </div>
+            </div>
+
+            <button
+              v-if="canUpdateServer"
+              type="button"
+              class="rpg-button rpg-button-secondary text-sm"
+              :disabled="busy"
+              @click="confirmNewBackupOpen = true"
+            >
+              Create new backup code
             </button>
           </div>
-          <p v-if="justCreatedBackup" class="mt-2 text-amber-700 text-xs rpg-body">
-            This browser remembers the edit key so you can update this backup later.
-          </p>
-        </div>
+        </details>
 
         <div class="flex flex-col gap-2">
           <label class="font-bold text-xs rpg-label">Import from server</label>
@@ -111,7 +159,7 @@
               :disabled="busy || !importSlug.trim()"
               @click="importFromServer"
             >
-              Load
+              Load &amp; replace
             </button>
           </div>
         </div>
@@ -194,31 +242,49 @@ import {
   fetchCloudBackup,
   updateCloudBackup,
 } from "@/features/backup/cloudApi";
-import { getCloudCredentials, setCloudCredentials } from "@/features/backup/cloudCredentials";
+import {
+  canUpdateActiveCloudBackup,
+  getCloudBackupState,
+  getCloudCredentials,
+  linkCloudWriteToken,
+  setActiveCloudSlug,
+  setCloudCredentials,
+} from "@/features/backup/cloudCredentials";
 import type { ParsedBackup } from "@/features/backup/types";
 import { isLegacySettingsBackup } from "@/stores/settings";
 
 const fileInputRef = ref<HTMLInputElement | null>(null);
 const cloudAvailable = ref(false);
 const retentionDays = ref(180);
+const maxBytes = ref(2_000_000);
 const busy = ref(false);
 const statusMessage = ref("");
 const statusIsError = ref(false);
 const importSlug = ref("");
+const linkWriteToken = ref("");
 const codeHighlight = ref(false);
 const justCreatedBackup = ref(false);
 const confirmNewBackupOpen = ref(false);
 const confirmOpen = ref(false);
+const cloudStateTick = ref(0);
 let highlightTimer: ReturnType<typeof setTimeout> | undefined;
 const pendingImport = ref<ParsedBackup | null>(null);
+const pendingImportSlug = ref("");
 const includeOptionsInBackup = ref(false);
 
+const bumpCloudState = () => {
+  cloudStateTick.value += 1;
+};
+
 const canUpdateServer = computed(() => {
-  const creds = getCloudCredentials();
-  return Boolean(creds?.slug && creds.writeToken);
+  void cloudStateTick.value;
+  return canUpdateActiveCloudBackup();
 });
 
-const activeCloudSlug = computed(() => getCloudCredentials()?.slug ?? "");
+const activeCloudSlug = computed(() => {
+  void cloudStateTick.value;
+  return getCloudBackupState()?.activeSlug ?? "";
+});
 
 const importConfirmMessage = computed(() => {
   const settings = pendingImport.value?.data.settings;
@@ -240,10 +306,12 @@ onMounted(async () => {
   const result = await checkCloudAvailable();
   cloudAvailable.value = result.available;
   if (result.retentionDays) retentionDays.value = result.retentionDays;
-  const creds = getCloudCredentials();
-  if (creds?.slug) {
-    importSlug.value = creds.slug;
+  if (result.maxBytes) maxBytes.value = result.maxBytes;
+  const state = getCloudBackupState();
+  if (state?.activeSlug) {
+    importSlug.value = state.activeSlug;
   }
+  bumpCloudState();
 });
 
 const flashCodeReveal = () => {
@@ -274,6 +342,7 @@ const onFileSelected = async (event: Event) => {
   try {
     const text = await file.text();
     pendingImport.value = parseBackupJson(text);
+    pendingImportSlug.value = "";
     confirmOpen.value = true;
   } catch (error) {
     setStatus(error instanceof Error ? error.message : "Import failed.", true);
@@ -291,6 +360,7 @@ const importFromServer = async () => {
   try {
     const backup = await fetchCloudBackup(slug);
     pendingImport.value = parseBackupJson(JSON.stringify(backup));
+    pendingImportSlug.value = slug;
     confirmOpen.value = true;
   } catch (error) {
     setStatus(error instanceof Error ? error.message : "Could not load backup.", true);
@@ -303,11 +373,12 @@ const saveToServer = async () => {
   busy.value = true;
   try {
     const envelope = buildBackupEnvelope(undefined, includeOptionsInBackup.value);
-    const { slug, writeToken } = await createCloudBackup(envelope);
+    const { slug, writeToken } = await createCloudBackup(envelope, maxBytes.value);
     setCloudCredentials({ slug, writeToken });
     importSlug.value = slug;
     justCreatedBackup.value = true;
     flashCodeReveal();
+    bumpCloudState();
     setStatus("Backup saved to server. Copy your code above before you close settings.");
   } catch (error) {
     setStatus(error instanceof Error ? error.message : "Server save failed.", true);
@@ -324,18 +395,55 @@ const createNewBackup = async () => {
 const updateServer = async () => {
   const creds = getCloudCredentials();
   if (!creds) {
-    setStatus("No edit key in this browser. Create a new server backup or import a file that includes cloud credentials.", true);
+    setStatus("No edit key on this device. Link your edit key or create a new backup.", true);
     return;
   }
 
   busy.value = true;
   try {
     const envelope = buildBackupEnvelope(creds, includeOptionsInBackup.value);
-    await updateCloudBackup(creds.slug, creds.writeToken, envelope);
+    await updateCloudBackup(creds.slug, creds.writeToken, envelope, maxBytes.value);
     justCreatedBackup.value = false;
-    setStatus("Server backup updated.");
+    bumpCloudState();
+    setStatus(`Server backup updated (${creds.slug}).`);
   } catch (error) {
     setStatus(error instanceof Error ? error.message : "Server update failed.", true);
+  } finally {
+    busy.value = false;
+  }
+};
+
+const setActiveSlug = () => {
+  const slug = importSlug.value.trim();
+  if (!isValidCloudSlug(slug)) {
+    setStatus("Enter a valid backup code (four words separated by hyphens).", true);
+    return;
+  }
+  setActiveCloudSlug(slug);
+  justCreatedBackup.value = false;
+  bumpCloudState();
+  setStatus(`Active backup code set to ${slug}.`);
+};
+
+const linkEditKey = async () => {
+  const slug = activeCloudSlug.value;
+  const token = linkWriteToken.value.trim();
+  if (!slug || token.length < 16) {
+    setStatus("Paste a valid edit key from your exported backup file.", true);
+    return;
+  }
+
+  busy.value = true;
+  try {
+    const envelope = buildBackupEnvelope({ slug, writeToken: token }, includeOptionsInBackup.value);
+    await updateCloudBackup(slug, token, envelope, maxBytes.value);
+    linkCloudWriteToken(slug, token);
+    linkWriteToken.value = "";
+    justCreatedBackup.value = false;
+    bumpCloudState();
+    setStatus("Edit key linked. You can update this backup from now on.");
+  } catch (error) {
+    setStatus(error instanceof Error ? error.message : "Edit key is incorrect.", true);
   } finally {
     busy.value = false;
   }
@@ -354,6 +462,7 @@ const copyActiveSlug = async () => {
 const cancelConfirm = () => {
   confirmOpen.value = false;
   pendingImport.value = null;
+  pendingImportSlug.value = "";
 };
 
 const confirmImport = () => {
@@ -363,13 +472,19 @@ const confirmImport = () => {
     if (pendingImport.value.cloud) {
       importSlug.value = pendingImport.value.cloud.slug;
       justCreatedBackup.value = false;
+    } else if (pendingImportSlug.value) {
+      setActiveCloudSlug(pendingImportSlug.value);
+      importSlug.value = pendingImportSlug.value;
+      justCreatedBackup.value = false;
     }
+    bumpCloudState();
     setStatus("Backup restored.");
   } catch (error) {
     setStatus(error instanceof Error ? error.message : "Restore failed.", true);
   } finally {
     confirmOpen.value = false;
     pendingImport.value = null;
+    pendingImportSlug.value = "";
   }
 };
 </script>
@@ -386,6 +501,14 @@ const confirmImport = () => {
   .backup-actions {
     flex-direction: row;
   }
+}
+
+.backup-switch-details summary {
+  list-style: none;
+}
+
+.backup-switch-details summary::-webkit-details-marker {
+  display: none;
 }
 
 .backup-security-summary {

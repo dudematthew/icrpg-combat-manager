@@ -30,6 +30,7 @@ describe("splitCardMarkdown", () => {
   it("round-trips drawing data through card shape", () => {
     const drawing = createEmptyDrawing();
     drawing.strokes.push({
+      id: "draw-stroke",
       tool: "pen",
       color: "#171717",
       size: 2,

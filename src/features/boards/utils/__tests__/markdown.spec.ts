@@ -40,4 +40,11 @@ describe("renderMarkdown", () => {
     expect(html).toContain('src="https://example.com/map.png"');
     expect(html).toContain('alt="map"');
   });
+
+  it("strips HTML comments from preview output", () => {
+    const html = renderMarkdown("Visible <!-- GM only --> text");
+    expect(html).toContain("Visible");
+    expect(html).toContain("text");
+    expect(html).not.toContain("GM only");
+  });
 });

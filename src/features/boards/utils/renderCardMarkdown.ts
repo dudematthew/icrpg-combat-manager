@@ -1,4 +1,5 @@
 import { renderMarkdown } from "./markdown";
+import { stripMarkdownComments } from "./stripMarkdownComments";
 import { DRAWING_REF_PREFIX } from "../drawing/drawingRefs";
 import type { DrawingDocument, DrawingId } from "../drawing/types";
 
@@ -19,7 +20,7 @@ export function splitCardMarkdown(body: string): MarkdownSegment[] {
     const index = match.index ?? 0;
     const before = body.slice(lastIndex, index);
     if (before.trim()) {
-      segments.push({ type: "html", content: renderMarkdown(before) });
+      segments.push({ type: "html", content: renderMarkdown(stripMarkdownComments(before)) });
     }
     segments.push({
       type: "drawing",
@@ -31,7 +32,7 @@ export function splitCardMarkdown(body: string): MarkdownSegment[] {
 
   const tail = body.slice(lastIndex);
   if (tail.trim()) {
-    segments.push({ type: "html", content: renderMarkdown(tail) });
+    segments.push({ type: "html", content: renderMarkdown(stripMarkdownComments(tail)) });
   }
 
   return segments;

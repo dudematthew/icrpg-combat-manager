@@ -117,7 +117,7 @@
           </div>
 
           <p class="index-editor-hint rpg-body">
-            Image URL or Draw for sketches · Ctrl+B/I · Ctrl+Enter save · Esc close
+            Image URL or Draw for sketches · <!-- GM note --> hidden in preview · Ctrl+B/I · Ctrl+Enter save
           </p>
         </div>
 
@@ -168,7 +168,7 @@ import {
   normalizeImageUrl,
 } from "../utils/markdownInsert";
 import { cleanupOrphanDrawings, findDrawingRefNearCursor } from "../drawing/drawingRefs";
-import type { DrawingDocument, DrawingId } from "../drawing/types";
+import { normalizeDrawingDocument, type DrawingDocument, type DrawingId } from "../drawing/types";
 import type { IndexCard } from "../types";
 
 const props = defineProps<{
@@ -224,7 +224,11 @@ watch(
     localTitle.value = card?.title ?? "New note";
     localColor.value = card?.color ?? "Yellow";
     localBody.value = card?.body ?? "";
-    draftDrawings.value = card?.drawings ? { ...card.drawings } : {};
+    draftDrawings.value = card?.drawings
+      ? Object.fromEntries(
+          Object.entries(card.drawings).map(([id, doc]) => [id, normalizeDrawingDocument(doc)]),
+        )
+      : {};
     editorTab.value = "write";
     closeImageForm();
     drawingModalOpen.value = false;
@@ -333,7 +337,7 @@ const openDrawingEditor = (id: DrawingId) => {
 const onDrawingSave = (payload: { id: DrawingId; document: DrawingDocument }) => {
   draftDrawings.value = {
     ...draftDrawings.value,
-    [payload.id]: payload.document,
+    [payload.id]: normalizeDrawingDocument(payload.document),
   };
 
   if (pendingNewDrawing.value) {

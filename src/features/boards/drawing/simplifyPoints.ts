@@ -46,7 +46,7 @@ function rdp(points: NormalizedPoint[], epsilon: number): NormalizedPoint[] {
 
 export function simplifyNormalizedPoints(
   points: NormalizedPoint[],
-  epsilon = 0.002,
+  epsilon = 0.0012,
 ): NormalizedPoint[] {
   if (points.length <= 2) return points;
   return rdp(points, epsilon);

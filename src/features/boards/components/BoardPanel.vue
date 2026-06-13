@@ -21,7 +21,18 @@
       <button type="button" class="text-xs rpg-button rpg-button-secondary rpg-button-sm" @click="showCaptureModal = true">
         Capture Session
       </button>
+      <button
+        v-if="boardsStore.cardsForActiveBoard.length > 0"
+        type="button"
+        class="text-xs rpg-button rpg-button-secondary rpg-button-sm"
+        @click="copyAllNotes"
+      >
+        Copy notes
+      </button>
     </div>
+    <p v-if="boardsStore.cardsForActiveBoard.length > 0" class="board-panel__hint rpg-body">
+      Ctrl+N new card · sticky + Card at bottom of long lists
+    </p>
 
     <EmptySectionState
       v-if="boardsStore.cardsForActiveBoard.length === 0"
@@ -44,6 +55,11 @@
         @toggle-expand="boardsStore.toggleCardCollapsed"
         @update-body="(body) => boardsStore.updateCard(card.id, { body })"
       />
+      <div v-if="cardListRef.length > 0" class="board-panel__sticky-add">
+        <button type="button" class="board-panel__sticky-btn rpg-button rpg-button-primary" @click="addTextCard">
+          + Card
+        </button>
+      </div>
     </div>
 
     <IndexCardEditorModal
@@ -92,6 +108,8 @@ import PromptModal from "@/components/PromptModal.vue";
 import { useDragClickGuard } from "@/composables/useDragClickGuard";
 import { useBoardsStore } from "../stores/boards";
 import { useSettingsStore } from "@/stores/settings";
+import { useInfoMonitorStore } from "@/stores/infoMonitor";
+import { buildBoardNotesPlainText } from "../utils/exportBoardNotes";
 import { getAdapter } from "../adapters";
 import IndexCardView from "./IndexCardView.vue";
 import IndexCardEditorModal from "./IndexCardEditorModal.vue";
@@ -100,6 +118,7 @@ import type { IndexCard } from "../types";
 
 const boardsStore = useBoardsStore();
 const settingsStore = useSettingsStore();
+const infoMonitor = useInfoMonitorStore();
 const { shouldBlockClick, onDragInteraction } = useDragClickGuard();
 
 const editorOpen = ref(false);
@@ -178,6 +197,21 @@ const addTextCard = () => {
   openEdit(card.id);
 };
 
+const copyAllNotes = async () => {
+  const cards = boardsStore.cardsForActiveBoard;
+  const text = buildBoardNotesPlainText(cards);
+  if (!text.trim()) {
+    infoMonitor.showMonitor({ type: "error", title: "Nothing to copy", message: "No note text on this board." });
+    return;
+  }
+  try {
+    await navigator.clipboard.writeText(text);
+    infoMonitor.showMonitor({ type: "info", title: "Copied", message: "All notes from this board copied to clipboard." });
+  } catch {
+    infoMonitor.showMonitor({ type: "error", title: "Copy failed", message: "Could not access the clipboard." });
+  }
+};
+
 const openEdit = (id: string) => {
   if (shouldBlockClick()) return;
   editingCardId.value = id;
@@ -244,5 +278,26 @@ defineExpose({ addTextCard });
 
 .board-panel__list {
   flex: 1;
+}
+
+.board-panel__hint {
+  margin: -0.5rem 0 0.75rem;
+  color: #737373;
+  font-size: 0.7rem;
+}
+
+.board-panel__sticky-add {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  padding: 0.75rem 0 0;
+  margin-top: 0.5rem;
+  border-top: 1px solid #e5e5e5;
+  background: white;
+}
+
+.board-panel__sticky-btn {
+  width: 100%;
+  justify-content: center;
 }
 </style>

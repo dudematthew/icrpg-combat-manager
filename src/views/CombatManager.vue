@@ -337,7 +337,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useCombatStore } from '@/stores/combat'
 import { useSettingsStore } from '@/stores/settings'
 import type { Monster } from '@/types'
@@ -423,6 +423,28 @@ const handleAddCard = () => {
     panel.addTextCard()
   }
 }
+
+const isTypingTarget = (target: EventTarget | null): boolean => {
+  if (!(target instanceof HTMLElement)) return false
+  if (target.isContentEditable) return true
+  const tag = target.tagName
+  return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT'
+}
+
+const onGlobalKeydown = (e: KeyboardEvent) => {
+  if (!(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== 'n') return
+  if (isTypingTarget(e.target)) return
+  e.preventDefault()
+  handleAddCard()
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', onGlobalKeydown)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', onGlobalKeydown)
+})
 
 </script>
 

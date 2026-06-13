@@ -1,0 +1,30 @@
+{
+  "name": "ICRPG Combat Manager",
+  "short_name": "ICRPG CM",
+  "description": "Digital combat tracker for Index Card RPG. Track monsters, hearts, conditions, and run smooth encounters.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#dc2626",
+  "background_color": "#ffffff",
+  "categories": ["games", "utilities"],
+  "icons": [
+    {
+      "src": "./pwa-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./pwa-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "./pwa-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

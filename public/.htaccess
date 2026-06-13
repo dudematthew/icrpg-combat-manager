@@ -2,6 +2,7 @@
 # Fix MIME types for JavaScript and CSS
 AddType application/javascript .js
 AddType text/css .css
+AddType application/manifest+json .webmanifest
 
 # Enable compression
 <IfModule mod_deflate.c>

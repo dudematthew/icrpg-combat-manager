@@ -8,7 +8,9 @@
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
     "test:unit": "vitest",
-    "build-only": "vite build",
+    "build-only": "node scripts/bump-sw-cache.mjs && vite build",
+    "generate-pwa-icons": "node scripts/generate-pwa-icons.mjs",
+    "bump-sw-cache": "node scripts/bump-sw-cache.mjs",
     "type-check": "vue-tsc --build",
     "lint": "eslint . --fix"
   },
@@ -19,6 +21,7 @@
     "lucide-vue-next": "^0.525.0",
     "markdown-it": "^14.2.0",
     "markdown-it-task-lists": "^2.1.1",
+    "perfect-freehand": "^1.2.3",
     "pinia": "^3.0.3",
     "vue": "^3.5.17",
     "vue-fluid-dnd": "^0.14.4",

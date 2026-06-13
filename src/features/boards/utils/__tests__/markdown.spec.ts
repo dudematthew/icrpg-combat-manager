@@ -33,4 +33,11 @@ describe("renderMarkdown", () => {
     expect(html).toContain("checked");
     expect(html).not.toContain("disabled");
   });
+
+  it("renders image URLs from markdown", () => {
+    const html = renderMarkdown("![map](https://example.com/map.png)");
+    expect(html).toContain("<img");
+    expect(html).toContain('src="https://example.com/map.png"');
+    expect(html).toContain('alt="map"');
+  });
 });

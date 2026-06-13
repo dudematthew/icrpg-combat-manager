@@ -2,34 +2,58 @@
   <div class="markdown-toolbar">
     <button
       v-for="btn in buttons"
-      :key="btn.format"
+      :key="btn.format ?? btn.action"
       type="button"
       class="markdown-toolbar__btn"
+      :class="{ 'markdown-toolbar__btn--icon': btn.action === 'image' || btn.action === 'draw' }"
       :title="btn.title"
-      @click="emit('format', btn.format)"
+      @click="onButtonClick(btn)"
     >
-      {{ btn.label }}
+      <ImagePlus v-if="btn.action === 'image'" class="markdown-toolbar__icon" aria-hidden="true" />
+      <Pencil v-else-if="btn.action === 'draw'" class="markdown-toolbar__icon" aria-hidden="true" />
+      <template v-else>{{ btn.label }}</template>
     </button>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ImagePlus, Pencil } from "lucide-vue-next";
 import type { LineFormat } from "../utils/lineFormat";
 
 const emit = defineEmits<{
   format: [format: LineFormat];
+  image: [];
+  draw: [];
 }>();
 
-const buttons: { format: LineFormat; label: string; title: string }[] = [
+type ToolbarButton =
+  | { format: LineFormat; label: string; title: string; action?: undefined }
+  | { action: "image"; label?: undefined; format?: undefined; title: string }
+  | { action: "draw"; label?: undefined; format?: undefined; title: string };
+
+const buttons: ToolbarButton[] = [
   { format: "h1", label: "H1", title: "Heading 1" },
   { format: "h2", label: "H2", title: "Heading 2" },
-  { format: "h3", label: "H3", title: "Heading 3" },
   { format: "bullet", label: "•", title: "Bullet list" },
   { format: "task", label: "☐", title: "Task item (- [ ] / toggle - [x])" },
   { format: "bold", label: "B", title: "Bold selected text" },
   { format: "italic", label: "I", title: "Italic selected text" },
   { format: "quote", label: ">", title: "Quote" },
+  { action: "image", title: "Insert image" },
+  { action: "draw", title: "Draw sketch" },
 ];
+
+const onButtonClick = (btn: ToolbarButton) => {
+  if (btn.action === "image") {
+    emit("image");
+    return;
+  }
+  if (btn.action === "draw") {
+    emit("draw");
+    return;
+  }
+  emit("format", btn.format);
+};
 </script>
 
 <style scoped>
@@ -56,5 +80,16 @@ const buttons: { format: LineFormat; label: string; title: string }[] = [
   background: #fef2f2;
   border-color: #dc2626;
   color: #dc2626;
+}
+
+.markdown-toolbar__btn--icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.markdown-toolbar__icon {
+  width: 1rem;
+  height: 1rem;
 }
 </style>

@@ -1,4 +1,5 @@
 import type { Monster, MonsterTemplate, Timer } from "@/types";
+import type { DrawingDocument } from "./drawing/types";
 
 export type BoardId = string;
 export type IndexCardId = string;
@@ -33,7 +34,10 @@ export type CardPayload =
       data: { monsters: Monster[]; timers: Timer[]; round: number; turn: number };
     };
 
-export type IndexCard = IndexCardBase & { payload?: CardPayload };
+export type IndexCard = IndexCardBase & {
+  payload?: CardPayload;
+  drawings?: Record<string, DrawingDocument>;
+};
 
 export interface BoardsState {
   boards: Board[];

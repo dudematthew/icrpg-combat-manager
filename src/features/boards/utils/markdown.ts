@@ -22,8 +22,11 @@ export function renderMarkdown(src: string): string {
     html = injectTaskLineAttributes(html, taskLines);
   }
 
+  html = html.replace(/<img /g, '<img loading="lazy" decoding="async" ');
+
   return DOMPurify.sanitize(html, {
     USE_PROFILES: { html: true },
-    ADD_ATTR: ["checked", "type", "data-task-line"],
+    ADD_ATTR: ["checked", "type", "data-task-line", "loading", "decoding"],
+    ADD_URI_SAFE_ATTR: ["src"],
   });
 }

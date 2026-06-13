@@ -95,6 +95,7 @@ import { useSettingsStore } from "@/stores/settings";
 import { getAdapter } from "../adapters";
 import IndexCardView from "./IndexCardView.vue";
 import IndexCardEditorModal from "./IndexCardEditorModal.vue";
+import type { DrawingDocument } from "../drawing/types";
 import type { IndexCard } from "../types";
 
 const boardsStore = useBoardsStore();
@@ -203,7 +204,12 @@ const confirmRestore = () => {
   pendingDeployHeld.value = false;
 };
 
-const onSave = (data: { title: string; color: string; body: string }) => {
+const onSave = (data: {
+  title: string;
+  color: string;
+  body: string;
+  drawings?: Record<string, DrawingDocument>;
+}) => {
   if (!editingCardId.value) return;
   boardsStore.updateCard(editingCardId.value, data);
   editingCardId.value = null;

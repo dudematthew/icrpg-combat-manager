@@ -135,9 +135,19 @@ function countStoredBackupsForIp(string $ipHash): int
 
 function rejectOversizedBody(): void
 {
-    $contentLength = (int) ($_SERVER['CONTENT_LENGTH'] ?? 0);
+    if (!isset($_SERVER['CONTENT_LENGTH'])) {
+        return;
+    }
+
+    $contentLength = filter_var($_SERVER['CONTENT_LENGTH'], FILTER_VALIDATE_INT);
+    if ($contentLength === false) {
+        respondError(400, 'Invalid Content-Length header.');
+    }
+    if ($contentLength <= 0) {
+        respondError(400, 'Empty request body.');
+    }
     if ($contentLength > MAX_BYTES) {
-        respondError(413, 'Backup too large.');
+        respondError(413, 'Backup too large (max ' . number_format(MAX_BYTES) . ' bytes).');
     }
 }
 
@@ -174,15 +184,47 @@ function slugFilePath(string $slug): string
     return DATA_DIR . '/' . $slug . '.json';
 }
 
+function readRequestBodyRaw(): string
+{
+    $stream = fopen('php://input', 'rb');
+    if ($stream === false) {
+        respondError(400, 'Could not read request body.');
+    }
+
+    $raw = '';
+    $read = 0;
+
+    try {
+        while (!feof($stream)) {
+            $chunk = fread($stream, min(8192, MAX_BYTES - $read + 1));
+            if ($chunk === false) {
+                respondError(400, 'Could not read request body.');
+            }
+            if ($chunk === '') {
+                break;
+            }
+
+            $read += strlen($chunk);
+            if ($read > MAX_BYTES) {
+                respondError(413, 'Backup too large (max ' . number_format(MAX_BYTES) . ' bytes).');
+            }
+
+            $raw .= $chunk;
+        }
+    } finally {
+        fclose($stream);
+    }
+
+    return $raw;
+}
+
 function readJsonBody(): array
 {
-    $raw = file_get_contents('php://input');
-    if ($raw === false || $raw === '') {
+    $raw = readRequestBodyRaw();
+    if ($raw === '') {
         respondError(400, 'Empty request body.');
     }
-    if (strlen($raw) > MAX_BYTES) {
-        respondError(413, 'Backup too large.');
-    }
+
     $decoded = json_decode($raw, true, 8);
     if (!is_array($decoded)) {
         respondError(400, 'Invalid JSON body.');
@@ -298,6 +340,7 @@ if ($method === 'GET' && isset($_GET['available'])) {
         'ok' => true,
         'version' => API_VERSION,
         'retentionDays' => RETENTION_DAYS,
+        'maxBytes' => MAX_BYTES,
     ]);
 }
 

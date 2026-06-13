@@ -36,18 +36,22 @@
     </div>
 
     <div
-      v-if="notesHtml || (showCollapsed && hasMoreNotes)"
+      v-if="hasNotes || (showCollapsed && hasMoreNotes)"
       class="index-card__notes"
       @click="onCardClick"
     >
       <div
-        v-if="notesHtml"
-        class="index-card__body board-markdown"
+        v-if="hasNotes"
+        class="index-card__body"
         :class="{ 'index-card__body--collapsed': showCollapsed }"
-        v-html="notesHtml"
         @click="onNotesClick"
         @change="onTaskCheckboxChange"
-      />
+      >
+        <CardMarkdownContent
+          :source="notesSource"
+          :drawings="card.drawings"
+        />
+      </div>
 
       <button
         v-if="showCollapsed && hasMoreNotes"
@@ -70,6 +74,7 @@ import { renderMarkdown } from "../utils/markdown";
 import { getAdapter, canDeploy as isDeployable } from "../adapters";
 import { formatPayloadPreview } from "../utils/payloadPreview";
 import { getCardDisplayTitle, getCardDisplayNotes } from "../utils/cardDisplay";
+import CardMarkdownContent from "./CardMarkdownContent.vue";
 import { toggleTaskListLine } from "../utils/taskList";
 import { useDragClickGuard } from "@/composables/useDragClickGuard";
 import { useHoldToPick, bindHoldHandlers } from "@/composables/useHoldToPick";
@@ -115,9 +120,7 @@ const payloadHtml = computed(() => {
 
 const notesSource = computed(() => getCardDisplayNotes(props.card));
 
-const notesHtml = computed(() =>
-  notesSource.value ? renderMarkdown(notesSource.value) : "",
-);
+const hasNotes = computed(() => Boolean(notesSource.value.trim()));
 
 const hasMoreNotes = computed(
   () => notesSource.value.length > 200 || notesSource.value.split("\n").length > 4,
@@ -407,6 +410,20 @@ const onCardClick = () => {
   flex-shrink: 0;
   cursor: pointer;
   vertical-align: top;
+}
+
+.board-markdown img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0.35rem 0;
+  border-radius: 0.25rem;
+  border: 1px solid #e5e5e5;
+}
+
+.board-markdown a {
+  color: #dc2626;
+  text-decoration: underline;
 }
 
 /* Keep vue-fluid-dnd drag ghost visible (fixed positioning needs no ancestor transform) */

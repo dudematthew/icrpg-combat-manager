@@ -20,7 +20,7 @@ describe("markdownInsert", () => {
 
   it("allows http(s) and site-relative paths", () => {
     expect(isAllowedImageUrl("https://example.com/a.png")).toBe(true);
-    expect(isAllowedImageUrl("/icrpgcm/images/foo.png")).toBe(true);
+    expect(isAllowedImageUrl("/images/foo.png")).toBe(true);
     expect(isAllowedImageUrl("javascript:alert(1)")).toBe(false);
   });
 

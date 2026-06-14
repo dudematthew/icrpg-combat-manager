@@ -40,6 +40,7 @@ declare module 'vue' {
     SettingsAppCardsEditor: typeof import('./src/components/settings/SettingsAppCardsEditor.vue')['default']
     SettingsBackupPanel: typeof import('./src/components/settings/SettingsBackupPanel.vue')['default']
     SettingsControl: typeof import('./src/components/SettingsControl.vue')['default']
+    SettingsSessionReset: typeof import('./src/components/settings/SettingsSessionReset.vue')['default']
     TargetPicker: typeof import('./src/components/TargetPicker.vue')['default']
     TheWelcome: typeof import('./src/components/TheWelcome.vue')['default']
     TimerManager: typeof import('./src/components/TimerManager.vue')['default']

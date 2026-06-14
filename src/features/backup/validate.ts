@@ -1,9 +1,19 @@
-import { BACKUP_FORMAT, BACKUP_VERSION, type BackupEnvelopeV1, type ParsedBackup } from "./types";
+import { BACKUP_FORMAT, BACKUP_VERSION, type BackupCloudMeta, type BackupEnvelopeV1, type ParsedBackup } from "./types";
 
 const SLUG_PATTERN = /^[a-z]{3,12}(-[a-z]{3,12}){3}$/;
 
 export function isValidCloudSlug(slug: string): boolean {
   return SLUG_PATTERN.test(slug.trim());
+}
+
+export type CloudParseStatus =
+  | { usable: true; slug: string; writeToken: string }
+  | { usable: false; reason: string };
+
+export interface BackupParseResult {
+  envelope: ParsedBackup;
+  cloud: CloudParseStatus;
+  warnings: string[];
 }
 
 function isObject(value: unknown): value is Record<string, unknown> {
@@ -12,6 +22,37 @@ function isObject(value: unknown): value is Record<string, unknown> {
 
 function isArray(value: unknown): value is unknown[] {
   return Array.isArray(value);
+}
+
+/** Parse cloud block without failing the whole backup. */
+export function parseCloudBlock(raw: unknown): CloudParseStatus {
+  if (raw === undefined || raw === null) {
+    return { usable: false, reason: "No cloud code or edit key in this file." };
+  }
+  if (!isObject(raw)) {
+    return { usable: false, reason: "Cloud metadata is malformed and was ignored." };
+  }
+  const slug = raw.slug;
+  const writeToken = raw.writeToken;
+  if (typeof slug !== "string" || typeof writeToken !== "string") {
+    return { usable: false, reason: "Cloud metadata is missing a code or edit key." };
+  }
+  const trimmedSlug = slug.trim();
+  if (!isValidCloudSlug(trimmedSlug)) {
+    return { usable: false, reason: `Cloud code "${slug}" is invalid and was ignored.` };
+  }
+  if (writeToken.length < 16) {
+    return { usable: false, reason: "Edit key in file is too short and was ignored." };
+  }
+  return { usable: true, slug: trimmedSlug, writeToken };
+}
+
+function attachCloudMeta(raw: Record<string, unknown>): BackupCloudMeta | undefined {
+  const cloud = parseCloudBlock(raw.cloud);
+  if (!cloud.usable) {
+    return undefined;
+  }
+  return { slug: cloud.slug, writeToken: cloud.writeToken };
 }
 
 export function parseBackupEnvelope(raw: unknown): ParsedBackup {
@@ -54,29 +95,40 @@ export function parseBackupEnvelope(raw: unknown): ParsedBackup {
     throw new Error("Backup settings data is invalid.");
   }
 
-  if (raw.cloud !== undefined) {
-    if (!isObject(raw.cloud) || typeof raw.cloud.slug !== "string" || typeof raw.cloud.writeToken !== "string") {
-      throw new Error("Backup cloud metadata is invalid.");
-    }
-    if (!isValidCloudSlug(raw.cloud.slug)) {
-      throw new Error("Backup cloud slug is invalid.");
-    }
-    if (raw.cloud.writeToken.length < 16) {
-      throw new Error("Backup cloud edit key is invalid.");
-    }
-  }
+  const cloud = attachCloudMeta(raw);
+  const envelope: BackupEnvelopeV1 = {
+    format: BACKUP_FORMAT,
+    version: BACKUP_VERSION,
+    exportedAt: raw.exportedAt,
+    data: raw.data as BackupEnvelopeV1["data"],
+    ...(cloud ? { cloud } : {}),
+  };
 
-  return raw as unknown as BackupEnvelopeV1;
+  return envelope;
 }
 
 export function parseBackupJson(text: string): ParsedBackup {
+  return parseBackupFile(text).envelope;
+}
+
+export function parseBackupFile(text: string): BackupParseResult {
   let parsed: unknown;
   try {
     parsed = JSON.parse(text);
   } catch {
     throw new Error("Could not parse backup file as JSON.");
   }
-  return parseBackupEnvelope(parsed);
+
+  const cloudBefore = isObject(parsed) ? parsed.cloud : undefined;
+  const cloudStatus = parseCloudBlock(cloudBefore);
+  const envelope = parseBackupEnvelope(parsed);
+  const warnings: string[] = [];
+
+  if (!cloudStatus.usable) {
+    warnings.push(cloudStatus.reason);
+  }
+
+  return { envelope, cloud: cloudStatus, warnings };
 }
 
 /** Strip cloud block for server storage payloads. */

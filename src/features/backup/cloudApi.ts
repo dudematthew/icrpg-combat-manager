@@ -1,9 +1,26 @@
-import { stripCloudMeta } from "./validate";
 import type { BackupEnvelopeV1 } from "./types";
+import { assertServerBackupPayload, buildServerBackupPayload } from "./serverPayload";
+import { warnBackup } from "./backupLog";
 
 const API_URL = `${import.meta.env.BASE_URL}backup-api.php`;
 
 type ApiErrorBody = { ok: false; error?: string };
+
+export class CloudBackupError extends Error {
+  readonly status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "CloudBackupError";
+    this.status = status;
+  }
+}
+
+function prepareServerBackup(envelope: BackupEnvelopeV1): BackupEnvelopeV1 {
+  const payload = buildServerBackupPayload(envelope);
+  assertServerBackupPayload(payload);
+  return payload;
+}
 
 async function parseApiResponse<T>(response: Response): Promise<T> {
   const text = await response.text();
@@ -11,12 +28,14 @@ async function parseApiResponse<T>(response: Response): Promise<T> {
   try {
     body = JSON.parse(text);
   } catch {
-    throw new Error("Server returned an invalid response.");
+    warnBackup("api-invalid-response", { status: response.status, url: response.url, text: text.slice(0, 200) });
+    throw new CloudBackupError("Server returned an invalid response.", response.status);
   }
 
   if (!response.ok || (body as { ok?: boolean }).ok === false) {
     const message = (body as ApiErrorBody).error ?? `Request failed (${response.status}).`;
-    throw new Error(message);
+    warnBackup("api-error", { status: response.status, url: response.url, error: message });
+    throw new CloudBackupError(message, response.status);
   }
 
   return body as T;
@@ -63,7 +82,7 @@ export async function createCloudBackup(
   envelope: BackupEnvelopeV1,
   maxBytes = DEFAULT_MAX_BYTES,
 ): Promise<{ slug: string; writeToken: string }> {
-  const payload = { backup: stripCloudMeta(envelope) };
+  const payload = { backup: prepareServerBackup(envelope) };
   assertCloudPayloadSize(payload, maxBytes);
   const response = await fetch(API_URL, {
     method: "POST",
@@ -94,13 +113,14 @@ export async function updateCloudBackup(
   maxBytes = DEFAULT_MAX_BYTES,
 ): Promise<void> {
   const payload = {
+    action: "update",
     slug,
     writeToken,
-    backup: stripCloudMeta(envelope),
+    backup: prepareServerBackup(envelope),
   };
   assertCloudPayloadSize(payload, maxBytes);
   const response = await fetch(API_URL, {
-    method: "PUT",
+    method: "POST",
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",

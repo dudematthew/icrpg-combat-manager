@@ -5,7 +5,7 @@
     <div class="flex flex-col gap-4 bg-neutral-50 p-4 border border-neutral-200 rounded-lg">
       <section class="flex flex-col gap-3">
         <p class="text-neutral-600 text-xs rpg-body">
-          Export or import combat, boards, notes, snapshots, and settings as one JSON file.
+          Export or restore combat, boards, notes, and settings as a JSON file on this device.
         </p>
 
         <label class="flex items-center gap-2 cursor-pointer">
@@ -17,24 +17,32 @@
           <button type="button" class="flex-1 rpg-button rpg-button-secondary text-sm" @click="exportToFile">
             Export to file
           </button>
-          <button type="button" class="flex-1 rpg-button rpg-button-secondary text-sm" @click="triggerFileImport">
-            Import from file
+          <button type="button" class="flex-1 rpg-button rpg-button-secondary text-sm" @click="triggerLocalRestore">
+            Restore from file
           </button>
           <input
             ref="fileInputRef"
             type="file"
             accept=".json,application/json"
             class="hidden"
-            @change="onFileSelected"
+            @change="onLocalRestoreFileSelected"
           />
         </div>
+
+        <p
+          v-if="localStatusMessage"
+          class="text-xs rpg-body"
+          :class="localStatusIsError ? 'text-red-600' : 'text-green-700'"
+        >
+          {{ localStatusMessage }}
+        </p>
       </section>
 
       <section v-if="cloudAvailable" class="flex flex-col gap-4 pt-4 border-neutral-200 border-t">
         <div class="flex flex-col gap-1.5">
           <p class="font-bold text-sm rpg-heading">Cloud backup</p>
           <p class="text-neutral-600 text-xs rpg-body">
-            Save on this server and restore on another device with the memorable code.
+            Save your current session to the server, or load a backup with a memorable code.
             Backups auto-delete after {{ retentionDays }} days without an update.
           </p>
         </div>
@@ -44,71 +52,75 @@
           class="backup-code-reveal bg-neutral-50 p-3 border border-neutral-200 rounded-lg"
           :class="{ 'backup-code-reveal--highlight': codeHighlight && justCreatedBackup }"
         >
-          <p class="mb-1 font-bold text-neutral-800 text-sm rpg-heading">Active backup code</p>
+          <p class="mb-1 font-bold text-neutral-800 text-sm rpg-heading">Cloud code</p>
           <p v-if="justCreatedBackup" class="mb-3 text-amber-800 text-xs rpg-body">
-            Copy or write this down now. You need it to restore on another device.
+            Copy this code now. You need it to load on another device.
           </p>
           <p v-else-if="canUpdateServer" class="mb-3 text-neutral-600 text-xs rpg-body">
-            This device can update this code. Use the button below to save your latest session.
+            Saving below overwrites the server copy at this code.
           </p>
           <p v-else class="mb-3 text-amber-800 text-xs rpg-body">
-            Read-only on this device — link your edit key to update this code instead of creating a new one.
+            Read-only on this device — export from the device that created this backup to get the edit key, or save as a new code.
           </p>
-          <div class="flex items-center gap-2 bg-white p-2 border border-neutral-200 rounded-md">
-            <code class="flex-1 font-semibold text-sm rpg-mono break-all">{{ activeCloudSlug }}</code>
-            <button type="button" class="rpg-button rpg-button-sm rpg-button-primary" @click="copyActiveSlug">
-              Copy
+          <div class="flex flex-col gap-2 bg-white p-2 border border-neutral-200 rounded-md">
+            <code class="block w-full font-semibold text-sm rpg-mono break-all leading-snug">{{ activeCloudSlug }}</code>
+            <button
+              type="button"
+              class="w-full rpg-button rpg-button-sm rpg-button-secondary"
+              @click="copyActiveSlug"
+            >
+              {{ copiedSlug ? "Copied!" : "Copy code" }}
             </button>
           </div>
         </div>
 
-        <div class="backup-actions">
+        <div class="flex flex-col gap-2">
           <button
-            v-if="canUpdateServer"
             type="button"
-            class="flex-1 rpg-button rpg-button-primary text-sm"
+            class="w-full rpg-button rpg-button-primary text-sm"
             :disabled="busy"
-            @click="updateServer"
+            @click="saveToCloud"
           >
-            Update {{ activeCloudSlug }}
+            {{ saveToCloudLabel }}
           </button>
-          <button
-            v-else
-            type="button"
-            class="flex-1 rpg-button rpg-button-primary text-sm"
-            :disabled="busy"
-            @click="saveToServer"
+          <p v-if="cloudStatusMessage" class="text-xs rpg-body" :class="cloudStatusIsError ? 'text-red-600' : 'text-green-700'">
+            {{ cloudStatusMessage }}
+          </p>
+        </div>
+
+        <div class="flex flex-col gap-2 pt-4 mt-1 border-neutral-200 border-t">
+          <p class="font-bold text-xs rpg-label">Load from cloud</p>
+          <div class="flex gap-2">
+            <input
+              v-model="importSlug"
+              type="text"
+              class="flex-1 rpg-input text-sm"
+              placeholder="juggly-apple-terminator-cosmos"
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <button
+              type="button"
+              class="rpg-button rpg-button-secondary text-sm"
+              :disabled="busy || !importSlug.trim()"
+              @click="loadFromCloud"
+            >
+              Load
+            </button>
+          </div>
+          <p
+            v-if="loadStatusMessage"
+            class="text-xs rpg-body"
+            :class="loadStatusIsError ? 'text-red-600' : 'text-green-700'"
           >
-            {{ activeCloudSlug ? "Save copy as new code" : "Create server backup" }}
-          </button>
+            {{ loadStatusMessage }}
+          </p>
         </div>
 
         <details v-if="activeCloudSlug" class="backup-switch-details text-xs rpg-body">
-          <summary class="cursor-pointer font-bold text-neutral-700">Switch or link backup code</summary>
+          <summary class="cursor-pointer font-bold text-neutral-700">Advanced</summary>
           <div class="flex flex-col gap-3 mt-3">
-            <div class="flex flex-col gap-2">
-              <label class="font-bold text-xs rpg-label">Use a different code</label>
-              <div class="flex gap-2">
-                <input
-                  v-model="importSlug"
-                  type="text"
-                  class="flex-1 rpg-input text-sm"
-                  placeholder="juggly-apple-terminator-cosmos"
-                  autocomplete="off"
-                  spellcheck="false"
-                />
-                <button
-                  type="button"
-                  class="rpg-button rpg-button-secondary text-sm"
-                  :disabled="!importSlug.trim()"
-                  @click="setActiveSlug"
-                >
-                  Set active
-                </button>
-              </div>
-            </div>
-
-            <div v-if="activeCloudSlug && !canUpdateServer" class="flex flex-col gap-2">
+            <div v-if="!canUpdateServer" class="flex flex-col gap-2">
               <label class="font-bold text-xs rpg-label">Link edit key (from exported JSON)</label>
               <div class="flex gap-2">
                 <input
@@ -137,32 +149,10 @@
               :disabled="busy"
               @click="confirmNewBackupOpen = true"
             >
-              Create new backup code
+              Save as new cloud code
             </button>
           </div>
         </details>
-
-        <div class="flex flex-col gap-2">
-          <label class="font-bold text-xs rpg-label">Import from server</label>
-          <div class="flex gap-2">
-            <input
-              v-model="importSlug"
-              type="text"
-              class="flex-1 rpg-input text-sm"
-              placeholder="juggly-apple-terminator-cosmos"
-              autocomplete="off"
-              spellcheck="false"
-            />
-            <button
-              type="button"
-              class="rpg-button rpg-button-secondary text-sm"
-              :disabled="busy || !importSlug.trim()"
-              @click="importFromServer"
-            >
-              Load &amp; replace
-            </button>
-          </div>
-        </div>
 
         <details class="backup-security-details pt-3 border-neutral-200 border-t text-neutral-600 text-xs rpg-body">
           <summary class="backup-security-summary cursor-pointer font-bold text-neutral-700">
@@ -178,14 +168,6 @@
           </ul>
         </details>
       </section>
-
-      <p
-        v-if="statusMessage"
-        class="pt-4 border-neutral-200 border-t text-xs rpg-body"
-        :class="statusIsError ? 'text-red-600' : 'text-green-700'"
-      >
-        {{ statusMessage }}
-      </p>
     </div>
 
     <div
@@ -195,14 +177,21 @@
       @mousedown.self="cancelConfirm"
     >
       <div class="bg-white shadow-xl p-6 rounded-lg w-full max-w-md" @click.stop>
-        <h3 class="mb-2 text-lg rpg-heading">Replace all data?</h3>
+        <h3 class="mb-2 text-lg rpg-heading">Restore to this device?</h3>
+        <ul v-if="pendingWarnings.length" class="mb-3 text-amber-800 text-xs rpg-body list-disc pl-5 space-y-1">
+          <li v-for="(warning, index) in pendingWarnings" :key="index">{{ warning }}</li>
+        </ul>
         <p class="mb-4 text-neutral-700 text-sm rpg-body">
-          {{ importConfirmMessage }}
+          {{ restoreConfirmMessage }}
         </p>
         <div class="flex justify-end gap-3">
           <button type="button" class="rpg-button rpg-button-secondary" @click="cancelConfirm">Cancel</button>
-          <button type="button" class="bg-danger hover:bg-red-700 border-danger text-white rpg-button" @click="confirmImport">
-            Replace all
+          <button
+            type="button"
+            class="bg-danger hover:bg-red-700 border-danger text-white rpg-button"
+            @click="confirmRestore"
+          >
+            Restore
           </button>
         </div>
       </div>
@@ -215,15 +204,14 @@
       @mousedown.self="confirmNewBackupOpen = false"
     >
       <div class="bg-white shadow-xl p-6 rounded-lg w-full max-w-md" @click.stop>
-        <h3 class="mb-2 text-lg rpg-heading">Create new backup code?</h3>
+        <h3 class="mb-2 text-lg rpg-heading">Save as new cloud code?</h3>
         <p class="mb-4 text-neutral-700 text-sm rpg-body">
-          This generates a fresh server backup and replaces the code this browser updates.
-          Your old code still exists on the server, but you will need that code to load it again.
+          Creates a fresh server backup for your current session. The old code still exists, but this device will update the new one.
         </p>
         <div class="flex justify-end gap-3">
           <button type="button" class="rpg-button rpg-button-secondary" @click="confirmNewBackupOpen = false">Cancel</button>
-          <button type="button" class="rpg-button rpg-button-primary" :disabled="busy" @click="createNewBackup">
-            Create new
+          <button type="button" class="rpg-button rpg-button-primary" :disabled="busy" @click="createNewCloudBackup">
+            Save as new
           </button>
         </div>
       </div>
@@ -235,20 +223,20 @@
 import { ref, computed, onMounted } from "vue";
 import { buildBackupEnvelope, downloadBackupEnvelope } from "@/features/backup/build";
 import { applyBackupEnvelope } from "@/features/backup/apply";
-import { parseBackupJson, isValidCloudSlug } from "@/features/backup/validate";
+import { parseBackupFile, parseBackupJson, isValidCloudSlug } from "@/features/backup/validate";
 import {
   checkCloudAvailable,
   createCloudBackup,
   fetchCloudBackup,
   updateCloudBackup,
 } from "@/features/backup/cloudApi";
+import { logBackup, warnBackup } from "@/features/backup/backupLog";
 import {
   canUpdateActiveCloudBackup,
   getCloudBackupState,
   getCloudCredentials,
   linkCloudWriteToken,
   setActiveCloudSlug,
-  setCloudCredentials,
 } from "@/features/backup/cloudCredentials";
 import type { ParsedBackup } from "@/features/backup/types";
 import { isLegacySettingsBackup } from "@/stores/settings";
@@ -258,8 +246,13 @@ const cloudAvailable = ref(false);
 const retentionDays = ref(180);
 const maxBytes = ref(2_000_000);
 const busy = ref(false);
-const statusMessage = ref("");
-const statusIsError = ref(false);
+const localStatusMessage = ref("");
+const localStatusIsError = ref(false);
+const cloudStatusMessage = ref("");
+const cloudStatusIsError = ref(false);
+const loadStatusMessage = ref("");
+const loadStatusIsError = ref(false);
+const copiedSlug = ref(false);
 const importSlug = ref("");
 const linkWriteToken = ref("");
 const codeHighlight = ref(false);
@@ -270,6 +263,7 @@ const cloudStateTick = ref(0);
 let highlightTimer: ReturnType<typeof setTimeout> | undefined;
 const pendingImport = ref<ParsedBackup | null>(null);
 const pendingImportSlug = ref("");
+const pendingWarnings = ref<string[]>([]);
 const includeOptionsInBackup = ref(false);
 
 const bumpCloudState = () => {
@@ -286,7 +280,34 @@ const activeCloudSlug = computed(() => {
   return getCloudBackupState()?.activeSlug ?? "";
 });
 
-const importConfirmMessage = computed(() => {
+const saveToCloudLabel = computed(() => {
+  if (canUpdateServer.value && activeCloudSlug.value) {
+    return "Update cloud backup";
+  }
+  return "Save new cloud backup";
+});
+
+const setLocalStatus = (message: string, isError = false) => {
+  localStatusMessage.value = message;
+  localStatusIsError.value = isError;
+  cloudStatusMessage.value = "";
+  loadStatusMessage.value = "";
+};
+
+const setCloudStatus = (message: string, isError = false) => {
+  cloudStatusMessage.value = message;
+  cloudStatusIsError.value = isError;
+  localStatusMessage.value = "";
+  loadStatusMessage.value = "";
+};
+
+const setLoadStatus = (message: string, isError = false) => {
+  loadStatusMessage.value = message;
+  loadStatusIsError.value = isError;
+  localStatusMessage.value = "";
+  cloudStatusMessage.value = "";
+};
+const restoreConfirmMessage = computed(() => {
   const settings = pendingImport.value?.data.settings;
   const hasOptions = settings
     ? isLegacySettingsBackup(settings) || Boolean(settings.options)
@@ -294,13 +315,8 @@ const importConfirmMessage = computed(() => {
   const optionsNote = hasOptions
     ? " App options in this backup will replace your current options."
     : " Your current app options will be kept.";
-  return `This replaces all monsters, timers, boards, notes, and card layout with the backup.${optionsNote} This cannot be undone.`;
+  return `This replaces all monsters, timers, boards, notes, and card layout on this device.${optionsNote} This cannot be undone.`;
 });
-
-const setStatus = (message: string, isError = false) => {
-  statusMessage.value = message;
-  statusIsError.value = isError;
-};
 
 onMounted(async () => {
   const result = await checkCloudAvailable();
@@ -314,6 +330,8 @@ onMounted(async () => {
   bumpCloudState();
 });
 
+let copiedSlugTimer: ReturnType<typeof setTimeout> | undefined;
+
 const flashCodeReveal = () => {
   codeHighlight.value = true;
   if (highlightTimer) clearTimeout(highlightTimer);
@@ -326,33 +344,37 @@ const exportToFile = () => {
   const cloud = getCloudCredentials();
   const envelope = buildBackupEnvelope(cloud ?? undefined, includeOptionsInBackup.value);
   downloadBackupEnvelope(envelope);
-  setStatus("Backup file downloaded.");
+  setLocalStatus("Backup file downloaded.");
 };
 
-const triggerFileImport = () => {
+const triggerLocalRestore = () => {
   fileInputRef.value?.click();
 };
 
-const onFileSelected = async (event: Event) => {
+const onLocalRestoreFileSelected = async (event: Event) => {
   const input = event.target as HTMLInputElement;
   const file = input.files?.[0];
   input.value = "";
   if (!file) return;
 
   try {
-    const text = await file.text();
-    pendingImport.value = parseBackupJson(text);
+    const parsed = parseBackupFile(await file.text());
+    if (parsed.warnings.length) {
+      warnBackup("backup-file-warnings", { warnings: parsed.warnings });
+    }
+    pendingImport.value = parsed.envelope;
+    pendingWarnings.value = parsed.warnings;
     pendingImportSlug.value = "";
     confirmOpen.value = true;
   } catch (error) {
-    setStatus(error instanceof Error ? error.message : "Import failed.", true);
+    setLocalStatus(error instanceof Error ? error.message : "Import failed.", true);
   }
 };
 
-const importFromServer = async () => {
+const loadFromCloud = async () => {
   const slug = importSlug.value.trim();
   if (!isValidCloudSlug(slug)) {
-    setStatus("Enter a valid backup code (four words separated by hyphens).", true);
+    setLoadStatus("Enter a valid backup code (four words separated by hyphens).", true);
     return;
   }
 
@@ -361,89 +383,85 @@ const importFromServer = async () => {
     const backup = await fetchCloudBackup(slug);
     pendingImport.value = parseBackupJson(JSON.stringify(backup));
     pendingImportSlug.value = slug;
+    pendingWarnings.value = [];
     confirmOpen.value = true;
   } catch (error) {
-    setStatus(error instanceof Error ? error.message : "Could not load backup.", true);
+    setLoadStatus(error instanceof Error ? error.message : "Could not load backup.", true);
   } finally {
     busy.value = false;
   }
 };
 
-const saveToServer = async () => {
+const saveToCloud = async () => {
   busy.value = true;
   try {
-    const envelope = buildBackupEnvelope(undefined, includeOptionsInBackup.value);
+    const creds = getCloudCredentials();
+    const envelope = buildBackupEnvelope(creds ?? undefined, includeOptionsInBackup.value);
+
+    if (creds && canUpdateActiveCloudBackup()) {
+      await updateCloudBackup(creds.slug, creds.writeToken, envelope, maxBytes.value);
+      justCreatedBackup.value = false;
+      bumpCloudState();
+      setCloudStatus("Cloud backup updated.");
+      logBackup("cloud-update-ok", { slug: creds.slug });
+      return;
+    }
+
     const { slug, writeToken } = await createCloudBackup(envelope, maxBytes.value);
-    setCloudCredentials({ slug, writeToken });
+    linkCloudWriteToken(slug, writeToken);
     importSlug.value = slug;
     justCreatedBackup.value = true;
     flashCodeReveal();
     bumpCloudState();
-    setStatus("Backup saved to server. Copy your code above before you close settings.");
+    setCloudStatus("New cloud backup saved.");
+    logBackup("cloud-create-ok", { slug });
   } catch (error) {
-    setStatus(error instanceof Error ? error.message : "Server save failed.", true);
+    setCloudStatus(error instanceof Error ? error.message : "Cloud save failed.", true);
   } finally {
     busy.value = false;
   }
 };
 
-const createNewBackup = async () => {
+const createNewCloudBackup = async () => {
   confirmNewBackupOpen.value = false;
-  await saveToServer();
-};
-
-const updateServer = async () => {
-  const creds = getCloudCredentials();
-  if (!creds) {
-    setStatus("No edit key on this device. Link your edit key or create a new backup.", true);
-    return;
-  }
-
   busy.value = true;
   try {
-    const envelope = buildBackupEnvelope(creds, includeOptionsInBackup.value);
-    await updateCloudBackup(creds.slug, creds.writeToken, envelope, maxBytes.value);
-    justCreatedBackup.value = false;
+    const envelope = buildBackupEnvelope(undefined, includeOptionsInBackup.value);
+    const { slug, writeToken } = await createCloudBackup(envelope, maxBytes.value);
+    linkCloudWriteToken(slug, writeToken);
+    importSlug.value = slug;
+    justCreatedBackup.value = true;
+    flashCodeReveal();
     bumpCloudState();
-    setStatus(`Server backup updated (${creds.slug}).`);
+    setCloudStatus("Saved as new cloud code.");
+    logBackup("cloud-create-new-ok", { slug });
   } catch (error) {
-    setStatus(error instanceof Error ? error.message : "Server update failed.", true);
+    setCloudStatus(error instanceof Error ? error.message : "Cloud save failed.", true);
   } finally {
     busy.value = false;
   }
-};
-
-const setActiveSlug = () => {
-  const slug = importSlug.value.trim();
-  if (!isValidCloudSlug(slug)) {
-    setStatus("Enter a valid backup code (four words separated by hyphens).", true);
-    return;
-  }
-  setActiveCloudSlug(slug);
-  justCreatedBackup.value = false;
-  bumpCloudState();
-  setStatus(`Active backup code set to ${slug}.`);
 };
 
 const linkEditKey = async () => {
   const slug = activeCloudSlug.value;
   const token = linkWriteToken.value.trim();
   if (!slug || token.length < 16) {
-    setStatus("Paste a valid edit key from your exported backup file.", true);
+    setCloudStatus("Paste a valid edit key from your exported backup file.", true);
     return;
   }
 
   busy.value = true;
   try {
-    const envelope = buildBackupEnvelope({ slug, writeToken: token }, includeOptionsInBackup.value);
-    await updateCloudBackup(slug, token, envelope, maxBytes.value);
+    const existing = await fetchCloudBackup(slug);
+    await updateCloudBackup(slug, token, existing, maxBytes.value);
     linkCloudWriteToken(slug, token);
     linkWriteToken.value = "";
     justCreatedBackup.value = false;
     bumpCloudState();
-    setStatus("Edit key linked. You can update this backup from now on.");
+    setCloudStatus("Edit key linked. You can update this cloud backup from now on.");
+    logBackup("cloud-link-ok", { slug });
   } catch (error) {
-    setStatus(error instanceof Error ? error.message : "Edit key is incorrect.", true);
+    setCloudStatus(error instanceof Error ? error.message : "Edit key is incorrect.", true);
   } finally {
     busy.value = false;
   }
@@ -453,9 +471,13 @@ const copyActiveSlug = async () => {
   if (!activeCloudSlug.value) return;
   try {
     await navigator.clipboard.writeText(activeCloudSlug.value);
-    setStatus("Backup code copied to clipboard.");
+    copiedSlug.value = true;
+    if (copiedSlugTimer) clearTimeout(copiedSlugTimer);
+    copiedSlugTimer = setTimeout(() => {
+      copiedSlug.value = false;
+    }, 2000);
   } catch {
-    setStatus("Could not copy to clipboard.", true);
+    setCloudStatus("Could not copy to clipboard.", true);
   }
 };
 
@@ -463,9 +485,10 @@ const cancelConfirm = () => {
   confirmOpen.value = false;
   pendingImport.value = null;
   pendingImportSlug.value = "";
+  pendingWarnings.value = [];
 };
 
-const confirmImport = () => {
+const confirmRestore = () => {
   if (!pendingImport.value) return;
   try {
     applyBackupEnvelope(pendingImport.value);
@@ -478,13 +501,13 @@ const confirmImport = () => {
       justCreatedBackup.value = false;
     }
     bumpCloudState();
-    setStatus("Backup restored.");
+    const note = pendingWarnings.value.length ? ` (${pendingWarnings.value[0]})` : "";
+    setLocalStatus(`Restored to this device.${note}`);
+    logBackup("restore-local-ok", { warnings: pendingWarnings.value });
   } catch (error) {
-    setStatus(error instanceof Error ? error.message : "Restore failed.", true);
+    setLocalStatus(error instanceof Error ? error.message : "Restore failed.", true);
   } finally {
-    confirmOpen.value = false;
-    pendingImport.value = null;
-    pendingImportSlug.value = "";
+    cancelConfirm();
   }
 };
 </script>

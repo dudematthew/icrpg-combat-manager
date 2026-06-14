@@ -8,6 +8,7 @@
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
     "test:unit": "vitest",
+    "test:backup-api": "php tests/backup-api/run.php",
     "build-only": "node scripts/bump-sw-cache.mjs && vite build",
     "generate-pwa-icons": "node scripts/generate-pwa-icons.mjs",
     "bump-sw-cache": "node scripts/bump-sw-cache.mjs",

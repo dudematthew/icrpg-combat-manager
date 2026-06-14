@@ -29,6 +29,14 @@ jobs:
             - name: Run tests
               run: npm run test:unit
 
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: "8.2"
+
+            - name: Run backup API tests
+              run: npm run test:backup-api
+
             - name: Build project
               run: npm run build
 

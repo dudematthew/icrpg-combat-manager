@@ -15,20 +15,20 @@ A comprehensive combat management tool for Index Card RPG (ICRPG) built with Vue
 
 ## Deployment URL Configuration
 
-This project is configured with a custom base URL for deployment. The current configuration in `vite.config.ts` sets:
+Production: **https://icrpgcm.dudematthew.smallhost.pl/** — deploy `dist/` to the subdomain document root.
 
 ```typescript
-base: "/icrpgcm/"
+base: "/"
 ```
 
 ### For Different Deployment Scenarios:
 
-#### Root Domain Deployment
-If deploying to the root of a domain (e.g., `https://yourdomain.com/`):
+#### Subdomain or Root Domain (current)
+If deploying to a vhost root (e.g., `https://icrpgcm.example.com/`):
 ```typescript
 // vite.config.ts
 export default defineConfig({
-  base: "/", // or remove the base property entirely
+  base: "/",
   // ... other config
 })
 ```
@@ -42,6 +42,7 @@ export default defineConfig({
   // ... other config
 })
 ```
+Also update `public/.htaccess` `RewriteBase` and SPA fallback paths to match.
 
 #### GitHub Pages Deployment
 If deploying to GitHub Pages (e.g., `https://username.github.io/repository-name/`):
@@ -54,9 +55,9 @@ export default defineConfig({
 ```
 
 ### Important Notes:
-- Always include trailing slash in the base path
+- Include a trailing slash in subdirectory base paths only (`/yourapp/`, not root `/`)
 - After changing the base URL, run `npm run build` to rebuild with correct asset paths
-- The `.htaccess` file in the `public` folder is configured for subdirectory deployment and includes proper MIME types and SPA routing
+- The `.htaccess` file in `public/` sets MIME types, HTTPS redirect, and SPA routing for root deployment
 
 ## Tech Stack
 
@@ -97,7 +98,7 @@ Start the development server with hot-reload:
 npm run dev
 ```
 
-The app will be available at `http://localhost:5173/icrpgcm/` (or the next available port).
+The app will be available at `http://localhost:5173/` (or the next available port).
 
 ### Production Build
 

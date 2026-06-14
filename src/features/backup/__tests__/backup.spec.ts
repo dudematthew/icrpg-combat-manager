@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { parseBackupEnvelope, parseBackupJson, isValidCloudSlug, stripCloudMeta } from "../validate";
+import { parseBackupEnvelope, parseBackupJson, parseBackupFile, isValidCloudSlug, stripCloudMeta } from "../validate";
 import { BACKUP_FORMAT, BACKUP_VERSION, type BackupEnvelopeV1 } from "../types";
 
 const fixtureEnvelope = (): BackupEnvelopeV1 => ({
@@ -136,5 +136,37 @@ describe("backup validate", () => {
       cloud: { slug: "juggly-apple-terminator-cosmos", writeToken: "a".repeat(32) },
     });
     expect(stripped.cloud).toBeUndefined();
+  });
+
+  it("ignores corrupt cloud metadata but still parses backup data", () => {
+    const parsed = parseBackupEnvelope({
+      ...fixtureEnvelope(),
+      cloud: { slug: "not-a-valid-code", writeToken: "short" },
+    });
+    expect(parsed.cloud).toBeUndefined();
+    expect(parsed.data.boards.activeBoardId).toBe("b1");
+  });
+
+  it("reports cloud warnings via parseBackupFile", () => {
+    const result = parseBackupFile(
+      JSON.stringify({
+        ...fixtureEnvelope(),
+        cloud: { slug: "bad", writeToken: "x" },
+      }),
+    );
+    expect(result.envelope.cloud).toBeUndefined();
+    expect(result.cloud.usable).toBe(false);
+    expect(result.warnings.length).toBeGreaterThan(0);
+  });
+
+  it("keeps usable cloud metadata when valid", () => {
+    const result = parseBackupFile(
+      JSON.stringify({
+        ...fixtureEnvelope(),
+        cloud: { slug: "juggly-apple-terminator-cosmos", writeToken: "a".repeat(32) },
+      }),
+    );
+    expect(result.cloud.usable).toBe(true);
+    expect(result.envelope.cloud?.slug).toBe("juggly-apple-terminator-cosmos");
   });
 });

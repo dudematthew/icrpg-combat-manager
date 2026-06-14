@@ -1,0 +1,215 @@
+{
+  "format": "icrpg-combat-manager-backup",
+  "version": 1,
+  "exportedAt": "2026-06-13T15:09:55.307Z",
+  "data": {
+    "combat": {
+      "sceneTargetNumber": 12,
+      "monsters": [],
+      "timers": [],
+      "currentTurn": 1,
+      "currentRound": 1
+    },
+    "boards": {
+      "boards": [
+        {
+          "id": "5c91b776-80ad-4914-ad89-cd8ac57b11b2",
+          "name": "Session",
+          "createdAt": "2026-06-12T21:58:29.757Z",
+          "cardIds": []
+        },
+        {
+          "id": "0e5b57bb-506a-47a1-ae6b-430eff3c9fb1",
+          "name": "Wielka Pogoń",
+          "createdAt": "2026-06-12T22:03:38.943Z",
+          "cardIds": [
+            "6351d464-477a-44ea-b381-871d154060cd",
+            "0ead9233-132d-4045-b7ce-6f457ad7df7f",
+            "c66d1d85-1fd9-41c6-ad39-85ad5e99f15f",
+            "8be7d505-edf2-4e30-a272-156e3fc6c2bf",
+            "342545fa-3bfe-4104-aedd-2b634a5b7cd4",
+            "ab0eb9ad-3cf9-4d9a-b884-d226311325ca",
+            "5641d0cb-57a1-4ce9-8595-584a7c49c48f",
+            "0f6b9964-aef4-4d64-981c-acfa0beae46d",
+            "b169a160-1618-4ff2-8aca-f7adb6bf78a4"
+          ]
+        }
+      ],
+      "cards": {
+        "6351d464-477a-44ea-b381-871d154060cd": {
+          "id": "6351d464-477a-44ea-b381-871d154060cd",
+          "boardId": "0e5b57bb-506a-47a1-ae6b-430eff3c9fb1",
+          "kind": "text",
+          "color": "Purple",
+          "title": "Główny Koncept",
+          "body": "Bohaterowie muszą przechwycić Żelazny Pocisk - mający setki metrów opancerzony pociąg który porusza się po długich torach. Został ukradziony przez rebeliantów Królestwa, którzy zamierzają wykorzystać jego artylerię by zniszczyć stolicę. ",
+          "collapsed": false,
+          "createdAt": "2026-06-12T22:03:41.228Z",
+          "updatedAt": "2026-06-13T14:54:37.215Z",
+          "drawings": {}
+        },
+        "0ead9233-132d-4045-b7ce-6f457ad7df7f": {
+          "id": "0ead9233-132d-4045-b7ce-6f457ad7df7f",
+          "boardId": "0e5b57bb-506a-47a1-ae6b-430eff3c9fb1",
+          "kind": "text",
+          "color": "Yellow",
+          "title": "5 Room Dungeon",
+          "body": "1. Alarm\n2. Srebrna Igła\n3. Pościg\n4. Lokomotywa\n5. Działo runiczne",
+          "collapsed": false,
+          "createdAt": "2026-06-12T22:41:35.302Z",
+          "updatedAt": "2026-06-13T14:55:02.462Z",
+          "drawings": {}
+        },
+        "c66d1d85-1fd9-41c6-ad39-85ad5e99f15f": {
+          "id": "c66d1d85-1fd9-41c6-ad39-85ad5e99f15f",
+          "boardId": "0e5b57bb-506a-47a1-ae6b-430eff3c9fb1",
+          "kind": "text",
+          "color": "Grey",
+          "title": "Żelazny Pocisk",
+          "body": "Działo runiczne na jego przodzie jest główną bronią która wyrządzi najwięcej krzywdy. To największa maszyna lądowa w Królestwie Alfheim. Gdy jedzie trzęsie się ziemia. \n\nDziało runiczne wymaga jednak amunicji, stąd rebelianci będą musieli zachaczyć o przystanek, gdzie trzymane są specjalne kule. Jeśli bohaterowie nie dotrą na czas by ochronić amunicję przed zabraniem, rebelianci udadzą się dalej by ostrzelać stolicę. ",
+          "collapsed": true,
+          "createdAt": "2026-06-13T14:44:06.016Z",
+          "updatedAt": "2026-06-13T14:45:50.374Z",
+          "drawings": {}
+        },
+        "8be7d505-edf2-4e30-a272-156e3fc6c2bf": {
+          "id": "8be7d505-edf2-4e30-a272-156e3fc6c2bf",
+          "boardId": "0e5b57bb-506a-47a1-ae6b-430eff3c9fb1",
+          "kind": "text",
+          "color": "Orange",
+          "title": "Rebelianci",
+          "body": "Wieki ucisku ze strony Królestwa jest spowodowane trwającą wojną z pozostałymi rasami. Nie zmienia to jednak faktu, że uciśniona ludność domaga się lepszych warunków. Rebelia powstała z konieczności i jest dobrze zaopatrzona bo wielu ludzi nie widzi konieczności zaciskania pasa w tych trudnych czasach i z tęsknotą wypatrują lepszej przyszłości mając nadzieję że zmiana władzy pomoże.",
+          "collapsed": true,
+          "createdAt": "2026-06-13T14:46:30.607Z",
+          "updatedAt": "2026-06-13T15:05:17.785Z",
+          "drawings": {}
+        },
+        "ab0eb9ad-3cf9-4d9a-b884-d226311325ca": {
+          "id": "ab0eb9ad-3cf9-4d9a-b884-d226311325ca",
+          "boardId": "0e5b57bb-506a-47a1-ae6b-430eff3c9fb1",
+          "kind": "text",
+          "color": "Red",
+          "title": "Calamyr \"Rosomak\"",
+          "body": "Były oficer królewskich kolei wojennych, odznaczony za zasługi podczas wojny. Pięć lat temu zdezerterował wraz z częścią podkomendnych. \n\nicrpg-draw:f80dbdbe-72ce-430a-9c7e-0c1d7596c524",
+          "collapsed": true,
+          "createdAt": "2026-06-13T14:47:15.202Z",
+          "updatedAt": "2026-06-13T14:51:40.558Z"
+        },
+        "5641d0cb-57a1-4ce9-8595-584a7c49c48f": {
+          "id": "5641d0cb-57a1-4ce9-8595-584a7c49c48f",
+          "boardId": "0e5b57bb-506a-47a1-ae6b-430eff3c9fb1",
+          "kind": "text",
+          "color": "Yellow",
+          "title": "Stolica",
+          "body": "Wysokie na kilkadziesiąt metrów mury otaczają wielopierścieniową górę której haczykowaty szczyt jest oblepiony królewskim pałacem. \nWojna w królestwie jest już tak naprawdę przegrana. Król zniknął i nikt nie wie gdzie jest. Szlachta aktualnie rozbiera ostatki skarbu królestwa i przygotowuje się do ucieczki. Ten tonący okręt ma jednak jeszcze swoich zwolenników, którzy wierzą w Alfheim. Patrioci czy głupcy?\n",
+          "collapsed": true,
+          "createdAt": "2026-06-13T14:53:42.629Z",
+          "updatedAt": "2026-06-13T14:53:52.939Z",
+          "drawings": {}
+        },
+        "0f6b9964-aef4-4d64-981c-acfa0beae46d": {
+          "id": "0f6b9964-aef4-4d64-981c-acfa0beae46d",
+          "boardId": "0e5b57bb-506a-47a1-ae6b-430eff3c9fb1",
+          "kind": "text",
+          "color": "Blue",
+          "title": "Szkatuła",
+          "body": "Wewnętrzna i półniezależna komórka królestwa zajmująca się sprawami, które przelatują zwykłemu żołnierzowi między uszami. Jedna z jej mniejszych jednostek otrzymała na tyle świeży cynk że wyrusza zapobiec katastrofie - jednak bez większego przygotowania.\n\nWstępne raporty ustaliły:\n- Żelazny pocisk został przejęty\n- Nie jest to dezinformacja\n- Za akcją stoi dobrze zorganizowana siatka rebeliantów\n- W ataku uczestniczyli byli wojskowi\n- Pociąg potrzebuje amunicji",
+          "collapsed": true,
+          "createdAt": "2026-06-13T14:54:16.504Z",
+          "updatedAt": "2026-06-13T15:06:17.082Z",
+          "drawings": {}
+        },
+        "b169a160-1618-4ff2-8aca-f7adb6bf78a4": {
+          "id": "b169a160-1618-4ff2-8aca-f7adb6bf78a4",
+          "boardId": "0e5b57bb-506a-47a1-ae6b-430eff3c9fb1",
+          "kind": "text",
+          "color": "Yellow",
+          "title": "Bohaterowie",
+          "body": "Bohaterowie zostali wysłani ponieważ znajdowali się najbliżej. Zdążyli do tej pory:\n- Zdobyć konie\n- Przejąć mapę linii kolejowej\n- Wysłać gołębie do najbliższych garnizonów\n\nNie mają armii, posiłków ani czasu. Po prostu są pierwszymi którzy się zorientowali w zagrożeniu.",
+          "collapsed": true,
+          "createdAt": "2026-06-13T14:54:44.725Z",
+          "updatedAt": "2026-06-13T14:54:52.723Z",
+          "drawings": {}
+        },
+        "342545fa-3bfe-4104-aedd-2b634a5b7cd4": {
+          "id": "342545fa-3bfe-4104-aedd-2b634a5b7cd4",
+          "boardId": "0e5b57bb-506a-47a1-ae6b-430eff3c9fb1",
+          "kind": "monster",
+          "color": "Grey",
+          "title": "Gargulec",
+          "body": "Jedną z broni rebeliantów są latające golemy różnego rodzaju zwane gargulcami. Chodzą pogłoski że tworzone są przez czarnoksiężnika który sprzyja rebelii. ",
+          "collapsed": true,
+          "createdAt": "2026-06-13T15:04:37.818Z",
+          "updatedAt": "2026-06-13T15:05:29.563Z",
+          "payload": {
+            "v": 1,
+            "kind": "monster",
+            "data": {
+              "color": "Grey",
+              "tier": "II",
+              "heartsMax": 1,
+              "statsBonus": 2,
+              "effortBonus": 2,
+              "actions": 1,
+              "conditions": [],
+              "notes": "",
+              "name": "Gargulec",
+              "manualStatsBonus": 2,
+              "manualEffortBonus": 2,
+              "manualActions": 1,
+              "manualHearts": 1
+            }
+          },
+          "drawings": {}
+        }
+      },
+      "activeBoardId": "0e5b57bb-506a-47a1-ae6b-430eff3c9fb1"
+    },
+    "settings": {
+      "appCards": [
+        {
+          "id": "timers",
+          "name": "Timers",
+          "description": "Manage round and turn-based timers",
+          "enabled": true,
+          "column": "combat"
+        },
+        {
+          "id": "battlefield",
+          "name": "Battlefield",
+          "description": "Combat management and monster tracking",
+          "enabled": true,
+          "column": "combat"
+        },
+        {
+          "id": "target",
+          "name": "Checks",
+          "description": "Player checks and effort rolls against a chosen TN",
+          "enabled": true,
+          "column": "combat"
+        },
+        {
+          "id": "monster-creator",
+          "name": "Monster Creator",
+          "description": "Quick monster creation and management",
+          "enabled": true,
+          "column": "combat"
+        },
+        {
+          "id": "inspirations",
+          "name": "Inspirations",
+          "description": "NPC and session inspiration rolls",
+          "enabled": true,
+          "column": "combat"
+        },
+        {
+          "id": "notes",
+          "name": "Boards",
+          "description": "ICRPG index-card boards and session stash",
+          "enabled": true,
+          "column": "boards"
+        }
+      ]
+    }
+  }
+}

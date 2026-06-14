@@ -1,7 +1,7 @@
 import { useCombatStore } from "@/stores/combat";
 import { useBoardsStore } from "@/features/boards/stores/boards";
 import { useSettingsStore } from "@/stores/settings";
-import { setCloudCredentials } from "./cloudCredentials";
+import { setCloudCredentials, clearCloudWriteToken } from "./cloudCredentials";
 import type { ParsedBackup } from "./types";
 
 export function applyBackupEnvelope(envelope: ParsedBackup): void {
@@ -15,5 +15,7 @@ export function applyBackupEnvelope(envelope: ParsedBackup): void {
 
   if (envelope.cloud) {
     setCloudCredentials(envelope.cloud);
+  } else {
+    clearCloudWriteToken();
   }
 }

@@ -295,9 +295,11 @@
               </div>
             </div>
 
-            <SettingsBackupPanel v-if="showSettingsModal" />
+            <SettingsBackupPanel v-if="showSettingsModal" :key="settingsSessionVersion" />
 
             <SettingsAppCardsEditor v-if="showSettingsModal" />
+
+            <SettingsSessionReset v-if="showSettingsModal" @reset="onAppSessionReset" />
 
           </div>
 
@@ -355,6 +357,7 @@ import AppColumns from '@/components/layout/AppColumns.vue'
 import ColumnAppCards from '@/components/layout/ColumnAppCards.vue'
 import SettingsBackupPanel from '@/components/settings/SettingsBackupPanel.vue'
 import SettingsAppCardsEditor from '@/components/settings/SettingsAppCardsEditor.vue'
+import SettingsSessionReset from '@/components/settings/SettingsSessionReset.vue'
 import GitHubVersion from '@/components/GitHubVersion.vue'
 import CreditsCard from '@/components/CreditsCard.vue'
 
@@ -364,6 +367,7 @@ const { activeColumn, goCombat } = useActiveColumn()
 
 const showClearDialog = ref(false)
 const showSettingsModal = ref(false)
+const settingsSessionVersion = ref(0)
 const combatColumnCardsRef = ref<InstanceType<typeof ColumnAppCards> | null>(null)
 const boardsColumnCardsRef = ref<InstanceType<typeof ColumnAppCards> | null>(null)
 
@@ -416,6 +420,12 @@ const scrollToCreator = () => {
 }
 
 const resetRoundsAndTurns = () => combatStore.resetRoundsAndTurns()
+
+const onAppSessionReset = () => {
+  settingsSessionVersion.value += 1
+  goCombat()
+  showSettingsModal.value = false
+}
 
 const handleAddCard = () => {
   const panel = boardsColumnCardsRef.value?.boardPanelRef ?? combatColumnCardsRef.value?.boardPanelRef

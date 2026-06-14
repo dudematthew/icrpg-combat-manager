@@ -70,7 +70,10 @@
 
     <InspirationPanel v-if="card.id === 'inspirations'" />
 
-    <BoardPanel v-if="card.id === 'notes'" ref="boardPanelRef" />
+    <BoardPanel
+      v-if="card.id === 'notes'"
+      :ref="(el) => setBoardPanelRef(el as InstanceType<typeof BoardPanel> | null)"
+    />
   </template>
 </template>
 
@@ -109,7 +112,15 @@ const monsterCardRefs = ref<Array<{ forceReset: () => void } | null>>([]);
 const combatMechanicsRef = ref();
 const boardPanelRef = ref<InstanceType<typeof BoardPanel> | null>(null);
 
-defineExpose({ monsterCardRefs, combatMechanicsRef, boardPanelRef });
+const setBoardPanelRef = (el: InstanceType<typeof BoardPanel> | null) => {
+  boardPanelRef.value = el;
+};
+
+const addTextCard = () => {
+  boardPanelRef.value?.addTextCard();
+};
+
+defineExpose({ monsterCardRefs, combatMechanicsRef, boardPanelRef, addTextCard });
 </script>
 
 <style scoped>

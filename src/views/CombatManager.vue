@@ -428,10 +428,9 @@ const onAppSessionReset = () => {
 }
 
 const handleAddCard = () => {
-  const panel = boardsColumnCardsRef.value?.boardPanelRef ?? combatColumnCardsRef.value?.boardPanelRef
-  if (panel && typeof panel.addTextCard === 'function') {
-    panel.addTextCard()
-  }
+  const primary = activeColumn.value === 1 ? boardsColumnCardsRef.value : combatColumnCardsRef.value
+  const secondary = activeColumn.value === 1 ? combatColumnCardsRef.value : boardsColumnCardsRef.value
+  primary?.addTextCard?.() ?? secondary?.addTextCard?.()
 }
 
 const isTypingTarget = (target: EventTarget | null): boolean => {

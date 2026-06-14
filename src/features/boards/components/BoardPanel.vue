@@ -31,7 +31,7 @@
       </button>
     </div>
     <p v-if="boardsStore.cardsForActiveBoard.length > 0" class="board-panel__hint rpg-body">
-      Ctrl+N new card · sticky + Card at bottom of long lists
+      Ctrl+N new card<span v-if="!showBoardBar"> · sticky + Card at bottom of long lists</span>
     </p>
 
     <EmptySectionState
@@ -55,7 +55,7 @@
         @toggle-expand="boardsStore.toggleCardCollapsed"
         @update-body="(body) => boardsStore.updateCard(card.id, { body })"
       />
-      <div v-if="cardListRef.length > 0" class="board-panel__sticky-add">
+      <div v-if="cardListRef.length > 0 && !showBoardBar" class="board-panel__sticky-add">
         <button type="button" class="board-panel__sticky-btn rpg-button rpg-button-primary" @click="addTextCard">
           + Card
         </button>
@@ -106,6 +106,7 @@ import EmptySectionState from "@/components/EmptySectionState.vue";
 import ConfirmModal from "@/components/ConfirmModal.vue";
 import PromptModal from "@/components/PromptModal.vue";
 import { useDragClickGuard } from "@/composables/useDragClickGuard";
+import { useActiveColumn } from "@/composables/useActiveColumn";
 import { useBoardsStore } from "../stores/boards";
 import { useSettingsStore } from "@/stores/settings";
 import { useInfoMonitorStore } from "@/stores/infoMonitor";
@@ -119,7 +120,12 @@ import type { IndexCard } from "../types";
 const boardsStore = useBoardsStore();
 const settingsStore = useSettingsStore();
 const infoMonitor = useInfoMonitorStore();
+const { activeColumn } = useActiveColumn();
 const { shouldBlockClick, onDragInteraction } = useDragClickGuard();
+
+const showBoardBar = computed(
+  () => settingsStore.showSectionNav && settingsStore.showBoardsColumn && activeColumn.value === 1,
+);
 
 const editorOpen = ref(false);
 const editingCardId = ref<string | null>(null);

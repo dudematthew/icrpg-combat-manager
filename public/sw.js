@@ -1,4 +1,4 @@
-const CACHE = "icrpgcm-shell-v27";
+const CACHE = "icrpgcm-shell-v28";
 const SHELL = ["./", "./index.html"];
 
 self.addEventListener("install", (event) => {

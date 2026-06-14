@@ -70,27 +70,37 @@ const fetchVersionInfo = async () => {
     loading.value = true
     error.value = null
 
-    // Fetch recent commits (this also gives us commit count)
-    const commitsResponse = await fetch(
-      `${GITHUB_API_BASE}/repos/${REPO_OWNER}/${REPO_NAME}/commits?per_page=100`
-    )
-    
-    if (!commitsResponse.ok) {
-      throw new Error(`GitHub API error: ${commitsResponse.status}`)
+    const perPage = 100
+    let page = 1
+    let totalCount = 0
+    let firstPage: GitHubCommit[] = []
+
+    while (true) {
+      const commitsResponse = await fetch(
+        `${GITHUB_API_BASE}/repos/${REPO_OWNER}/${REPO_NAME}/commits?per_page=${perPage}&page=${page}`,
+        { headers: { Accept: 'application/vnd.github+json' } },
+      )
+
+      if (!commitsResponse.ok) {
+        throw new Error(`GitHub API error: ${commitsResponse.status}`)
+      }
+
+      const batch: GitHubCommit[] = await commitsResponse.json()
+      if (batch.length === 0) break
+
+      if (page === 1) firstPage = batch
+      totalCount += batch.length
+
+      if (batch.length < perPage) break
+      page += 1
     }
-    
-    const commits: GitHubCommit[] = await commitsResponse.json()
-    recentCommits.value = commits
-    
-    // Set commit count (GitHub API only returns up to 100 commits per page)
-    // For accurate total count, we'd need to paginate, but for a small project this is fine
-    commitCount.value = commits.length
-    
+
+    recentCommits.value = firstPage
+    commitCount.value = totalCount
   } catch (err) {
     console.warn('Failed to fetch GitHub version info:', err)
     error.value = err instanceof Error ? err.message : 'Unknown error'
-    // Fallback to a static version if API fails
-    commitCount.value = 6 // Based on what we saw in git log
+    commitCount.value = null
   } finally {
     loading.value = false
   }
